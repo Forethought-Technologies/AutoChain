@@ -5,11 +5,12 @@ from typing import List, Tuple
 
 import pandas as pd
 
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage, Generation
 from minichain.agent.support_agent import SupportAgent
 from minichain.chain.chain import DefaultChain
 from minichain.memory.buffer_memory import BufferMemory
+from minichain.memory.message import HumanMessage
+from minichain.models.base import Generation
+from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
 
 
@@ -106,16 +107,14 @@ class WorkflowTester:
 
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:
         messages = [
-            [
-                HumanMessage(content=f"""The most recent reply from assistant
+            HumanMessage(content=f"""The most recent reply from assistant
 assistant: "{last_utterance}"
 Is assistant asking a clarifying question or getting additional information from user? answer with 
 yes or no"""),
-            ]
         ]
-        output: Generation = self.llm.generate(messages=messages).generations[0][0]
+        output: Generation = self.llm.generate(messages=messages).generations[0]
 
-        if 'yes' in output.text.lower():
+        if 'yes' in output.message.content.lower():
             # this is a clarifying question
             return False
         else:
