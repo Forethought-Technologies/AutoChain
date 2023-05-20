@@ -1,5 +1,5 @@
-from langchain.agents import Tool, load_tools
-from tests.workflow_tests.base_test import TestCase, WorkflowTester, BaseTest
+from minichain.tools.base import Tool
+from minichain.workflow_tests.base_test import BaseTest, TestCase, WorkflowTester
 
 
 class TestOrderStatusAndRefundRequest(BaseTest):

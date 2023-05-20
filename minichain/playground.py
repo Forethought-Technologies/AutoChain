@@ -1,6 +1,6 @@
 
-from minichain.agent.support_agent import SupportAgent
-from minichain.chain.chain import DefaultChain
+from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
@@ -54,10 +54,10 @@ tools = [
 ]
 
 llm = ChatOpenAI(temperature=0)
-agent = SupportAgent.from_llm_and_tools(llm, tools, policy_desp=policy)
+agent = ConversationalAgent.from_llm_and_tools(llm, tools, policy_desp=policy)
 memory = BufferMemory()
 
-chain = DefaultChain(tools=tools, agent=agent, memory=memory)
+chain = Chain(tools=tools, agent=agent, memory=memory)
 response = chain.run("where is my order", return_only_outputs=True)
 while True:
     print(f">>> Assistant: {response['output']}")

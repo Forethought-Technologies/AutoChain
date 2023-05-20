@@ -2,15 +2,13 @@ import json
 from abc import abstractmethod
 from typing import Union
 
-from pydantic import Extra
-
 from minichain.agent.prompt import SBS_FORMAT_INSTRUCTIONS
 from minichain.errors import OutputParserException
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.tools import HandOffToAgent
 
 
-class AgentOutputParser():
+class AgentOutputParser:
     @abstractmethod
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         """Parse text into agent action/finish."""
@@ -25,11 +23,17 @@ class ConvoJSONOutputParser(AgentOutputParser):
         try:
             clean_text = text[text.index("{"):text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
-            # print(f"Response: {response}\n")
-        except Exception as e:
+        except Exception:
             raise OutputParserException(f"Not a valid json: `{text}`")
 
         handoff_action = HandOffToAgent()
+        action_name = response.get("tool", {}).get("name")
+        action_args = response.get("tool", {}).get("args")
+        if action_name == handoff_action.name:
+            return AgentAction(tool=handoff_action.name, tool_input={},
+                               log="Needs to hand off",
+                               response=response.get("response", ""))
+
         if ("no" in response.get("thoughts", {}).get("need_use_tool").lower().strip()
             or "yes" not in response.get("validation", {}).get("arg_valid").lower()
         ):
@@ -39,13 +43,11 @@ class ConvoJSONOutputParser(AgentOutputParser):
                     "output": response.get("response"),
                 }, log=output_message)
             else:
-                return AgentAction(tool=handoff_action.name, tool_input={}, log="Empty model "
-                                                                                "response",
+                return AgentAction(tool=handoff_action.name,
+                                   tool_input={}, log="Empty model response",
                                    response=output_message)
 
-        action_name = response.get("tool", {}).get("name")
-        action_args = response.get("tool", {}).get("args")
         return AgentAction(tool=action_name, tool_input=action_args,
                            log=f"Previous plan: {response.get('thoughts', {}).get('plan')}\n"
-                           f"Previous tool used: {response.get('tool', {}).get('name')}\n",
-                           response=response.get("response"))
+                               f"Previous tool used: {response.get('tool', {}).get('name')}\n",
+                           response=response.get("response", ""))

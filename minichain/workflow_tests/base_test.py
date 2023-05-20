@@ -5,10 +5,10 @@ from typing import List, Tuple
 
 import pandas as pd
 
-from minichain.agent.support_agent import SupportAgent
-from minichain.chain.chain import DefaultChain
+from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
-from minichain.memory.message import HumanMessage
+from minichain.agent.message import HumanMessage
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
@@ -36,7 +36,7 @@ class BaseTest(ABC):
     @property
     def agent_cls(self):
         """Specify agent used for this workflow"""
-        return SupportAgent
+        return ConversationalAgent
 
     @property
     @abstractmethod
@@ -63,7 +63,7 @@ class WorkflowTester:
         conversation_end = False
         max_turn = 8
         while not conversation_end and len(conversation_history) < max_turn:
-            response = self.agent_chain.run(user_query)
+            response = self.agent_chain.run(user_query)['output']
             conversation_history.append(("assistant", response))
             print(f">> Assistant: {response}")
 
@@ -82,16 +82,16 @@ class WorkflowTester:
         agent = test.agent_cls.from_llm_and_tools(
             self.llm, test.tools, policy_desp=test.policy
         )
-        self.agent_chain = DefaultChain(tools=test.tools, agent=agent, memory=self.memory)
+        self.agent_chain = Chain(tools=test.tools, agent=agent, memory=self.memory)
 
         test_results = []
         for i, test_case in enumerate(test.test_cases):
-            conversation_history, is_agent_help = self.test_each_case(test_case)
+            conversation_history, is_agent_helpful = self.test_each_case(test_case)
             test_results.append({
                 "test_name": test_case.test_name,
                 "conversation_history": [f"{user_type}: {utterance}" for user_type, utterance, in
                                          conversation_history],
-                "is_agent_helpful": is_agent_help,
+                "is_agent_helpful": is_agent_helpful,
                 "num_turns": len(conversation_history),
                 "expected_outcome": test_case.expected_outcome
             })
@@ -124,14 +124,14 @@ yes or no"""),
     def get_next_user_query(self,
                             conversation_history: List[Tuple[str, str]],
                             user_context: str) -> str:
-        messages = [[]]
+        messages = []
         conversation = ""
         for user_type, utterance in conversation_history:
             conversation += f"{user_type}: {utterance}\n"
 
-        messages[0].append(
+        messages.append(
             HumanMessage(content=f"""You are a customer with access to the following context information about yourself. 
-Please response assistant question and try to resolve your problems in english sentence. 
+Please respond to assistant question and try to resolve your problems in english sentence. 
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
 {user_context}
@@ -139,28 +139,28 @@ Context:
 Previous conversation:
 {conversation}"""))
 
-        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0][0]
-        return output.text
+        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0]
+        return output.message.content
 
     def determine_if_agent_solved_problem(self,
                                           conversation_history: List[Tuple[str, str]],
                                           expected_outcome: str) -> (bool, str):
-        messages = [[]]
+        messages = []
         conversation = ""
         for user_type, utterance in conversation_history:
             conversation += f"{user_type}: {utterance}\n"
 
-        messages[0].append(
+        messages.append(
             HumanMessage(content=f"""Previous conversation:
 {conversation}
 
 Expected outcome is {expected_outcome}
 Does conversation reach the expected outcome for user? Answer with yes or no with explanation"""))
 
-        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0][0]
-        if 'yes' in output.text.lower():
+        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0]
+        if 'yes' in output.message.content.lower():
             # Agent solved the problem
-            return True, output.text
+            return True, output.message.content
         else:
             # did not solve the problem
-            return False, output.text
+            return False, output.message.content

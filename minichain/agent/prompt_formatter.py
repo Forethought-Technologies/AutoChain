@@ -3,7 +3,7 @@ from typing import Any, List
 
 from pydantic import BaseModel, Extra
 
-from minichain.memory.message import BaseMessage, HumanMessage
+from minichain.agent.message import BaseMessage, HumanMessage
 
 
 class JSONPromptTemplate(BaseModel):

@@ -13,8 +13,8 @@ from tenacity import (
     wait_exponential,
 )
 
-from minichain.memory.message import BaseMessage
-from minichain.memory.message import HumanMessage, AIMessage, SystemMessage
+from minichain.agent.message import BaseMessage
+from minichain.agent.message import HumanMessage, AIMessage, SystemMessage
 
 logger = logging.getLogger(__name__)
 

@@ -5,11 +5,12 @@ from typing import Any, Dict, Optional, Sequence, Tuple, List, Union
 
 from pydantic import BaseModel
 
-from minichain.agent.support_agent import SupportAgent
+from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.errors import ToolRunningError
 from minichain.memory.base import BaseMemory
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
+from minichain.tools.tools import HandOffToAgent
 
 
 class BaseChain(BaseModel, ABC):
@@ -17,7 +18,7 @@ class BaseChain(BaseModel, ABC):
 
     memory: Optional[BaseMemory] = None
     verbosity: str = ""
-    agent: SupportAgent
+    agent: ConversationalAgent
     tools: Sequence[Tool]
 
     @property
@@ -61,7 +62,7 @@ class BaseChain(BaseModel, ABC):
             "query": user_query,
         }
         if self.memory is not None:
-            external_context = self.memory.load_memory()
+            external_context = self.memory.load_conversation()
 
             inputs.update(external_context)
         return inputs
@@ -75,7 +76,7 @@ class BaseChain(BaseModel, ABC):
         """Validate and prep outputs."""
         outputs = outputs.format_output()
         if self.memory is not None:
-            self.memory.save_memory(inputs=inputs, outputs=outputs)
+            self.memory.save_conversation(inputs=inputs, outputs=outputs)
 
         if return_only_outputs:
             return outputs
@@ -83,7 +84,7 @@ class BaseChain(BaseModel, ABC):
             return {**inputs, **outputs}
 
 
-class DefaultChain(BaseChain):
+class Chain(BaseChain):
     return_intermediate_steps: bool = False
     max_iterations: Optional[int] = 15
     max_execution_time: Optional[float] = None
@@ -100,11 +101,26 @@ class DefaultChain(BaseChain):
 
         return True
 
+    def handle_repeated_action(self, agent_action: AgentAction) -> AgentFinish:
+        if agent_action.response:
+            print(f"Action taken before: {agent_action.tool}, "
+                  f"input: {agent_action.tool_input}")
+            return AgentFinish(
+                return_values={"output": agent_action.response},
+                log=f"Action taken before: {agent_action.tool}, "
+                    f"input: {agent_action.tool_input}"
+            )
+        else:
+            return AgentFinish(
+                return_values={"output": HandOffToAgent().run("")},
+                log=f"Handing off to agent"
+            )
+
     def _take_next_step(
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],
-        intermediate_steps: List[Tuple[AgentAction, str]],
+        intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
         try:
             # Call the LLM to see what to do.
@@ -115,13 +131,12 @@ class DefaultChain(BaseChain):
         except Exception as e:
             if not self.handle_parsing_errors:
                 raise e
-            text = str(e).split("`")[1]
-            observation = f"Invalid or incomplete response"
-            output = AgentAction("_Exception",
-                                 tool_input=observation,
-                                 log=text,
-                                 response=text,
-                                 observation=observation)
+            observation = f"Invalid or incomplete response due to {e}"
+            print(observation)
+            output = AgentFinish(
+                return_values={"output": HandOffToAgent().run("")},
+                log=observation
+            )
             return output
 
         # If the tool chosen is the finishing tool, then we end and return.
@@ -133,6 +148,12 @@ class DefaultChain(BaseChain):
             # Otherwise we lookup the tool
             if output.tool in name_to_tool_map:
                 tool = name_to_tool_map[output.tool]
+
+                # how to handle the case where same action with same input is taken before
+                if output.tool_input == self.memory.load_memory(tool.name):
+                    return self.handle_repeated_action(output)
+
+                self.memory.save_memory(tool.name, output.tool_input)
                 # We then call the tool on the tool input to get an observation
                 try:
                     observation = tool.run(output.tool_input)

@@ -2,24 +2,23 @@ from __future__ import annotations
 
 import json
 from string import Template
-from typing import Any, List, Optional, Sequence, Dict, Tuple, Union
+from typing import Any, List, Optional, Sequence, Dict, Union
 
 from pydantic import BaseModel, Extra
 
 from minichain.agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.prompt import CA2_PREFIX_PROMPT, SBS_SUFFIX, SBS_FORMAT_INSTRUCTIONS, \
+from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_FORMAT_INSTRUCTIONS, \
     FIX_TOOL_INPUT_PROMPT_FORMAT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
-from minichain.memory.message import HumanMessage, BaseMessage
+from minichain.agent.message import HumanMessage, BaseMessage
 from minichain.models.base import Generation, BaseLanguageModel
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
 from minichain.tools.tools import HandOffToAgent
 
 
-class SupportAgent(BaseModel):
+class ConversationalAgent(BaseModel):
     output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
-    action_history: Dict[str, Any] = {}
     llm: BaseLanguageModel = None
     allowed_tools: Optional[List[str]] = None
     prompt_template: JSONPromptTemplate = None
@@ -64,7 +63,7 @@ class SupportAgent(BaseModel):
         llm: BaseLanguageModel,
         tools: Sequence[Tool],
         output_parser: Optional[ConvoJSONOutputParser] = None,
-        prefix: str = CA2_PREFIX_PROMPT,
+        prefix: str = PREFIX_PROMPT,
         suffix: str = SBS_SUFFIX,
         format_instructions: str = SBS_FORMAT_INSTRUCTIONS,
         ai_prefix: str = "AI",
@@ -72,7 +71,7 @@ class SupportAgent(BaseModel):
         policy_desp: str = "",
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
-    ) -> SupportAgent:
+    ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
         # TODO: disable to save cost now
         # cls._validate_tools(tools)
@@ -89,7 +88,7 @@ class SupportAgent(BaseModel):
             format_instructions=format_instructions,
             input_variables=input_variables,
         )
-        # print(f">>>Prompt: {prompt} \n")
+
         tool_names = [tool.name for tool in tools]
         _output_parser = output_parser or ConvoJSONOutputParser()
         return cls(
@@ -111,7 +110,7 @@ class SupportAgent(BaseModel):
         return thoughts
 
     def get_final_prompt(
-        self, intermediate_steps: List[Tuple[AgentAction, str]], **kwargs: Any
+        self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> List[BaseMessage]:
         """Create the full inputs for the LLMChain from intermediate steps."""
         thoughts = self._construct_scratchpad(intermediate_steps)
@@ -124,7 +123,7 @@ class SupportAgent(BaseModel):
     def get_prompt_template(
         cls,
         tools: Sequence[Tool],
-        prefix: str = CA2_PREFIX_PROMPT,
+        prefix: str = PREFIX_PROMPT,
         suffix: str = SBS_SUFFIX,
         format_instructions: str = SBS_FORMAT_INSTRUCTIONS,
         ai_prefix: str = "AI",
@@ -161,7 +160,7 @@ class SupportAgent(BaseModel):
         return JSONPromptTemplate(template=template, input_variables=input_variables)
 
     def plan(
-        self, intermediate_steps: List[Tuple[AgentAction, str]], **kwargs: Any
+        self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
         print(f"Inputs: {kwargs}, intermediate_steps: {intermediate_steps}")
         final_prompt = self.get_final_prompt(intermediate_steps, **kwargs)
@@ -172,7 +171,7 @@ class SupportAgent(BaseModel):
 
         print(f"Full output: {json.loads(full_output.message.content)}")
         if isinstance(agent_output, AgentAction):
-            print(f"Take action {agent_output.tool}")
+            print(f"Taking action {agent_output.tool}")
             # call hand off to agent and finish workflow
             if agent_output.tool == HandOffToAgent().name:
                 return AgentFinish(
@@ -180,23 +179,6 @@ class SupportAgent(BaseModel):
                     log=f"Handing off to agent"
                 )
 
-            # Prevent agent take the same action again
-            if (agent_output.tool in self.action_history
-                and str(agent_output.tool_input) in self.action_history[str(agent_output.tool)]
-            ):
-                if agent_output.response:
-                    return AgentFinish(
-                        return_values={"output": agent_output.response},
-                        log=f"Action taken before: {agent_output.tool}, "
-                            f"input: {agent_output.tool_input}"
-                    )
-                else:
-                    return AgentFinish(
-                        return_values={"output": HandOffToAgent().run("")},
-                        log=f"Handing off to agent"
-                    )
-
-            self.action_history[agent_output.tool] = str(agent_output.tool_input)
         return agent_output
 
     def fix_action_input(self, tool: Tool, action: AgentAction, error: str) -> AgentAction:

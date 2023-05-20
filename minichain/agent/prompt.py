@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-CA2_PREFIX_PROMPT = """You are a customer support agent tries to help user based on workflow policy.
-Workflow policy:
+PREFIX_PROMPT = """You are a customer support agent tries to help user question based on 
+workflow policy, delimited by triple backticks.
+Workflow policy: 
+```
 {policy}
+```
 If user question is not about the issue covered above, use tool "Hand off".
 If user wants to hand off to agent, use tool "Hand off".
-Input args value can only be extracted from conversation history, new input, or observation if 
+Input args value can only be extracted from conversation history, user query, or observation if 
 existed else keep empty.
-If AI is not confident about action input, don't use any tool and response user for missing 
+If you are not confident about action input, don't use any tool and response user for missing 
 information
 
 Assistant has access to the following tools:
@@ -20,11 +23,12 @@ what is the short description for the following python code
 ```
 """
 
-SBS_FORMAT_INSTRUCTIONS = """Please respond in JSON format as described below
+SBS_FORMAT_INSTRUCTIONS = """Please respond user question in JSON format as described below
 RESPONSE FORMAT:
 {
   "thoughts": {
-    "plan": "plans next step based on workflow policy and observations",
+    "plan": "plan for the next step for conversation so far based on workflow policy and 
+    observation from using tool",
     "criticism": "constructive self-criticism and check if plan meets workflow policy",
     "need_use_tool": "Yes if needs to use a tool not used previously else No"
   },
@@ -37,20 +41,17 @@ RESPONSE FORMAT:
   "validation": {
     "arg_valid": "are arg values valid based on input args typing info? Yes or No"
   },
-  "response": "response to user",
+  "response": "response to user based on the plan",
   "workflow_finished": "Yes if reach the end of workflow else No"
 }
 
 Ensure the response can be parsed by Python json.loads"""
 
-SBS_SUFFIX = """Previous conversation history:
+SBS_SUFFIX = """Previous conversation so far:
 ${history}
-
-New input: ${query}
+New user question: ${query}
 
 ${agent_scratchpad}"""
-
-
 
 FIX_TOOL_INPUT_PROMPT_FORMAT = """Tool have the following spec and input provided
 Spec: "{tool_description}"

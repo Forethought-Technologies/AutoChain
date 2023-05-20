@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 from pydantic import Extra, Field, root_validator
 
-from minichain.memory.message import BaseMessage
+from minichain.agent.message import BaseMessage
 from minichain.models.base import LLMResult, convert_dict_to_message, convert_message_to_dict, \
     Generation, BaseLanguageModel
 
@@ -33,7 +33,7 @@ class ChatOpenAI(BaseLanguageModel):
     client: Any  #: :meta private:
     model_name: str = "gpt-3.5-turbo"
     """Model name to use."""
-    temperature: float = 0.7
+    temperature: float = 0
     """What sampling temperature to use."""
     model_kwargs: Dict[str, Any] = Field(default_factory=dict)
     """Holds any model parameters valid for `create` call not explicitly specified."""
