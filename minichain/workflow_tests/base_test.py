@@ -8,7 +8,7 @@ import pandas as pd
 from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
-from minichain.agent.message import HumanMessage
+from minichain.agent.message import UserMessage
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
@@ -107,7 +107,7 @@ class WorkflowTester:
 
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:
         messages = [
-            HumanMessage(content=f"""The most recent reply from assistant
+            UserMessage(content=f"""The most recent reply from assistant
 assistant: "{last_utterance}"
 Is assistant asking a clarifying question or getting additional information from user? answer with 
 yes or no"""),
@@ -130,7 +130,7 @@ yes or no"""),
             conversation += f"{user_type}: {utterance}\n"
 
         messages.append(
-            HumanMessage(content=f"""You are a customer with access to the following context information about yourself. 
+            UserMessage(content=f"""You are a customer with access to the following context information about yourself. 
 Please respond to assistant question and try to resolve your problems in english sentence. 
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
@@ -151,7 +151,7 @@ Previous conversation:
             conversation += f"{user_type}: {utterance}\n"
 
         messages.append(
-            HumanMessage(content=f"""Previous conversation:
+            UserMessage(content=f"""Previous conversation:
 {conversation}
 
 Expected outcome is {expected_outcome}

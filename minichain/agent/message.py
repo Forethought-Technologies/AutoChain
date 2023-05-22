@@ -16,7 +16,7 @@ class BaseMessage(BaseModel):
         """Type of the message, used for serialization."""
 
 
-class HumanMessage(BaseMessage):
+class UserMessage(BaseMessage):
     """Type of message that is spoken by the human."""
 
     example: bool = False
@@ -24,7 +24,7 @@ class HumanMessage(BaseMessage):
     @property
     def type(self) -> str:
         """Type of the message, used for serialization."""
-        return "human"
+        return "user"
 
 
 class AIMessage(BaseMessage):
@@ -51,7 +51,7 @@ class ChatMessageHistory(BaseModel):
     messages: List[BaseMessage] = []
 
     def add_user_message(self, message: str) -> None:
-        self.messages.append(HumanMessage(content=message))
+        self.messages.append(UserMessage(content=message))
 
     def add_ai_message(self, message: str) -> None:
         self.messages.append(AIMessage(content=message))
@@ -59,8 +59,8 @@ class ChatMessageHistory(BaseModel):
     def format_message(self):
         string_messages = []
         for m in self.messages:
-            if isinstance(m, HumanMessage):
-                role = "Human"
+            if isinstance(m, UserMessage):
+                role = "User"
             elif isinstance(m, AIMessage):
                 role = "Assistant"
             elif isinstance(m, SystemMessage):

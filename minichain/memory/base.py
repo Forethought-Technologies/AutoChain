@@ -15,7 +15,7 @@ class BaseMemory(BaseModel, ABC):
     """Base interface for memory in chains."""
 
     @abstractmethod
-    def load_memory(self, key: str, **kwargs) -> Dict[str, Any]:
+    def load_memory(self, key: str = None, default: Any = None, **kwargs) -> Any:
         """Return key-value pairs given the text input to the chain.
 
         If None, return all memories

@@ -10,13 +10,13 @@ class BufferMemory(BaseMemory):
     chat_history = ChatMessageHistory()
     entire_history = defaultdict(list)
     kv_memory = {}
-    human_prefix: str = "Human"
-    ai_prefix: str = "AI"
-    memory_key: str = "history"  #: :meta private:
 
-    def load_memory(self, key: str, **kwargs) -> Dict[str, Any]:
-        """Return history buffer."""
-        return self.kv_memory.get(key)
+    def load_memory(self, key: str = None, default: Any = None, **kwargs) -> Any:
+        """Return history buffer by key or all memories."""
+        if not key:
+            return self.kv_memory
+
+        return self.kv_memory.get(key, default)
 
     def load_conversation(self, **kwargs) -> Dict[str, Any]:
         """Return history buffer."""

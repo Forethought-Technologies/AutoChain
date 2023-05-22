@@ -3,7 +3,7 @@ from typing import Any, List
 
 from pydantic import BaseModel, Extra
 
-from minichain.agent.message import BaseMessage, HumanMessage
+from minichain.agent.message import BaseMessage, UserMessage
 
 
 class JSONPromptTemplate(BaseModel):
@@ -22,4 +22,4 @@ class JSONPromptTemplate(BaseModel):
         variables = {v: "" for v in self.input_variables}
         variables.update(kwargs)
         prompt = self.template.substitute(**variables)
-        return [HumanMessage(content=prompt)]
+        return [UserMessage(content=prompt)]

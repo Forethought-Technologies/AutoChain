@@ -14,7 +14,7 @@ from tenacity import (
 )
 
 from minichain.agent.message import BaseMessage
-from minichain.agent.message import HumanMessage, AIMessage, SystemMessage
+from minichain.agent.message import UserMessage, AIMessage, SystemMessage
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class LLMResult(BaseModel):
 def convert_dict_to_message(_dict: dict) -> BaseMessage:
     role = _dict["role"]
     if role == "user":
-        return HumanMessage(content=_dict["content"])
+        return UserMessage(content=_dict["content"])
     elif role == "assistant":
         return AIMessage(content=_dict["content"])
     elif role == "system":
@@ -54,7 +54,7 @@ def convert_dict_to_message(_dict: dict) -> BaseMessage:
 
 
 def convert_message_to_dict(message: BaseMessage) -> dict:
-    if isinstance(message, HumanMessage):
+    if isinstance(message, UserMessage):
         message_dict = {"role": "user", "content": message.content}
     elif isinstance(message, AIMessage):
         message_dict = {"role": "assistant", "content": message.content}

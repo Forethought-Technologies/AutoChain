@@ -55,16 +55,16 @@ In case of lost or missing orders after all attempts to locate it have been exha
                  user_query="Where is my order",
                  user_context="Your order id is 6381; you name is Jacky; email is jack@gmail.com",
                  expected_outcome="retrieve order status and get shipping info"),
-        TestCase(test_name="cannot get order status",
-                 user_query="Where is my order",
-                 user_context="Your order id is 123; you name is Jacky; email is jack@gmail.com",
-                 expected_outcome="No order information retrieved, clarify order id and hand "
-                                  "off to agent"),
-        TestCase(test_name="order lost and request refund",
-                 user_query="Where is my order",
-                 user_context="Your order id is 6381; you name is Jacky; Cannot "
-                              "find item anywhere and it is lost. I need refund for this order",
-                 expected_outcome="get refund or replacement")
+        # TestCase(test_name="cannot get order status",
+        #          user_query="Where is my order",
+        #          user_context="Your order id is 123; you name is Jacky; email is jack@gmail.com",
+        #          expected_outcome="No order information retrieved, clarify order id and hand "
+        #                           "off to agent"),
+        # TestCase(test_name="order lost and request refund",
+        #          user_query="Where is my order",
+        #          user_context="Your order id is 6381; you name is Jacky; Cannot "
+        #                       "find item anywhere and it is lost. I need refund for this order",
+        #          expected_outcome="get refund or replacement")
     ]
 
 

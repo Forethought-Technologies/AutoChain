@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Sequence, Tuple, List, Union
 from pydantic import BaseModel
 
 from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.chain import constants
 from minichain.errors import ToolRunningError
 from minichain.memory.base import BaseMemory
 from minichain.structs import AgentAction, AgentFinish
@@ -50,11 +51,11 @@ class BaseChain(BaseModel, ABC):
         inputs = self.prep_inputs(user_query)
 
         try:
-            outputs = self._run(inputs)
+            output = self._run(inputs)
         except (KeyboardInterrupt, Exception) as e:
             raise e
 
-        return self.prep_outputs(inputs, outputs, return_only_outputs)
+        return self.prep_output(inputs, output, return_only_outputs)
 
     def prep_inputs(self, user_query: str) -> Dict[str, str]:
         """Validate and prep inputs."""
@@ -63,25 +64,25 @@ class BaseChain(BaseModel, ABC):
         }
         if self.memory is not None:
             external_context = self.memory.load_conversation()
-
             inputs.update(external_context)
         return inputs
 
-    def prep_outputs(
+    def prep_output(
         self,
         inputs: Dict[str, str],
-        outputs: AgentFinish,
+        output: AgentFinish,
         return_only_outputs: bool = False,
     ) -> Dict[str, Any]:
         """Validate and prep outputs."""
-        outputs = outputs.format_output()
+        output_dict = output.format_output()
         if self.memory is not None:
-            self.memory.save_conversation(inputs=inputs, outputs=outputs)
+            self.memory.save_conversation(inputs=inputs, outputs=output_dict)
+            self.memory.save_memory(key=constants.OBSERVATIONS, value=output.intermediate_steps)
 
         if return_only_outputs:
-            return outputs
+            return output_dict
         else:
-            return {**inputs, **outputs}
+            return {**inputs, **output_dict}
 
 
 class Chain(BaseChain):
@@ -101,8 +102,9 @@ class Chain(BaseChain):
 
         return True
 
-    def handle_repeated_action(self, agent_action: AgentAction) -> AgentFinish:
-        if agent_action.response:
+    @staticmethod
+    def handle_repeated_action(agent_action: AgentAction) -> AgentFinish:
+        if agent_action.model_response:
             print(f"Action taken before: {agent_action.tool}, "
                   f"input: {agent_action.tool_input}")
             return AgentFinish(
@@ -184,7 +186,7 @@ class Chain(BaseChain):
         #     [tool.name for tool in self.tools], excluded_colors=["green"]
         # )
 
-        intermediate_steps: List[AgentAction] = []
+        intermediate_steps: List[AgentAction] = self.memory.load_memory(constants.OBSERVATIONS, [])
         # Let's start tracking the number of iterations and time elapsed
         iterations = 0
         time_elapsed = 0.0

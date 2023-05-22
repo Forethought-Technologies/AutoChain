@@ -6,10 +6,10 @@ from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
 
 policy = """AI is responsible for the following policy
-Policy description: When a customer reports that they have not received their order, first check the order status in the system. 
-If the order has shipped, provide them with a tracking link and ask them to confirm if there was a \"Missed Delivery\" notice left behind. 
-Request that they check around their property, with neighbors, and at their leasing office for any misplaced deliveries. 
-Confirm the correct shipping address with the customer. 
+Policy description: When a customer reports that they have not received their order, first check the order status in the system.
+If the order has shipped, provide them with a tracking link and ask them to confirm if there was a \"Missed Delivery\" notice left behind.
+Request that they check around their property, with neighbors, and at their leasing office for any misplaced deliveries.
+Confirm the correct shipping address with the customer.
 If the order is still being processed or delayed, inform them of any expected shipping timeframes and assure them that they will receive an email confirmation with tracking information once it ships.
 In case of lost or missing orders after all attempts to locate it have been exhausted, offer either a refund or replacement for their order. If opting for a replacement, require a signature for delivery and inform customers about rerouting options to local FedEx offices if needed."
 """

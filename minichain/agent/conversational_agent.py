@@ -7,10 +7,10 @@ from typing import Any, List, Optional, Sequence, Dict, Union
 from pydantic import BaseModel, Extra
 
 from minichain.agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_FORMAT_INSTRUCTIONS, \
+from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_INSTRUCTION_FORMAT, \
     FIX_TOOL_INPUT_PROMPT_FORMAT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
-from minichain.agent.message import HumanMessage, BaseMessage
+from minichain.agent.message import UserMessage, BaseMessage
 from minichain.models.base import Generation, BaseLanguageModel
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
@@ -65,9 +65,7 @@ class ConversationalAgent(BaseModel):
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prefix: str = PREFIX_PROMPT,
         suffix: str = SBS_SUFFIX,
-        format_instructions: str = SBS_FORMAT_INSTRUCTIONS,
-        ai_prefix: str = "AI",
-        human_prefix: str = "Human",
+        format_instructions: str = SBS_INSTRUCTION_FORMAT,
         policy_desp: str = "",
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
@@ -81,8 +79,6 @@ class ConversationalAgent(BaseModel):
 
         prompt_template = cls.get_prompt_template(
             tools,
-            ai_prefix=ai_prefix,
-            human_prefix=human_prefix,
             prefix=prefix.format(policy=policy_desp),
             suffix=suffix,
             format_instructions=format_instructions,
@@ -105,8 +101,7 @@ class ConversationalAgent(BaseModel):
         """Construct the scratchpad that lets the agent continue its thought process."""
         thoughts = ""
         for action in intermediate_steps:
-            # thoughts += action.log
-            thoughts += f"\nObservation from using tool '{action.tool}' is '{action.observation}'\n"
+            thoughts += action.response
         return thoughts
 
     def get_final_prompt(
@@ -125,9 +120,7 @@ class ConversationalAgent(BaseModel):
         tools: Sequence[Tool],
         prefix: str = PREFIX_PROMPT,
         suffix: str = SBS_SUFFIX,
-        format_instructions: str = SBS_FORMAT_INSTRUCTIONS,
-        ai_prefix: str = "AI",
-        human_prefix: str = "Human",
+        format_instructions: str = SBS_INSTRUCTION_FORMAT,
         input_variables: Optional[List[str]] = None,
     ) -> JSONPromptTemplate:
 
@@ -139,8 +132,6 @@ class ConversationalAgent(BaseModel):
             prefix: String to put before the list of tools.
             suffix: String to put after the list of tools.
             format_instructions: part of the prompt that format response from model
-            ai_prefix: String to use before AI output.
-            human_prefix: String to use before human output.
             input_variables: List of input variables the final prompt will expect.
 
         Returns:
@@ -151,10 +142,9 @@ class ConversationalAgent(BaseModel):
         )
         tool_names = ", ".join([tool.name for tool in tools])
         t = Template(format_instructions)
-        format_instructions = t.substitute(
-            tool_names=tool_names, ai_prefix=ai_prefix, human_prefix=human_prefix
-        )
+        format_instructions = t.substitute(tool_names=tool_names)
         template = Template("\n\n".join([prefix, tool_strings, suffix, format_instructions, ]))
+
         if input_variables is None:
             input_variables = ["input", "chat_history", "agent_scratchpad"]
         return JSONPromptTemplate(template=template, input_variables=input_variables)
@@ -162,7 +152,6 @@ class ConversationalAgent(BaseModel):
     def plan(
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
-        print(f"Inputs: {kwargs}, intermediate_steps: {intermediate_steps}")
         final_prompt = self.get_final_prompt(intermediate_steps, **kwargs)
         print(f"Full Input: {final_prompt[0].content} \n")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
@@ -187,12 +176,12 @@ class ConversationalAgent(BaseModel):
                                                      error=error)
 
         print(f"Fixing tool input prompt: {prompt}")
-        messages = HumanMessage(content=prompt)
+        messages = UserMessage(content=prompt)
         output = self.llm.generate([messages])
         text = output.generations[0].message.content
         inputs = text[text.index("{"):text.rindex("}") + 1].strip()
         new_tool_inputs = json.loads(inputs)
 
         print(f"Fixed tool input: {new_tool_inputs}")
-        new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs, log=action.log)
+        new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs)
         return new_action
