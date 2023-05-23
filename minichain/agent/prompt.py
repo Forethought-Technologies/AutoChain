@@ -62,3 +62,12 @@ Inputs: "{inputs}"
 Running this tool failed with the following error: "{error}"
 What is the correct input in JSON format for this tool?
 """
+
+
+SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
+Given the following conversation so far, do you still need to answer more questions?
+Answer with yes or no. If not sure, answer "Hand off"
+Conversation:
+${history}
+User: ${query}
+"""

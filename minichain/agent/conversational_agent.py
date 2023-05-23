@@ -6,11 +6,11 @@ from typing import Any, List, Optional, Sequence, Dict, Union
 
 from pydantic import BaseModel, Extra
 
+from minichain.agent.message import UserMessage, BaseMessage
 from minichain.agent.output_parser import ConvoJSONOutputParser
 from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_INSTRUCTION_FORMAT, \
-    FIX_TOOL_INPUT_PROMPT_FORMAT
+    FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
-from minichain.agent.message import UserMessage, BaseMessage
 from minichain.models.base import Generation, BaseLanguageModel
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
@@ -56,6 +56,32 @@ class ConversationalAgent(BaseModel):
     #     for tool in tools:
     #         if hasattr(tool, "func"):
     #             tool.expected_outcome = cls.create_function_description(llm, tool.func)
+
+    def should_answer(self, inputs: Dict[str, Any],
+                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
+                      ) -> Optional[AgentFinish]:
+        """Determine if agent should continue to answer user questions based on the latest user
+        query"""
+        if "query" not in inputs or "history" not in inputs or not inputs['history']:
+            return None
+
+        def _parse_response(res: str):
+            if "hand off" in res.lower():
+                return AgentFinish(
+                    return_values={"output": HandOffToAgent().run("")},
+                    log=f"Handing off to agent"
+                )
+            elif "no" in res.lower():
+                return AgentFinish(
+                    return_values={"output": "Thank your for contacting"},
+                    log=f"Thank your for contacting"
+                )
+            else:
+                return None
+
+        prompt = Template(should_answer_prompt_template).substitute(**inputs)
+        response = self.llm.generate([UserMessage(content=prompt)]).generations[0].message.content
+        return _parse_response(response)
 
     @classmethod
     def from_llm_and_tools(

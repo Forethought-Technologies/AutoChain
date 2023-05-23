@@ -18,11 +18,9 @@ class BufferMemory(BaseMemory):
 
         return self.kv_memory.get(key, default)
 
-    def load_conversation(self, **kwargs) -> Dict[str, Any]:
+    def load_conversation(self, **kwargs) -> Any:
         """Return history buffer."""
-        history = self.chat_history.format_message()
-
-        return {'history': history}
+        return self.chat_history.format_message()
 
     def save_memory(self, key: str, value: Any) -> None:
         self.kv_memory[key] = value

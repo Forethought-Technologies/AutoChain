@@ -1,7 +1,7 @@
 """Base interface that all chains should implement."""
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Sequence, Tuple, List, Union
+from typing import Any, Dict, Optional, Sequence, List, Union
 
 from pydantic import BaseModel
 
@@ -21,6 +21,7 @@ class BaseChain(BaseModel, ABC):
     verbosity: str = ""
     agent: ConversationalAgent
     tools: Sequence[Tool]
+    last_query: str = ""
 
     @property
     def _chain_type(self) -> str:
@@ -63,8 +64,8 @@ class BaseChain(BaseModel, ABC):
             "query": user_query,
         }
         if self.memory is not None:
-            external_context = self.memory.load_conversation()
-            inputs.update(external_context)
+            conversation_history = self.memory.load_conversation()
+            inputs.update({constants.CONVERSATION_HISTORY: conversation_history})
         return inputs
 
     def prep_output(
@@ -124,22 +125,27 @@ class Chain(BaseChain):
         inputs: Dict[str, str],
         intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
-        try:
-            # Call the LLM to see what to do.
-            output = self.agent.plan(
-                intermediate_steps,
-                **inputs,
-            )
-        except Exception as e:
-            if not self.handle_parsing_errors:
-                raise e
-            observation = f"Invalid or incomplete response due to {e}"
-            print(observation)
-            output = AgentFinish(
-                return_values={"output": HandOffToAgent().run("")},
-                log=observation
-            )
-            return output
+        output = None
+        if self.last_query != inputs['query']:
+            output = self.agent.should_answer(inputs=inputs)
+            self.last_query = inputs['query']
+        if not output:
+            try:
+                # Call the LLM to see what to do.
+                output = self.agent.plan(
+                    intermediate_steps,
+                    **inputs,
+                )
+            except Exception as e:
+                if not self.handle_parsing_errors:
+                    raise e
+                observation = f"Invalid or incomplete response due to {e}"
+                print(observation)
+                output = AgentFinish(
+                    return_values={"output": HandOffToAgent().run("")},
+                    log=observation
+                )
+                return output
 
         # If the tool chosen is the finishing tool, then we end and return.
         if isinstance(output, AgentFinish):
