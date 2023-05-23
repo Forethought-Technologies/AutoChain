@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import pandas as pd
+from colorama import Fore, Back, Style
 
 from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.chain.chain import Chain
@@ -12,6 +13,7 @@ from minichain.agent.message import UserMessage
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
+from minichain.utils import print_with_color
 
 
 @dataclass
@@ -58,21 +60,21 @@ class WorkflowTester:
 
         user_query = test_case.user_query
         conversation_history = [("user", user_query)]
-        print(f">> User: {test_case.user_query}")
+        print_with_color(f">> User: {test_case.user_query}", Fore.GREEN)
 
         conversation_end = False
         max_turn = 8
         while not conversation_end and len(conversation_history) < max_turn:
             response = self.agent_chain.run(user_query)['output']
             conversation_history.append(("assistant", response))
-            print(f">> Assistant: {response}")
+            print_with_color(f">> Assistant: {response}", Fore.GREEN)
 
             conversation_end = self.determine_if_conversation_ends(response)
             if not conversation_end:
                 user_query = self.get_next_user_query(conversation_history,
                                                       test_case.user_context)
                 conversation_history.append(("user", user_query))
-                print(f">> User: {user_query}")
+                print_with_color(f">> User: {user_query}", Fore.GREEN)
 
         is_agent_helpful = self.determine_if_agent_solved_problem(conversation_history,
                                                                   test_case.expected_outcome)

@@ -1,6 +1,6 @@
 from typing import Union, Any, Dict, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class AgentAction(BaseModel):
