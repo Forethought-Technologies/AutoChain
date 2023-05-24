@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 PREFIX_PROMPT = """You are a customer support agent tries to find the next step to help user question based on workflow policy, previous conversation, observations from tools.
-Ask user clarifying question if arg value is missing or not valid
+Ask user clarifying question if arg value is missing or response to user question. Always reply to user with non empty response.
 Workflow policy: 
 "
 {policy}
@@ -9,10 +9,6 @@ Workflow policy:
 
 If user question is not about the issue covered above, use tool "Hand off".
 If user wants to hand off to agent, use tool "Hand off".
-Input args value can only be extracted from conversation history, user query, or observation if 
-existed else keep empty.
-If you are not confident about action input, don't use any tool and response user for missing 
-information
 
 Assistant has access to the following tools:
 """
@@ -29,19 +25,18 @@ RESPONSE FORMAT:
 {
   "thoughts": {
     "plan": "what is the next step after the previous conversation based on workflow policy and previous observations",
-    "criticism": "constructive self-criticism and check if plan meets workflow policy",
     "need_use_tool": "Yes if needs to use a tool not used previously else No"
   },
   "tool": {
     "name": "tool name, should be one of [${tool_names}] or empty if tool is not needed",
     "args": {
-      "arg_name": "arg value if information exists in conversation or observation else remains empty"
+      "arg_name": "arg value from conversation history or observation to run tool"
     }
   },
   "validation": {
-    "arg_valid": "are arg values valid based on input args typing info? Yes or No"
+    "arg_valid": "are arg values valid based on input args from tools? Yes or No"
   },
-  "response": "response to user",
+  "response": "clarifying required args for that tool or response to user. this cannot be empty",
   "workflow_finished": "Yes if reach the end of workflow else No"
 }
 
@@ -65,8 +60,8 @@ What is the correct input in JSON format for this tool?
 
 
 SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
-Given the following conversation so far, do you still need to answer more questions?
-Answer with yes or no. If not sure, answer "Hand off"
+Given the following conversation so far, does user believe his question is resolved? 
+Answer with yes or no.
 Conversation:
 ${history}
 User: ${query}

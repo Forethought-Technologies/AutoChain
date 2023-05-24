@@ -52,19 +52,19 @@ Note that if the vehicle is not found in our system Assistant must escalate to c
                  user_context="user id is antoine. not sure about vehicle id or plate number",
                  expected_outcome="found active reservation and explain why it is not properly "
                                   "parked"),
-        # TestCase(test_name="no id provided, hand off to agent",
-        #          user_query="I parked a Lime vehicle on the street, can you tell me if it's "
-        #                     "properly parked?",
-        #          user_context="don't know customer id or vehicle id, it is a green bike",
-        #          expected_outcome="cannot find active reservation, hand off to agent"),
-        # TestCase(test_name="wrong intent",
-        #          user_query="I tried to reserve a Lime vehicle but there weren't any available in my area.",
-        #          user_context="don't know customer id or vehicle id. no reservation",
-        #          expected_outcome="hand off to agent"),
-        # TestCase(test_name="check status of vehicle without id",
-        #          user_query="I want to know why there is a bike parked in my driveway",
-        #          user_context="don't know customer id or vehicle id. no reservation",
-        #          expected_outcome="hand off to agent, don't return fake vehicle status"),
+        TestCase(test_name="no id provided, hand off to agent",
+                 user_query="I parked a Lime vehicle on the street, can you tell me if it's "
+                            "properly parked?",
+                 user_context="don't know customer id or vehicle id, it is a green bike",
+                 expected_outcome="cannot find active reservation, hand off to agent"),
+        TestCase(test_name="wrong intent",
+                 user_query="I tried to reserve a Lime vehicle but there weren't any available in my area.",
+                 user_context="don't know customer id or vehicle id. no reservation",
+                 expected_outcome="hand off to agent"),
+        TestCase(test_name="check status of vehicle without id",
+                 user_query="I want to know why there is a bike parked in my driveway",
+                 user_context="don't know customer id or vehicle id. no reservation",
+                 expected_outcome="hand off to agent, don't return fake vehicle status"),
     ]
 
 

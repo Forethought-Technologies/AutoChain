@@ -40,13 +40,15 @@ In case of lost or missing orders after all attempts to locate it have been exha
                     name="Order Status",
                     func=snowflake_order_status,
                     description="""This function checks order status for a given order id.
-                Args: order_id"""
+                Input args: order_id: non-empty str
+                Output values: status_code: int, order_id: str,tracking_url: str, message: str"""
                 ),
                 Tool(
                     name="Validate Order Status",
                     func=validate_order_status_input,
                     description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
-                Args: order_id"""
+                Input args: order_id: non-empty str
+                Output values: is_order_valid: bool"""
                 ),
             ]
 
@@ -55,16 +57,16 @@ In case of lost or missing orders after all attempts to locate it have been exha
                  user_query="Where is my order",
                  user_context="Your order id is 6381; you name is Jacky; email is jack@gmail.com",
                  expected_outcome="retrieve order status and get shipping info"),
-        # TestCase(test_name="cannot get order status",
-        #          user_query="Where is my order",
-        #          user_context="Your order id is 123; you name is Jacky; email is jack@gmail.com",
-        #          expected_outcome="No order information retrieved, clarify order id and hand "
-        #                           "off to agent"),
-        # TestCase(test_name="order lost and request refund",
-        #          user_query="Where is my order",
-        #          user_context="Your order id is 6381; you name is Jacky; Cannot "
-        #                       "find item anywhere and it is lost. I need refund for this order",
-        #          expected_outcome="get refund or replacement")
+        TestCase(test_name="cannot get order status",
+                 user_query="Where is my order",
+                 user_context="Your order id is 123; you name is Jacky; email is jack@gmail.com",
+                 expected_outcome="No order information retrieved, clarify order id and hand "
+                                  "off to agent"),
+        TestCase(test_name="order lost and request refund",
+                 user_query="Where is my order",
+                 user_context="Your order id is 6381; you name is Jacky; Cannot "
+                              "find item anywhere and it is lost. I need refund for this order",
+                 expected_outcome="get refund or replacement")
     ]
 
 

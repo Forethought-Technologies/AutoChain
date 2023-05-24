@@ -66,12 +66,7 @@ class ConversationalAgent(BaseModel):
             return None
 
         def _parse_response(res: str):
-            if "hand off" in res.lower():
-                return AgentFinish(
-                    return_values={"output": HandOffToAgent().run("")},
-                    log=f"Handing off to agent"
-                )
-            elif "no" in res.lower():
+            if "yes" in res.lower():
                 return AgentFinish(
                     return_values={"output": "Thank your for contacting"},
                     log=f"Thank your for contacting"
