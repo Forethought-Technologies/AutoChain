@@ -147,6 +147,11 @@ class Chain(BaseChain):
                 )
                 return output
 
+        if isinstance(output, AgentAction):
+            output = self.agent.clarify_args_for_agent_action(output,
+                                                              intermediate_steps,
+                                                              **inputs)
+
         # If the tool chosen is the finishing tool, then we end and return.
         if isinstance(output, AgentFinish):
             return output

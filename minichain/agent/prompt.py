@@ -24,7 +24,7 @@ SBS_INSTRUCTION_FORMAT = """Please respond user question in JSON format as descr
 RESPONSE FORMAT:
 {
   "thoughts": {
-    "plan": "what is the next step after the previous conversation based on workflow policy and previous observations",
+    "plan": "Given workflow policy and previous observations, what is the next step after the previous conversation",
     "need_use_tool": "Yes if needs to use a tool not used previously else No"
   },
   "tool": {
@@ -65,4 +65,18 @@ Answer with yes or no.
 Conversation:
 ${history}
 User: ${query}
+"""
+
+
+CLARIFYING_QUESTION_PREFIX = """You are a customer support agent who is going to use ${tool} tool.
+The tool has the following spec:
+"""
+
+CLARIFYING_INSTRUCTION_FORMAT = """Please respond user question in JSON format as described below
+RESPONSE FORMAT:
+{
+    "need_clarification": "Do you have enough information to use this tool? answer with Yes or No",
+    "clarifying_question": "clarifying question to user to ask for missing information"
+}
+Ensure the response can be parsed by Python json.loads
 """

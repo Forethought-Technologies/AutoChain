@@ -52,3 +52,21 @@ class ConvoJSONOutputParser(AgentOutputParser):
         return AgentAction(tool=action_name,
                            tool_input=action_args,
                            model_response=response.get("response", ""))
+
+    def parse_clarification(self, text: str,
+                            agent_action: AgentAction) -> Union[AgentAction, AgentFinish]:
+        try:
+            clean_text = text[text.index("{"):text.rindex("}") + 1].strip()
+            response = json.loads(clean_text)
+        except Exception:
+            raise OutputParserException(f"Not a valid json: `{text}`")
+
+        need_clarification = response.get('need_clarification', "")
+        clarifying_question = response.get('clarifying_question', "")
+
+        if "yes" in need_clarification.lower() and clarifying_question:
+            return AgentFinish(return_values={
+                "output": clarifying_question,
+            }, log=clarifying_question)
+        else:
+            return agent_action
