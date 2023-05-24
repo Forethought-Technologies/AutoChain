@@ -107,6 +107,19 @@ class WorkflowTester:
         for test in self.tests:
             self.run_test(test)
 
+    def run_interactive(self):
+        self.memory.clear()
+        test = self.tests[0]
+        agent = test.agent_cls.from_llm_and_tools(
+            self.llm, test.tools, policy_desp=test.policy
+        )
+        self.agent_chain = Chain(tools=test.tools, agent=agent, memory=self.memory)
+
+        while True:
+            user_query = input(">> User: ")
+            response = self.agent_chain.run(user_query)['output']
+            print_with_color(response, Fore.GREEN)
+
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:
         messages = [
             UserMessage(content=f"""The most recent reply from assistant
@@ -136,7 +149,7 @@ yes or no"""),
 Please respond to assistant question and try to resolve your problems in english sentence. 
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
-{user_context}
+"{user_context}"
 
 Previous conversation:
 {conversation}"""))

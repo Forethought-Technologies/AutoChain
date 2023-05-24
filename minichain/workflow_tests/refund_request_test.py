@@ -1,5 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflow_tests.base_test import BaseTest, TestCase, WorkflowTester
+from minichain.workflow_tests.test_utils import get_args
 
 
 class TestOrderStatusAndRefundRequest(BaseTest):
@@ -72,4 +73,8 @@ In case of lost or missing orders after all attempts to locate it have been exha
 
 if __name__ == '__main__':
     tests = WorkflowTester(tests=[TestOrderStatusAndRefundRequest()], output_dir="./test_results")
-    tests.run_all_tests()
+    args = get_args()
+    if args.interact:
+        tests.run_interactive()
+    else:
+        tests.run_all_tests()
