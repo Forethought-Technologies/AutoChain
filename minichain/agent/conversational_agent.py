@@ -4,6 +4,7 @@ import json
 from string import Template
 from typing import Any, List, Optional, Sequence, Dict, Union
 
+from colorama import Fore
 from pydantic import BaseModel, Extra
 
 from minichain.agent.message import UserMessage, BaseMessage
@@ -16,6 +17,7 @@ from minichain.models.base import Generation, BaseLanguageModel
 from minichain.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
 from minichain.tools.tools import HandOffToAgent
+from minichain.utils import print_with_color
 
 
 class ConversationalAgent(BaseModel):
@@ -179,9 +181,9 @@ class ConversationalAgent(BaseModel):
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message.content)
 
-        print(f"Full output: {json.loads(full_output.message.content)}")
+        print_with_color(f"Full output: {json.loads(full_output.message.content)}", Fore.YELLOW)
         if isinstance(agent_output, AgentAction):
-            print(f"Taking action {agent_output.tool}")
+            print_with_color(f"Taking action {agent_output.tool}", Fore.LIGHTYELLOW_EX)
             # call hand off to agent and finish workflow
             if agent_output.tool == HandOffToAgent().name:
                 return AgentFinish(
@@ -205,7 +207,8 @@ class ConversationalAgent(BaseModel):
                                              **inputs)
         print(f"Clarification inputs: {final_prompt[0].content}")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
-        print(f"Full clarification output: {json.loads(full_output.message.content)}")
+        print_with_color(f"Full clarification output: {json.loads(full_output.message.content)}",
+                         Fore.YELLOW)
         return self.output_parser.parse_clarification(full_output.message.content,
                                                       agent_action=agent_action)
 
