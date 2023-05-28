@@ -13,13 +13,6 @@ If user wants to hand off to agent, use tool "Hand off".
 Assistant has access to the following tools:
 """
 
-CODE_DESCRIPTION_PROMPT_FORMAT = """
-what is the short description for the following python code
-```
-{code}
-```
-"""
-
 SBS_INSTRUCTION_FORMAT = """Please respond user question in JSON format as described below
 RESPONSE FORMAT:
 {
@@ -58,7 +51,6 @@ Running this tool failed with the following error: "{error}"
 What is the correct input in JSON format for this tool?
 """
 
-
 SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
 Given the following conversation so far, does user believe his question is resolved? 
 Answer with yes or no.
@@ -66,7 +58,6 @@ Conversation:
 ${history}
 User: ${query}
 """
-
 
 CLARIFYING_QUESTION_PREFIX = """You are a customer support agent who is going to use ${tool} tool.
 The tool has the following spec:
