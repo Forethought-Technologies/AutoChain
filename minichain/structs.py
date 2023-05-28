@@ -2,6 +2,8 @@ from typing import Union, Any, Dict, List
 
 from pydantic import BaseModel
 
+from minichain.chain import constants
+
 
 class AgentAction(BaseModel):
     """Agent's action to take."""
@@ -30,11 +32,11 @@ class AgentAction(BaseModel):
 class AgentFinish(BaseModel):
     """Agent's return value."""
 
-    return_values: dict
+    message: str
     log: str
     intermediate_steps: List[AgentAction] = []
 
     def format_output(self) -> Dict[str, Any]:
-        final_output = self.return_values
-        final_output["intermediate_steps"] = self.intermediate_steps
+        final_output = {"message": self.message,
+                        constants.INTERMEDIATE_STEPS: self.intermediate_steps}
         return final_output

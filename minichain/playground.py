@@ -60,7 +60,7 @@ memory = BufferMemory()
 chain = Chain(tools=tools, agent=agent, memory=memory)
 response = chain.run("where is my order", return_only_outputs=True)
 while True:
-    print(f">>> Assistant: {response['output']}")
+    print(f">>> Assistant: {response['message']}")
     print("\n")
     query = input(">>> User: ")
     response = chain.run(query)

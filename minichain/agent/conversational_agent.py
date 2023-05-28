@@ -31,35 +31,6 @@ class ConversationalAgent(BaseModel):
         extra = Extra.forbid
         arbitrary_types_allowed = True
 
-    @classmethod
-    def _get_default_output_parser(
-        cls, ai_prefix: str = "AI", **kwargs: Any
-    ) -> ConvoJSONOutputParser:
-        return ConvoJSONOutputParser()
-
-    # @classmethod
-    # def create_function_description(cls, llm, func):
-    #     code = inspect.getsource(func)
-    #     prompt = CODE_DESCRIPTION_PROMPT_FORMAT.format(code=code)
-    #     print(f"prompt: {prompt}")
-    #     output = llm.generate([prompt])
-    #     print(f"output: {output}")
-    #
-    #     function_desp = output.generations[0][0].text
-    #     args = inspect.getfullargspec(func).args
-    #     s = ""
-    #     for arg in args:
-    #         s += f"<'{arg}'>, "
-    #
-    #     args_desp = f"""Action Input: {s[:-2]}"""
-    #     return f"{function_desp}\n{args_desp}"
-
-    # @classmethod
-    # def update_tool_desp(cls, llm, tools):
-    #     for tool in tools:
-    #         if hasattr(tool, "func"):
-    #             tool.expected_outcome = cls.create_function_description(llm, tool.func)
-
     def should_answer(self, inputs: Dict[str, Any],
                       should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
                       ) -> Optional[AgentFinish]:
@@ -71,7 +42,7 @@ class ConversationalAgent(BaseModel):
         def _parse_response(res: str):
             if "yes" in res.lower():
                 return AgentFinish(
-                    return_values={"output": "Thank your for contacting"},
+                    message="Thank your for contacting",
                     log=f"Thank your for contacting"
                 )
             else:
@@ -95,10 +66,6 @@ class ConversationalAgent(BaseModel):
         **kwargs: Any,
     ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
-        # TODO: disable to save cost now
-        # cls._validate_tools(tools)
-        # cls.update_tool_desp(llm, tools)
-
         tools.append(HandOffToAgent())
 
         prompt_template = cls.get_prompt_template(
@@ -187,7 +154,7 @@ class ConversationalAgent(BaseModel):
             # call hand off to agent and finish workflow
             if agent_output.tool == HandOffToAgent().name:
                 return AgentFinish(
-                    return_values={"output": HandOffToAgent().run("")},
+                    message=HandOffToAgent().run(""),
                     log=f"Handing off to agent"
                 )
 

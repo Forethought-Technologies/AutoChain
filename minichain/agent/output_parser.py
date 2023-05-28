@@ -41,9 +41,7 @@ class ConvoJSONOutputParser(AgentOutputParser):
         ):
             output_message = response.get("response")
             if output_message:
-                return AgentFinish(return_values={
-                    "output": response.get("response"),
-                }, log=output_message)
+                return AgentFinish(message=response.get("response"), log=output_message)
             else:
                 return AgentAction(tool=handoff_action.name,
                                    tool_input={}, log="Empty model response",
@@ -53,7 +51,8 @@ class ConvoJSONOutputParser(AgentOutputParser):
                            tool_input=action_args,
                            model_response=response.get("response", ""))
 
-    def parse_clarification(self, text: str,
+    @staticmethod
+    def parse_clarification(text: str,
                             agent_action: AgentAction) -> Union[AgentAction, AgentFinish]:
         try:
             clean_text = text[text.index("{"):text.rindex("}") + 1].strip()
@@ -65,8 +64,6 @@ class ConvoJSONOutputParser(AgentOutputParser):
         clarifying_question = response.get('clarifying_question', "")
 
         if "yes" in need_clarification.lower() and clarifying_question:
-            return AgentFinish(return_values={
-                "output": clarifying_question,
-            }, log=clarifying_question)
+            return AgentFinish(message=clarifying_question, log=clarifying_question)
         else:
             return agent_action

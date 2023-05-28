@@ -68,9 +68,6 @@ class Tool(ABC, BaseModel):
     def run(
         self,
         tool_input: Union[str, Dict],
-        verbose: Optional[bool] = None,
-        start_color: Optional[str] = "green",
-        color: Optional[str] = "green",
         **kwargs: Any,
     ) -> Any:
         """Run the tool."""

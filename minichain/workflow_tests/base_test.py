@@ -1,15 +1,16 @@
 import os.path
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Any, Dict
 
 import pandas as pd
-from colorama import Fore, Back, Style
+from colorama import Fore
 
 from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.agent.message import UserMessage
+from minichain.chain import constants
 from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
-from minichain.agent.message import UserMessage
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
@@ -64,21 +65,24 @@ class WorkflowTester:
 
         conversation_end = False
         max_turn = 8
+        response = {}
         while not conversation_end and len(conversation_history) < max_turn:
-            response = self.agent_chain.run(user_query)['output']
-            conversation_history.append(("assistant", response))
-            print_with_color(f">> Assistant: {response}", Fore.GREEN)
+            response: Dict[str, Any] = self.agent_chain.run(user_query)
 
-            conversation_end = self.determine_if_conversation_ends(response)
+            conversation_history.append(("assistant", response))
+            agent_message = response['message']
+            print_with_color(f">> Assistant: {agent_message}", Fore.GREEN)
+
+            conversation_end = self.determine_if_conversation_ends(agent_message)
             if not conversation_end:
                 user_query = self.get_next_user_query(conversation_history,
                                                       test_case.user_context)
-                conversation_history.append(("user", user_query))
+                conversation_history.append(("user", {"message": user_query}))
                 print_with_color(f">> User: {user_query}", Fore.GREEN)
 
         is_agent_helpful = self.determine_if_agent_solved_problem(conversation_history,
                                                                   test_case.expected_outcome)
-        return conversation_history, is_agent_helpful
+        return conversation_history, is_agent_helpful, response
 
     def run_test(self, test):
         agent = test.agent_cls.from_llm_and_tools(
@@ -88,12 +92,17 @@ class WorkflowTester:
 
         test_results = []
         for i, test_case in enumerate(test.test_cases):
-            conversation_history, is_agent_helpful = self.test_each_case(test_case)
+            conversation_history, is_agent_helpful, last_response = self.test_each_case(test_case)
             test_results.append({
                 "test_name": test_case.test_name,
-                "conversation_history": [f"{user_type}: {utterance}" for user_type, utterance, in
-                                         conversation_history],
+                "conversation_history": [f"{user_type}: {message}" for user_type, message,
+                                         in conversation_history],
                 "is_agent_helpful": is_agent_helpful,
+                "actions_took": [{
+                    "tool": action.tool,
+                    "tool_input": action.tool_input,
+                    "observation": action.observation
+                } for action in last_response[constants.INTERMEDIATE_STEPS]],
                 "num_turns": len(conversation_history),
                 "expected_outcome": test_case.expected_outcome
             })
@@ -117,7 +126,7 @@ class WorkflowTester:
 
         while True:
             user_query = input(">> User: ")
-            response = self.agent_chain.run(user_query)['output']
+            response = self.agent_chain.run(user_query)['message']
             print_with_color(response, Fore.GREEN)
 
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:

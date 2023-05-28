@@ -30,7 +30,7 @@ class BufferMemory(BaseMemory):
         self.entire_history['input'].append(inputs)
         self.entire_history['output'].append(outputs)
         self.chat_history.add_user_message(inputs['query'])
-        self.chat_history.add_ai_message(outputs['output'])
+        self.chat_history.add_ai_message(outputs['message'])
 
     def clear(self) -> None:
         """Clear memory contents."""

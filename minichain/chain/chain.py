@@ -22,24 +22,36 @@ class BaseChain(BaseModel, ABC):
     agent: ConversationalAgent
     tools: Sequence[Tool]
     last_query: str = ""
-
-    @property
-    def _chain_type(self) -> str:
-        raise NotImplementedError("Saving not supported for this chain type.")
+    max_iterations: Optional[int] = 15
+    max_execution_time: Optional[float] = None
 
     @abstractmethod
-    def _run(
+    def _take_next_step(
         self,
-        inputs: Dict[str, Any],
-    ) -> AgentFinish:
-        """Run the logic of this chain and return the output."""
+        name_to_tool_map: Dict[str, Tool],
+        inputs: Dict[str, str],
+        intermediate_steps: List[AgentAction],
+    ) -> (AgentFinish, AgentAction):
+        """How agent determines the next step after observing the inputs and intermediate
+        steps"""
+
+    def _should_continue(self, iterations: int, time_elapsed: float) -> bool:
+        if self.max_iterations is not None and iterations >= self.max_iterations:
+            return False
+        if (
+            self.max_execution_time is not None
+            and time_elapsed >= self.max_execution_time
+        ):
+            return False
+
+        return True
 
     def run(
         self,
         user_query: str,
         return_only_outputs: bool = False,
     ) -> Union[AgentFinish, Dict[str, Any]]:
-        """Run the logic of this chain and add to output if desired.
+        """Wrapper for _run function which formats the input and outputs
 
         Args:
             user_query: user query
@@ -59,7 +71,7 @@ class BaseChain(BaseModel, ABC):
         return self.prep_output(inputs, output, return_only_outputs)
 
     def prep_inputs(self, user_query: str) -> Dict[str, str]:
-        """Validate and prep inputs."""
+        """Load conversation history from memory and prep inputs."""
         inputs = {
             "query": user_query,
         }
@@ -74,7 +86,7 @@ class BaseChain(BaseModel, ABC):
         output: AgentFinish,
         return_only_outputs: bool = False,
     ) -> Dict[str, Any]:
-        """Validate and prep outputs."""
+        """Save conversation into memory and prep outputs."""
         output_dict = output.format_output()
         if self.memory is not None:
             self.memory.save_conversation(inputs=inputs, outputs=output_dict)
@@ -85,23 +97,46 @@ class BaseChain(BaseModel, ABC):
         else:
             return {**inputs, **output_dict}
 
+    def _run(
+        self,
+        inputs: Dict[str, Any],
+    ) -> AgentFinish:
+        """Run text through and get agent response."""
+        # Construct a mapping of tool name to tool for easy lookup
+        name_to_tool_map = {tool.name: tool for tool in self.tools}
+
+        intermediate_steps: List[AgentAction] = self.memory.load_memory(constants.OBSERVATIONS, [])
+        # Let's start tracking the number of iterations and time elapsed
+        iterations = 0
+        time_elapsed = 0.0
+        start_time = time.time()
+        # We now enter the agent loop (until it returns something).
+        while self._should_continue(iterations, time_elapsed):
+            print(f"\nInputs: {inputs}\n Intermediate steps: {intermediate_steps}\n")
+            next_step_output = self._take_next_step(
+                name_to_tool_map,
+                inputs,
+                intermediate_steps,
+            )
+            if isinstance(next_step_output, AgentFinish):
+                next_step_output.intermediate_steps = intermediate_steps
+                return next_step_output
+
+            intermediate_steps.append(next_step_output)
+            iterations += 1
+            time_elapsed = time.time() - start_time
+        # force the termination
+        output = AgentFinish(
+            message="Agent stopped due to iteration limit or time limit.",
+            log="",
+            intermediate_steps=intermediate_steps
+        )
+        return output
+
 
 class Chain(BaseChain):
     return_intermediate_steps: bool = False
-    max_iterations: Optional[int] = 15
-    max_execution_time: Optional[float] = None
     handle_parsing_errors = True
-
-    def _should_continue(self, iterations: int, time_elapsed: float) -> bool:
-        if self.max_iterations is not None and iterations >= self.max_iterations:
-            return False
-        if (
-            self.max_execution_time is not None
-            and time_elapsed >= self.max_execution_time
-        ):
-            return False
-
-        return True
 
     @staticmethod
     def handle_repeated_action(agent_action: AgentAction) -> AgentFinish:
@@ -109,13 +144,13 @@ class Chain(BaseChain):
             print(f"Action taken before: {agent_action.tool}, "
                   f"input: {agent_action.tool_input}")
             return AgentFinish(
-                return_values={"output": agent_action.response},
+                message=agent_action.response,
                 log=f"Action taken before: {agent_action.tool}, "
                     f"input: {agent_action.tool_input}"
             )
         else:
             return AgentFinish(
-                return_values={"output": HandOffToAgent().run("")},
+                message=HandOffToAgent().run(""),
                 log=f"Handing off to agent"
             )
 
@@ -141,10 +176,7 @@ class Chain(BaseChain):
                     raise e
                 observation = f"Invalid or incomplete response due to {e}"
                 print(observation)
-                output = AgentFinish(
-                    return_values={"output": HandOffToAgent().run("")},
-                    log=observation
-                )
+                output = AgentFinish(message=HandOffToAgent().run(""), log=observation)
                 return output
 
         if isinstance(output, AgentAction):
@@ -158,7 +190,7 @@ class Chain(BaseChain):
 
         if isinstance(output, AgentAction):
             observation = ""
-            # Otherwise we lookup the tool
+            # Check if tool is supported
             if output.tool in name_to_tool_map:
                 tool = name_to_tool_map[output.tool]
 
@@ -183,44 +215,3 @@ class Chain(BaseChain):
             return output
         else:
             raise ValueError(f"Unsupported action: {type(output)}")
-
-    def _run(
-        self,
-        inputs: Dict[str, Any],
-    ) -> AgentFinish:
-        """Run text through and get agent response."""
-        # Construct a mapping of tool name to tool for easy lookup
-
-        name_to_tool_map = {tool.name: tool for tool in self.tools}
-        # We construct a mapping from each tool to a color, used for logging.
-        # color_mapping = get_color_mapping(
-        #     [tool.name for tool in self.tools], excluded_colors=["green"]
-        # )
-
-        intermediate_steps: List[AgentAction] = self.memory.load_memory(constants.OBSERVATIONS, [])
-        # Let's start tracking the number of iterations and time elapsed
-        iterations = 0
-        time_elapsed = 0.0
-        start_time = time.time()
-        # We now enter the agent loop (until it returns something).
-        while self._should_continue(iterations, time_elapsed):
-            print(f"\nInputs: {inputs}\n Intermediate steps: {intermediate_steps}\n")
-            next_step_output = self._take_next_step(
-                name_to_tool_map,
-                inputs,
-                intermediate_steps,
-            )
-            if isinstance(next_step_output, AgentFinish):
-                next_step_output.intermediate_steps = intermediate_steps
-                return next_step_output
-
-            intermediate_steps.append(next_step_output)
-            iterations += 1
-            time_elapsed = time.time() - start_time
-        # force the termination
-        output = AgentFinish(
-            return_values={"output": "Agent stopped due to iteration limit or time limit."},
-            log="",
-            intermediate_steps=intermediate_steps
-        )
-        return output
