@@ -14,7 +14,7 @@ from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_INSTRUCTION_FO
     CLARIFYING_INSTRUCTION_FORMAT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.models.base import Generation, BaseLanguageModel
-from minichain.structs import AgentAction, AgentFinish
+from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
 from minichain.tools.tools import HandOffToAgent
 from minichain.utils import print_with_color

@@ -1,8 +1,8 @@
 import argparse
 
 from minichain.tools.base import Tool
-from minichain.workflow_tests.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflow_tests.test_utils import get_args
+from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
+from minichain.workflows_evaluation.test_utils import get_args
 
 
 class TestExchangeOrReturnTest(BaseTest):

@@ -9,7 +9,7 @@ from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.chain import constants
 from minichain.errors import ToolRunningError
 from minichain.memory.base import BaseMemory
-from minichain.structs import AgentAction, AgentFinish
+from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
 from minichain.tools.tools import HandOffToAgent
 
