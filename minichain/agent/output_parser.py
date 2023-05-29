@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from minichain.agent.prompt import SBS_INSTRUCTION_FORMAT
 from minichain.errors import OutputParserException
-from minichain.structs import AgentAction, AgentFinish
+from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.tools import HandOffToAgent
 
 
