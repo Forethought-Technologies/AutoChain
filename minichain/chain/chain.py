@@ -161,9 +161,11 @@ class Chain(BaseChain):
         intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
         output = None
+        # check if agent should answer this query
         if self.last_query != inputs['query']:
             output = self.agent.should_answer(inputs=inputs)
             self.last_query = inputs['query']
+
         if not output:
             try:
                 # Call the LLM to see what to do.

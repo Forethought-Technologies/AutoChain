@@ -69,15 +69,15 @@ class WorkflowTester:
         while not conversation_end and len(conversation_history) < max_turn:
             response: Dict[str, Any] = self.agent_chain.run(user_query)
 
-            conversation_history.append(("assistant", response))
             agent_message = response['message']
+            conversation_history.append(("assistant", agent_message))
             print_with_color(f">> Assistant: {agent_message}", Fore.GREEN)
 
             conversation_end = self.determine_if_conversation_ends(agent_message)
             if not conversation_end:
                 user_query = self.get_next_user_query(conversation_history,
                                                       test_case.user_context)
-                conversation_history.append(("user", {"message": user_query}))
+                conversation_history.append(("user", user_query))
                 print_with_color(f">> User: {user_query}", Fore.GREEN)
 
         is_agent_helpful = self.determine_if_agent_solved_problem(conversation_history,

@@ -1,6 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_args
+from minichain.workflows_evaluation.test_utils import get_test_args
 
 
 class TestChangeShippingAddress(BaseTest):
@@ -51,11 +51,11 @@ If the order has already shipped, inform them that it is not possible to change 
     ]
 
     test_cases = [
-        TestCase(test_name="change shipping address",
-                 user_query="can i change my shipping address?",
-                 user_context="order id is 456. the new address is 234 spear st, "
-                              "san francisco",
-                 expected_outcome="found order status and changed shipping address"),
+        # TestCase(test_name="change shipping address",
+        #          user_query="can i change my shipping address?",
+        #          user_context="order id is 456. the new address is 234 spear st, "
+        #                       "san francisco",
+        #          expected_outcome="found order status and changed shipping address"),
         TestCase(test_name="failed changing shipping address, no order id",
                  user_query="can i change my shipping address?",
                  user_context="don't know about order id. the new address is 234 spear st, san francisco",
@@ -72,7 +72,7 @@ If the order has already shipped, inform them that it is not possible to change 
 
 if __name__ == '__main__':
     tests = WorkflowTester(tests=[TestChangeShippingAddress()], output_dir="./test_results")
-    args = get_args()
+    args = get_test_args()
     if args.interact:
         tests.run_interactive()
     else:

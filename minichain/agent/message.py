@@ -58,17 +58,19 @@ class ChatMessageHistory(BaseModel):
 
     def format_message(self):
         string_messages = []
-        for m in self.messages:
-            if isinstance(m, UserMessage):
-                role = "User"
-            elif isinstance(m, AIMessage):
-                role = "Assistant"
-            elif isinstance(m, SystemMessage):
-                role = "System"
-            else:
-                raise ValueError(f"Got unsupported message type: {m}")
-            string_messages.append(f"{role}: {m.content}")
-        return "\n".join(string_messages)
+        if len(self.messages) > 0:
+            for m in self.messages:
+                if isinstance(m, UserMessage):
+                    role = "User"
+                elif isinstance(m, AIMessage):
+                    role = "Assistant"
+                elif isinstance(m, SystemMessage):
+                    role = "System"
+                else:
+                    raise ValueError(f"Got unsupported message type: {m}")
+                string_messages.append(f"{role}: {m.content}")
+            return "\n".join(string_messages) + "\n"
+        return ""
 
     def clear(self) -> None:
         self.messages = []

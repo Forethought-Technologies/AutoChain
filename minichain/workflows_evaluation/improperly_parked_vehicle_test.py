@@ -1,6 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_args
+from minichain.workflows_evaluation.test_utils import get_test_args
 
 
 class TestImproperlyParkedVehicle(BaseTest):
@@ -71,7 +71,7 @@ Note that if the vehicle is not found in our system Assistant must escalate to c
 
 if __name__ == '__main__':
     tests = WorkflowTester(tests=[TestImproperlyParkedVehicle()], output_dir="./test_results")
-    args = get_args()
+    args = get_test_args()
     if args.interact:
         tests.run_interactive()
     else:

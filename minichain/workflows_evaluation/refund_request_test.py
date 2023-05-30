@@ -1,6 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_args
+from minichain.workflows_evaluation.test_utils import get_test_args
 
 
 class TestOrderStatusAndRefundRequest(BaseTest):
@@ -41,15 +41,15 @@ In case of lost or missing orders after all attempts to locate it have been exha
                     name="Order Status",
                     func=snowflake_order_status,
                     description="""This function checks order status for a given order id.
-                Input args: order_id: non-empty str
-                Output values: status_code: int, order_id: str,tracking_url: str, message: str"""
+Input args: order_id: non-empty str
+Output values: status_code: int, order_id: str,tracking_url: str, message: str"""
                 ),
                 Tool(
                     name="Validate Order Status",
                     func=validate_order_status_input,
                     description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
-                Input args: order_id: non-empty str
-                Output values: is_order_valid: bool"""
+Input args: order_id: non-empty str
+Output values: is_order_valid: bool"""
                 ),
             ]
 
@@ -73,7 +73,7 @@ In case of lost or missing orders after all attempts to locate it have been exha
 
 if __name__ == '__main__':
     tests = WorkflowTester(tests=[TestOrderStatusAndRefundRequest()], output_dir="./test_results")
-    args = get_args()
+    args = get_test_args()
     if args.interact:
         tests.run_interactive()
     else:
