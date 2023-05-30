@@ -1,22 +1,23 @@
-# Minichain
+# MiniChain
 Large language models (LLMs) are shown huge success in different text generation tasks and
-enable developers to build autonomous agent that operates on its own rather than hard coded
-decision trees.  
-However, most of the agent requires heavy customization, so that not just one pre-built agent
-could transfer easily out of the box, and it is still very challenging to customize on top of
-existing agents.  
-In addition, evaluating such autonomous agent powered by LLMs seems to be a very human
-expensive task to test different use cases under different user scenarios.
+enable developers to build autonomous agent based on natural language objectives.  
+However, most of the agents require heavy customization for a specific purpose, and existing 
+tools are sometimes overwhelming to be adapted for different use cases. As the result, it is 
+still very challenging to customize on top of existing agents.
 
-Minichain aims to solve both problems by providing a light weighted and extensible framework
-for developers to build their own conversational agent using LLMs and evaluate different user
-scenarios using simulated conversations.
+In addition, evaluating such autonomous agent powered by LLMs is a very manual and
+expensive task by trying different use cases under different potential user scenarios.
+
+Minichain took the inspirations from LangChain and AutoGPT and aims to solve 
+both problems by providing a light weighted and extensible framework
+for developers to build their own conversational agent using LLMs with custom tools and 
+automatically evaluates different user scenarios using simulated conversations.
 
 ### Features
 
 - 🚀 light weighted and extensible conversational pipeline
 - 🔗 agent that can run different custom tools
-- 💾 conversation history and tools outputs memory
+- 💾 tracking conversation history and tools outputs memory
 - 🤖 automated agent evaluation with simulated conversations
 
 
@@ -59,8 +60,8 @@ is not a query that should be handled by this agent, it could gracefully exits a
 possible.
 
 **plan**: This is the core of the agent which takes in all the stored memory, including past
-conversation history and tool output, named `observations`, and prompt the model to  output either `AgentFinish` or
-`AgentAction`.  
+conversation history and tool output, named `observations`, and prompt the model to output 
+either `AgentFinish` or`AgentAction`.  
 `AgentFinish` means agent decide to respond back to user with a
 message. While not just `plan` could output `AgentFinish`, `AgentFinish` is the **only** way to
 exits the chain and wait for next user inputs.  
@@ -69,7 +70,7 @@ to user. Once chain observe agent would like to perform an action, it will calls
 corresponding tool and store tool outputs, named `observations`, into the chain's memory for
 future interactions. At this point, there is no message respond back to user.
 
-**clarifying_args**
+**clarify_args_for_agent_action**
 When agent wants to take an action with tools, it usually requires to have some input arguments,
 which may or may not exists in the past conversation history or observations. While the
 smartest agent would output `AgentFinish` with response that asks user for missing information.
