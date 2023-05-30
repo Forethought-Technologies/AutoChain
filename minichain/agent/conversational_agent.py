@@ -2,62 +2,36 @@ from __future__ import annotations
 
 import json
 from string import Template
-from typing import Any, List, Optional, Sequence, Dict, Union
+from typing import Any, List, Optional, Dict, Union
 
 from colorama import Fore
-from pydantic import BaseModel, Extra
 
+from minichain.agent.base_agent import BaseAgent
 from minichain.agent.message import UserMessage, BaseMessage
 from minichain.agent.output_parser import ConvoJSONOutputParser
 from minichain.agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, \
     CLARIFYING_QUESTION_PROMPT, STEP_BY_STEP_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
-from minichain.models.base import Generation, BaseLanguageModel
 from minichain.agent.structs import AgentAction, AgentFinish
+from minichain.models.base import Generation, BaseLanguageModel
 from minichain.tools.base import Tool
 from minichain.tools.tools import HandOffToAgent
 from minichain.utils import print_with_color
 
 
-class ConversationalAgent(BaseModel):
+class ConversationalAgent(BaseAgent):
     output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
-    tools: Sequence[Tool] = []
+    tools: List[Tool] = []
     policy: str = ""
-
-    class Config:
-        """Configuration for this pydantic object."""
-        extra = Extra.forbid
-        arbitrary_types_allowed = True
-
-    def should_answer(self, inputs: Dict[str, Any],
-                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
-                      ) -> Optional[AgentFinish]:
-        """Determine if agent should continue to answer user questions based on the latest user
-        query"""
-        if "query" not in inputs or "history" not in inputs or not inputs['history']:
-            return None
-
-        def _parse_response(res: str):
-            if "yes" in res.lower():
-                return AgentFinish(
-                    message="Thank your for contacting",
-                    log=f"Thank your for contacting"
-                )
-            else:
-                return None
-
-        prompt = Template(should_answer_prompt_template).substitute(**inputs)
-        response = self.llm.generate([UserMessage(content=prompt)]).generations[0].message.content
-        return _parse_response(response)
 
     @classmethod
     def from_llm_and_tools(
         cls,
         llm: BaseLanguageModel,
-        tools: Sequence[Tool],
+        tools: List[Tool],
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prompt: str = STEP_BY_STEP_PROMPT,
         policy_desp: str = "",
@@ -83,6 +57,27 @@ class ConversationalAgent(BaseModel):
             policy=policy_desp,
             **kwargs,
         )
+
+    def should_answer(self, inputs: Dict[str, Any],
+                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
+                      ) -> Optional[AgentFinish]:
+        """Determine if agent should continue to answer user questions based on the latest user
+        query"""
+        if "query" not in inputs or "history" not in inputs or not inputs['history']:
+            return None
+
+        def _parse_response(res: str):
+            if "yes" in res.lower():
+                return AgentFinish(
+                    message="Thank your for contacting",
+                    log=f"Thank your for contacting"
+                )
+            else:
+                return None
+
+        prompt = Template(should_answer_prompt_template).substitute(**inputs)
+        response = self.llm.generate([UserMessage(content=prompt)]).generations[0].message.content
+        return _parse_response(response)
 
     def _construct_scratchpad(
         self, intermediate_steps: List[AgentAction]
