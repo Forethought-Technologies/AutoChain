@@ -25,6 +25,7 @@ class ConversationalAgent(BaseModel):
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
+    tools: Sequence[Tool] = []
 
     class Config:
         """Configuration for this pydantic object."""
@@ -68,8 +69,11 @@ class ConversationalAgent(BaseModel):
         """Construct an agent from an LLM and tools."""
         tools.append(HandOffToAgent())
 
+        tool_strings = "\n".join(
+            [f"> {tool.name}: {tool.description}" for tool in tools]
+        )
         prompt_template = cls.get_prompt_template(
-            tools,
+            tool_strings,
             prefix=prefix.format(policy=policy_desp),
             suffix=suffix,
             format_instructions=format_instructions,
@@ -83,6 +87,7 @@ class ConversationalAgent(BaseModel):
             allowed_tools=allowed_tools,
             output_parser=_output_parser,
             prompt_template=prompt_template,
+            tools=tools,
             **kwargs,
         )
 
@@ -107,7 +112,7 @@ class ConversationalAgent(BaseModel):
 
     @staticmethod
     def get_prompt_template(
-        tools: Sequence[Tool],
+        injected_message: str = "",
         prefix: str = PREFIX_PROMPT,
         suffix: str = SBS_SUFFIX,
         format_instructions: str = SBS_INSTRUCTION_FORMAT,
@@ -117,8 +122,7 @@ class ConversationalAgent(BaseModel):
         """Create prompt in the style of the zero shot agent.
 
         Args:
-            tools: List of tools the agent will have access to, used to format the
-                prompt.
+            injected_message: message to be injected between prefix and suffix.
             prefix: String to put before the list of tools.
             suffix: String to put after the list of tools.
             format_instructions: part of the prompt that format response from model
@@ -127,13 +131,7 @@ class ConversationalAgent(BaseModel):
         Returns:
             A PromptTemplate with the template assembled from the pieces here.
         """
-        tool_strings = "\n".join(
-            [f"> {tool.name}: {tool.description}" for tool in tools]
-        )
-        tool_names = ", ".join([tool.name for tool in tools])
-        t = Template(format_instructions)
-        format_instructions = t.substitute(tool_names=tool_names)
-        template = Template("\n\n".join([prefix, tool_strings, suffix, format_instructions, ]))
+        template = Template("\n".join([prefix, injected_message, suffix, format_instructions, ]))
 
         if input_variables is None:
             input_variables = ["input", "chat_history", "agent_scratchpad"]
@@ -142,7 +140,9 @@ class ConversationalAgent(BaseModel):
     def plan(
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
-        final_prompt = self.get_final_prompt(self.prompt_template, intermediate_steps, **kwargs)
+        tool_names = ", ".join([tool.name for tool in self.tools])
+        inputs = {"tool_names": tool_names, **kwargs}
+        final_prompt = self.get_final_prompt(self.prompt_template, intermediate_steps, **inputs)
         print(f"Full Input: {final_prompt[0].content} \n")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
@@ -164,8 +164,9 @@ class ConversationalAgent(BaseModel):
                                       intermediate_steps: List[AgentAction], **kwargs: Any):
 
         inputs = {"tool": agent_action.tool, **kwargs}
+        injected_message = self.allowed_tools.get(agent_action.tool).description
         clarifying_template = self.get_prompt_template(
-            [self.allowed_tools.get(agent_action.tool)],
+            injected_message=injected_message,
             prefix=CLARIFYING_QUESTION_PREFIX,
             suffix=SBS_SUFFIX,
             format_instructions=CLARIFYING_INSTRUCTION_FORMAT,
@@ -174,8 +175,6 @@ class ConversationalAgent(BaseModel):
                                              **inputs)
         print(f"Clarification inputs: {final_prompt[0].content}")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
-        print_with_color(f"Full clarification output: {json.loads(full_output.message.content)}",
-                         Fore.YELLOW)
         return self.output_parser.parse_clarification(full_output.message.content,
                                                       agent_action=agent_action)
 

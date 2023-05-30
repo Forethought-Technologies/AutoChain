@@ -1,7 +1,7 @@
 import argparse
 
 
-def get_args():
+def get_test_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--interact",
