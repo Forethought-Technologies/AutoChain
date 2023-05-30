@@ -14,10 +14,10 @@ scenarios using simulated conversations.
 
 ### Features
 
-- light weighted and extensible conversational pipeline
-- agent that can run different custom tools
-- conversation history and tools outputs memory
-- automated agent evaluation with simulated conversations
+- 🚀 light weighted and extensible conversational pipeline
+- 🔗 agent that can run different custom tools
+- 💾 conversation history and tools outputs memory
+- 🤖 automated agent evaluation with simulated conversations
 
 
 ## Components overview
