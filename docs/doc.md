@@ -1,3 +1,0 @@
-# Minichain
-
-<motivation>
