@@ -36,8 +36,7 @@ If the order has already shipped, inform them that it is not possible to change 
             description="""This function checks the order status based on order_id
 Input args: order_id: non-empty str
 Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-tracking_url: str, message: str
-            """
+tracking_url: str, message: str"""
         ),
         Tool(
             name="change shipping address",
@@ -45,8 +44,7 @@ tracking_url: str, message: str
             description="""This function change the shipping address based on provided 
 order_id and new_address 
 Input args: order_id: non-empty str, new_address: non-empty str
-Output values: status_code: int, order_id: str, shipping_address: str
-            """
+Output values: status_code: int, order_id: str, shipping_address: str"""
         ),
     ]
 

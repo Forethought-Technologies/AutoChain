@@ -44,18 +44,16 @@ class TestExchangeOrReturnTest(BaseTest):
             name="check return eligibility",
             func=check_return_eligibility,
             description="""This function if order can be returned or exchanged
-            Input args: order_number: non-empty str
-            Output values: status_code: int, return_ok: bool 
-            """
+Input args: order_number: non-empty str
+Output values: status_code: int, return_ok: bool """
         ),
         Tool(
             name="change user status",
             func=check_user_status,
             description="""This function checks user location and determine if user is 
-            international or domestic based on email
-            Input args: email: non-empty str
-            Output values: status_code: int, user_location: str, order_number: str
-            """
+international or domestic based on email
+Input args: email: non-empty str
+Output values: status_code: int, user_location: str, order_number: str"""
         ),
     ]
 
