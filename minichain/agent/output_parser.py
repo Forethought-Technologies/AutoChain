@@ -5,7 +5,6 @@ from typing import Union
 from colorama import Fore
 from pydantic import BaseModel
 
-from minichain.agent.prompt import SBS_INSTRUCTION_FORMAT
 from minichain.errors import OutputParserException
 from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.tools import HandOffToAgent
@@ -13,8 +12,6 @@ from minichain.utils import print_with_color
 
 
 class AgentOutputParser(BaseModel):
-    instruction_format: str = ""
-
     @abstractmethod
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         """Parse text into agent action/finish."""
@@ -27,7 +24,6 @@ class AgentOutputParser(BaseModel):
 
 
 class ConvoJSONOutputParser(AgentOutputParser):
-    instruction_format = SBS_INSTRUCTION_FORMAT
 
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         try:
