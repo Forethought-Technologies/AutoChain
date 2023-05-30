@@ -42,7 +42,7 @@ In case of lost or missing orders after all attempts to locate it have been exha
                     func=snowflake_order_status,
                     description="""This function checks order status for a given order id.
 Input args: order_id: non-empty str
-Output values: status_code: int, order_id: str,tracking_url: str, message: str"""
+Output values: status_code: int, order_id: str, tracking_url: str, message: str"""
                 ),
                 Tool(
                     name="Validate Order Status",

@@ -20,6 +20,24 @@ scenarios using simulated conversations.
 - 🤖 automated agent evaluation with simulated conversations
 
 
+## Setup
+After cloning the repo
+```shell
+cd minichain
+pyenv virtualenv 3.10.11 venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+export OPENAI_API_KEY=
+export PYTHONPATH=`pwd`
+```
+
+Run your first conversation with agent interactively
+```shell
+python minichain/workflows_evaluation/refund_request_test.py -i
+```
+
 ## Components overview
 There are a few key components in Minichain, which could be easily extended to build new agents.
 
@@ -102,3 +120,73 @@ agent's prompt.
    LLM in the end would determine if the conversation reached the desired outcome for simpler
    inspection.
 
+### How to run workflow tests
+There are two modes for running workflow tests. Interactively or running all test cases.
+For example in `minichain/workflows_evaluation/refund_request_test.py`, it has already defined 
+a few test cases. 
+Running all the test cases defined in the test
+```shell
+python minichain/workflows_evaluation/refund_request_test.py
+```
+
+You can also interactively having a conversation with that agent by passing the interactive 
+flag `-i`
+```shell
+python minichain/workflows_evaluation/refund_request_test.py -i
+```
+
+All of the test results will be saved to `./test_results` directory by default in jsonl format.
+Each test case results would look like the following
+```json
+{
+    "test_name": "change shipping address",
+    "conversation_history":
+    [
+        "user: can i change my shipping address?",
+        "assistant: May I have your order ID please?",
+        "user: My order ID is 456 and I would like to change my shipping address to 234 Spear St, San Francisco",
+        "assistant: The current status of your order is 'not_shipped' and the tracking URL is example.com/456. Would you like to proceed with changing the shipping address?",
+        "user: Yes, please update my shipping address to 234 Spear St, San Francisco",
+        "assistant: Your shipping address has been updated to 234 Spear St, San Francisco. Is there anything else I can assist you with?"
+    ],
+    "is_agent_helpful":
+    [
+        true,
+        "Yes, the conversation reaches the expected outcome for the user as the assistant confirms the order status and successfully updates the shipping address as requested by the user"
+    ],
+    "actions_took":
+    [
+        {
+            "tool": "check order status",
+            "tool_input":
+            {
+                "order_id": "456"
+            },
+            "observation":
+            {
+                "status_code": 200,
+                "order_id": "456",
+                "order_status": "not_shipped",
+                "tracking_url": "example.com/456",
+                "shipping_address": "301 ivy street san francisco ca"
+            }
+        },
+        {
+            "tool": "change shipping address",
+            "tool_input":
+            {
+                "order_id": "456",
+                "new_address": "234 Spear St, San Francisco"
+            },
+            "observation":
+            {
+                "status_code": 200,
+                "order_id": "456",
+                "shipping_address": "234 Spear St, San Francisco"
+            }
+        }
+    ],
+    "num_turns": 6,
+    "expected_outcome": "found order status and changed shipping address"
+}
+```

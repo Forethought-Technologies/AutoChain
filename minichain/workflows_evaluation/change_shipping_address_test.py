@@ -34,28 +34,28 @@ If the order has already shipped, inform them that it is not possible to change 
             name="check order status",
             func=check_order_status,
             description="""This function checks the order status based on order_id
-            Input args: order_id: non-empty str
-            Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-            tracking_url: str, message: str
+Input args: order_id: non-empty str
+Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
+tracking_url: str, message: str
             """
         ),
         Tool(
             name="change shipping address",
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
-            order_id and new_address 
-            Input args: order_id: non-empty str, new_address: non-empty str
-            Output values: status_code: int, order_id: str, shipping_address: str
+order_id and new_address 
+Input args: order_id: non-empty str, new_address: non-empty str
+Output values: status_code: int, order_id: str, shipping_address: str
             """
         ),
     ]
 
     test_cases = [
-        # TestCase(test_name="change shipping address",
-        #          user_query="can i change my shipping address?",
-        #          user_context="order id is 456. the new address is 234 spear st, "
-        #                       "san francisco",
-        #          expected_outcome="found order status and changed shipping address"),
+        TestCase(test_name="change shipping address",
+                 user_query="can i change my shipping address?",
+                 user_context="order id is 456. the new address is 234 spear st, "
+                              "san francisco",
+                 expected_outcome="found order status and changed shipping address"),
         TestCase(test_name="failed changing shipping address, no order id",
                  user_query="can i change my shipping address?",
                  user_context="don't know about order id. the new address is 234 spear st, san francisco",

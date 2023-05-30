@@ -9,9 +9,8 @@ from pydantic import BaseModel, Extra
 
 from minichain.agent.message import UserMessage, BaseMessage
 from minichain.agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.prompt import PREFIX_PROMPT, SBS_SUFFIX, SBS_INSTRUCTION_FORMAT, \
-    FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, CLARIFYING_QUESTION_PREFIX, \
-    CLARIFYING_INSTRUCTION_FORMAT
+from minichain.agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, \
+    CLARIFYING_QUESTION_PROMPT, STEP_BY_STEP_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.models.base import Generation, BaseLanguageModel
 from minichain.agent.structs import AgentAction, AgentFinish
@@ -26,6 +25,7 @@ class ConversationalAgent(BaseModel):
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: Sequence[Tool] = []
+    policy: str = ""
 
     class Config:
         """Configuration for this pydantic object."""
@@ -59,9 +59,7 @@ class ConversationalAgent(BaseModel):
         llm: BaseLanguageModel,
         tools: Sequence[Tool],
         output_parser: Optional[ConvoJSONOutputParser] = None,
-        prefix: str = PREFIX_PROMPT,
-        suffix: str = SBS_SUFFIX,
-        format_instructions: str = SBS_INSTRUCTION_FORMAT,
+        prompt: str = STEP_BY_STEP_PROMPT,
         policy_desp: str = "",
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
@@ -69,14 +67,8 @@ class ConversationalAgent(BaseModel):
         """Construct an agent from an LLM and tools."""
         tools.append(HandOffToAgent())
 
-        tool_strings = "\n".join(
-            [f"> {tool.name}: {tool.description}" for tool in tools]
-        )
         prompt_template = cls.get_prompt_template(
-            tool_strings,
-            prefix=prefix.format(policy=policy_desp),
-            suffix=suffix,
-            format_instructions=format_instructions,
+            prompt=prompt,
             input_variables=input_variables,
         )
 
@@ -88,6 +80,7 @@ class ConversationalAgent(BaseModel):
             output_parser=_output_parser,
             prompt_template=prompt_template,
             tools=tools,
+            policy=policy_desp,
             **kwargs,
         )
 
@@ -112,26 +105,20 @@ class ConversationalAgent(BaseModel):
 
     @staticmethod
     def get_prompt_template(
-        injected_message: str = "",
-        prefix: str = PREFIX_PROMPT,
-        suffix: str = SBS_SUFFIX,
-        format_instructions: str = SBS_INSTRUCTION_FORMAT,
+        prompt: str = "",
         input_variables: Optional[List[str]] = None,
     ) -> JSONPromptTemplate:
 
         """Create prompt in the style of the zero shot agent.
 
         Args:
-            injected_message: message to be injected between prefix and suffix.
-            prefix: String to put before the list of tools.
-            suffix: String to put after the list of tools.
-            format_instructions: part of the prompt that format response from model
+            prompt: message to be injected between prefix and suffix.
             input_variables: List of input variables the final prompt will expect.
 
         Returns:
             A PromptTemplate with the template assembled from the pieces here.
         """
-        template = Template("\n".join([prefix, injected_message, suffix, format_instructions, ]))
+        template = Template(prompt)
 
         if input_variables is None:
             input_variables = ["input", "chat_history", "agent_scratchpad"]
@@ -141,9 +128,18 @@ class ConversationalAgent(BaseModel):
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
         tool_names = ", ".join([tool.name for tool in self.tools])
-        inputs = {"tool_names": tool_names, **kwargs}
+        tool_strings = "\n\n".join(
+            [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
+        )
+        inputs = {
+            "tool_names": tool_names,
+            "tools": tool_strings,
+            "policy": self.policy,
+            **kwargs
+        }
         final_prompt = self.get_final_prompt(self.prompt_template, intermediate_steps, **inputs)
         print(f"Full Input: {final_prompt[0].content} \n")
+
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message.content)
@@ -163,14 +159,14 @@ class ConversationalAgent(BaseModel):
     def clarify_args_for_agent_action(self, agent_action: AgentAction,
                                       intermediate_steps: List[AgentAction], **kwargs: Any):
 
-        inputs = {"tool": agent_action.tool, **kwargs}
-        injected_message = self.allowed_tools.get(agent_action.tool).description
-        clarifying_template = self.get_prompt_template(
-            injected_message=injected_message,
-            prefix=CLARIFYING_QUESTION_PREFIX,
-            suffix=SBS_SUFFIX,
-            format_instructions=CLARIFYING_INSTRUCTION_FORMAT,
-        )
+        inputs = {
+            "tool_name": agent_action.tool,
+            "tool_desp": self.allowed_tools.get(agent_action.tool).description,
+            **kwargs
+        }
+
+        clarifying_template = self.get_prompt_template(prompt=CLARIFYING_QUESTION_PROMPT)
+
         final_prompt = self.get_final_prompt(clarifying_template, intermediate_steps,
                                              **inputs)
         print(f"Clarification inputs: {final_prompt[0].content}")
