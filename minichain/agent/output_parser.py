@@ -41,7 +41,6 @@ class ConvoJSONOutputParser(AgentOutputParser):
                                model_response=response.get("response", ""))
 
         if ("no" in response.get("thoughts", {}).get("need_use_tool").lower().strip()
-            or "yes" not in response.get("validation", {}).get("arg_valid").lower()
             or not action_name
         ):
             output_message = response.get("response")
