@@ -122,6 +122,7 @@ class ConversationalAgent(BaseAgent):
     def plan(
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
+        print_with_color(f"Planning", Fore.LIGHTYELLOW_EX)
         tool_names = ", ".join([tool.name for tool in self.tools])
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
@@ -153,7 +154,7 @@ class ConversationalAgent(BaseAgent):
 
     def clarify_args_for_agent_action(self, agent_action: AgentAction,
                                       intermediate_steps: List[AgentAction], **kwargs: Any):
-
+        print_with_color(f"Deciding if need clarification", Fore.LIGHTYELLOW_EX)
         inputs = {
             "tool_name": agent_action.tool,
             "tool_desp": self.allowed_tools.get(agent_action.tool).description,

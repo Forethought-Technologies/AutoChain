@@ -140,15 +140,15 @@ class BaseLanguageModel(BaseModel):
             before_sleep=before_sleep_log(logger, logging.WARNING),
         )
 
-    def completion_with_retry(self, **kwargs: Any) -> Any:
+    def generate_with_retry(self, **kwargs: Any) -> Any:
         """Use tenacity to retry the completion call."""
         retry_decorator = self._create_retry_decorator()
 
         @retry_decorator
-        def _completion_with_retry(**kwargs: Any) -> Any:
+        def _generate_with_retry(**kwargs: Any) -> Any:
             return self.client.create(**kwargs)
 
-        return _completion_with_retry(**kwargs)
+        return _generate_with_retry(**kwargs)
 
     @abstractmethod
     def generate(
