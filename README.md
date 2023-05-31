@@ -36,7 +36,7 @@ export PYTHONPATH=`pwd`
 
 Run your first conversation with agent interactively
 ```shell
-python minichain/workflows_evaluation/refund_request_test.py -i
+python minichain/workflows_evaluation/order_status_request_test.py -i
 ```
 
 ## Components overview
@@ -127,13 +127,13 @@ For example in `minichain/workflows_evaluation/refund_request_test.py`, it has a
 a few test cases. 
 Running all the test cases defined in the test
 ```shell
-python minichain/workflows_evaluation/refund_request_test.py
+python minichain/workflows_evaluation/order_status_request_test.py
 ```
 
 You can also interactively having a conversation with that agent by passing the interactive 
 flag `-i`
 ```shell
-python minichain/workflows_evaluation/refund_request_test.py -i
+python minichain/workflows_evaluation/order_status_request_test.py -i
 ```
 
 All of the test results will be saved to `./test_results` directory by default in jsonl format.

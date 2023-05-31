@@ -42,10 +42,11 @@ class ChatOpenAI(BaseLanguageModel):
     request_timeout: Optional[Union[float, Tuple[float, float]]] = None
     """Timeout for requests to OpenAI completion API. Default is 600 seconds."""
     max_retries: int = 6
-    """Maximum number of retries to make when generating."""
-    streaming: bool = False
-    """Whether to stream the results or not."""
-    n: int = 1
+    # TODO: support streaming
+    # """Maximum number of retries to make when generating."""
+    # streaming: bool = False
+    # """Whether to stream the results or not."""
+    # n: int = 1
     """Number of chat completions to generate for each prompt."""
     max_tokens: Optional[int] = None
     """Maximum number of tokens to generate."""
@@ -76,10 +77,10 @@ class ChatOpenAI(BaseLanguageModel):
                 "due to an old version of the openai package. Try upgrading it "
                 "with `pip install --upgrade openai`."
             )
-        if values["n"] < 1:
-            raise ValueError("n must be at least 1.")
-        if values["n"] > 1 and values["streaming"]:
-            raise ValueError("n must be 1 when streaming.")
+        # if values["n"] < 1:
+        #     raise ValueError("n must be at least 1.")
+        # if values["n"] > 1 and values["streaming"]:
+        #     raise ValueError("n must be 1 when streaming.")
         return values
 
     def generate(
@@ -88,8 +89,8 @@ class ChatOpenAI(BaseLanguageModel):
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
         message_dicts, params = self._create_message_dicts(messages, stop)
-        response = self.completion_with_retry(messages=message_dicts, **params)
-        return self._create_chat_result(response)
+        response = self.generate_with_retry(messages=message_dicts, **params)
+        return self._create_llm_result(response)
 
     def _create_message_dicts(
         self, messages: List[BaseMessage], stop: Optional[List[str]]
@@ -102,7 +103,7 @@ class ChatOpenAI(BaseLanguageModel):
         message_dicts = [convert_message_to_dict(m) for m in messages]
         return message_dicts, params
 
-    def _create_chat_result(self, response: Mapping[str, Any]) -> LLMResult:
+    def _create_llm_result(self, response: Mapping[str, Any]) -> LLMResult:
         generations = []
         for res in response["choices"]:
             message = convert_dict_to_message(res["message"])
