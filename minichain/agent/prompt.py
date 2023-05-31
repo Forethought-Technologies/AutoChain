@@ -30,9 +30,6 @@ RESPONSE FORMAT:
       "arg_name": "arg value from conversation history or observation to run tool"
     }
   },
-  "validation": {
-    "arg_valid": "are arg values valid based on input args from tools? Yes or No"
-  },
   "response": "clarifying required args for that tool or response to user. this cannot be empty",
   "workflow_finished": "Yes if reach the end of workflow else No"
 }
