@@ -77,6 +77,3 @@ RESPONSE FORMAT:
     "clarifying_question": "clarifying question to user to ask for missing information"
 }
 Ensure the response can be parsed by Python json.loads"""
-
-CLARIFYING_INSTRUCTION_FORMAT = """
-"""
