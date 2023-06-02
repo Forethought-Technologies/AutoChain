@@ -26,7 +26,7 @@ After cloning the repo
 ```shell
 cd minichain
 pyenv virtualenv 3.10.11 venv
-source venv/bin/activate
+pyenv local venv
 
 pip install -r requirements.txt
 

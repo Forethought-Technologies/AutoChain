@@ -11,7 +11,7 @@ from minichain.errors import ToolRunningError
 from minichain.memory.base import BaseMemory
 from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
-from minichain.tools.tools import HandOffToAgent
+from minichain.tools.simple_handoff.tools import HandOffToAgent
 
 
 class BaseChain(BaseModel, ABC):

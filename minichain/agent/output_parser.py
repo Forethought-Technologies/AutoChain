@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from minichain.errors import OutputParserException
 from minichain.agent.structs import AgentAction, AgentFinish
-from minichain.tools.tools import HandOffToAgent
+from minichain.tools.simple_handoff.tools import HandOffToAgent
 from minichain.utils import print_with_color
 
 
