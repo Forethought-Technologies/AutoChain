@@ -58,12 +58,13 @@ class ConversationalAgent(BaseAgent):
             **kwargs,
         )
 
-    def should_answer(self, inputs: Dict[str, Any],
-                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
+    def should_answer(self,
+                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT,
+                      **kwargs
                       ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""
-        if "query" not in inputs or "history" not in inputs or not inputs['history']:
+        if "query" not in kwargs or "history" not in kwargs or not kwargs['history']:
             return None
 
         def _parse_response(res: str):
@@ -75,7 +76,7 @@ class ConversationalAgent(BaseAgent):
             else:
                 return None
 
-        prompt = Template(should_answer_prompt_template).substitute(**inputs)
+        prompt = Template(should_answer_prompt_template).substitute(**kwargs)
         response = self.llm.generate([UserMessage(content=prompt)]).generations[0].message.content
         return _parse_response(response)
 

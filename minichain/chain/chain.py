@@ -163,7 +163,7 @@ class Chain(BaseChain):
         output = None
         # check if agent should answer this query
         if self.last_query != inputs['query']:
-            output = self.agent.should_answer(inputs=inputs)
+            output = self.agent.should_answer(**inputs)
             self.last_query = inputs['query']
 
         if not output:
