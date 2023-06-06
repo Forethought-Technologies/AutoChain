@@ -1,15 +1,15 @@
 """Base interface that all chains should implement."""
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Sequence, List, Union
+from typing import Any, Dict, Optional, List
 
 from pydantic import BaseModel
 
-from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.chain import constants
 from minichain.errors import ToolRunningError
 from minichain.memory.base import BaseMemory
-from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.tools.base import Tool
 from minichain.tools.simple_handoff.tools import HandOffToAgent
 
@@ -17,10 +17,10 @@ from minichain.tools.simple_handoff.tools import HandOffToAgent
 class BaseChain(BaseModel, ABC):
     """Base interface that all chains should implement."""
 
+    agent: Optional[ConversationalAgent] = None
+    tools: List[Tool] = []
     memory: Optional[BaseMemory] = None
     verbosity: str = ""
-    agent: ConversationalAgent
-    tools: Sequence[Tool]
     last_query: str = ""
     max_iterations: Optional[int] = 15
     max_execution_time: Optional[float] = None
@@ -56,7 +56,7 @@ class BaseChain(BaseModel, ABC):
         self,
         user_query: str,
         return_only_outputs: bool = False,
-    ) -> Union[AgentFinish, Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """Wrapper for _run function which formats the input and outputs
 
         Args:

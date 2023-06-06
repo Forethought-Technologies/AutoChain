@@ -2,7 +2,7 @@ import argparse
 
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_test_args
+from minichain.workflows_evaluation.test_utils import get_test_args, create_chain_from_test
 
 
 class TestExchangeOrReturnTest(BaseTest):
@@ -75,9 +75,12 @@ Output values: status_code: int, user_location: str, order_number: str"""
 
 
 if __name__ == '__main__':
-    tests = WorkflowTester(tests=[TestExchangeOrReturnTest()], output_dir="./test_results")
+    test = TestExchangeOrReturnTest()
+    chain = create_chain_from_test(test=test)
+    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+
     args = get_test_args()
     if args.interact:
-        tests.run_interactive()
+        tester.run_interactive()
     else:
-        tests.run_all_tests()
+        tester.run_all_tests()

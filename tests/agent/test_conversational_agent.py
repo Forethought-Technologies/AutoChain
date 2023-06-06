@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from minichain.agent.conversational_agent import ConversationalAgent
+from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
 from minichain.agent.message import BaseMessage, AIMessage
 from minichain.agent.structs import AgentFinish
 from minichain.models.base import LLMResult, Generation, BaseLanguageModel

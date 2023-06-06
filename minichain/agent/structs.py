@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Union, Any, Dict, List
 
 from pydantic import BaseModel
@@ -40,3 +41,15 @@ class AgentFinish(BaseModel):
         final_output = {"message": self.message,
                         constants.INTERMEDIATE_STEPS: self.intermediate_steps}
         return final_output
+
+
+class AgentOutputParser(BaseModel):
+    @abstractmethod
+    def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
+        """Parse text into agent action/finish."""
+
+    @staticmethod
+    def parse_clarification(text: str,
+                            agent_action: AgentAction) -> Union[AgentAction, AgentFinish]:
+        """Parse clarification outputs"""
+        return agent_action

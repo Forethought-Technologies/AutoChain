@@ -1,5 +1,18 @@
 import argparse
 
+from langchain.agents import initialize_agent, AgentType
+from langchain.memory import ConversationBufferMemory
+from langchain.chat_models import ChatOpenAI as LangchainModel
+
+from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from minichain.chain.chain import Chain
+from minichain.chain.langchain_wapper_chain import LangChainWrapperChain
+from minichain.memory.base import BaseMemory
+from minichain.memory.buffer_memory import BufferMemory
+from minichain.models.base import BaseLanguageModel
+from minichain.models.chat_openai import ChatOpenAI
+from minichain.workflows_evaluation.base_test import BaseTest
+
 
 def get_test_args():
     parser = argparse.ArgumentParser()
@@ -11,3 +24,25 @@ def get_test_args():
     )
     args = parser.parse_args()
     return args
+
+
+def create_chain_from_test(test: BaseTest, memory: BaseMemory = None,
+                           llm: BaseLanguageModel = None,
+                           agent_cls=ConversationalAgent):
+    llm = llm or ChatOpenAI(temperature=0)
+    memory = memory or BufferMemory()
+    agent = agent_cls.from_llm_and_tools(
+        llm, test.tools, policy_desp=test.policy
+    )
+    return Chain(tools=test.tools, agent=agent, memory=memory)
+
+
+def create_langchain_from_test(test: BaseTest, agent_type: AgentType, memory: BaseMemory = None,
+                               llm: BaseLanguageModel = None):
+    llm = llm or LangchainModel(temperature=0)
+    memory = memory or ConversationBufferMemory(memory_key="chat_history")
+
+    langchain = initialize_agent(test.tools, llm, agent=agent_type,
+                                 verbose=True, memory=memory)
+
+    return LangChainWrapperChain(langchain=langchain)
