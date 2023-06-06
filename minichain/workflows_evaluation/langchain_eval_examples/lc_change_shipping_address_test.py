@@ -2,10 +2,12 @@ from langchain.agents import AgentType
 from langchain.tools import Tool
 
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_test_args, create_langchain_from_test
+from minichain.workflows_evaluation.test_utils import get_test_args
+from minichain.workflows_evaluation.langchain_eval_examples.langchain_test_utils import \
+    create_langchain_from_test
 
 
-class TestChangeShippingAddress(BaseTest):
+class TestChangeShippingAddressWithLC(BaseTest):
     @staticmethod
     def check_order_status(order_id: str, **kwargs):
         """Returns order information as a dictionary, where order_status can be "shipped" or "not_shipped" """
@@ -60,7 +62,7 @@ Output values: status_code: int, order_id: str, shipping_address: str"""
 
 
 if __name__ == '__main__':
-    test = TestChangeShippingAddress()
+    test = TestChangeShippingAddressWithLC()
     chain = create_langchain_from_test(test=test, agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
     tests = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
 
