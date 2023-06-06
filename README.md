@@ -55,6 +55,11 @@ Flow diagram describes the high level picture of the default chain interaction w
 Agent is the component that decide how to respond to user or whether agent requires to use tools.  
 There are a few typical interactions an agent should support:
 
+**prompt** Depending on agents you are building, you might want to wrirte different agent's 
+planning prompt. policy controls the steps agent should take for different situation.
+Those prompt could be string template so that later one the same agent could substitute 
+different values into the prompt for different use cases
+
 **should_answer**: not all the question should be answered by agent. If agent decides that this
 is not a query that should be handled by this agent, it could gracefully exits as early as
 possible.
@@ -104,11 +109,6 @@ There are a couple key concepts to build such test cases
 **tools** Since most of the agent would need to use tools, you would also need to provide the
 required tools with their name, function callable, and tool description. The better your tool
 name and description are, higher the chain agent would use the right tool with right arguments.
-
-**policy** Depending on agents you are building, you might want to inject different policy into
-the agent's planning prompt. policy controls the steps agent should take for different situation.
-If you don't need to inject anything to the agent, you would skip this part and add policy to
-agent's prompt.
 
 **test_cases** Define different user scenarios. Each test case would have 4 different components.
 1. test_name: this is a descriptive name for later human evaluation to quickly know which test

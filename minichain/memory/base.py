@@ -1,4 +1,4 @@
-"""Common schema objects."""
+"""Common memory schema object."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,17 +16,11 @@ class BaseMemory(BaseModel, ABC):
 
     @abstractmethod
     def load_memory(self, key: str = None, default: Any = None, **kwargs) -> Any:
-        """Return key-value pairs given the text input to the chain.
-
-        If None, return all memories
-        """
+        """Return key-value pairs given the text input to the chain."""
 
     @abstractmethod
     def load_conversation(self, **kwargs) -> Dict[str, Any]:
-        """Return key-value pairs given the text input to the chain.
-
-        If None, return all memories
-        """
+        """Return key-value pairs given the text input to the chain."""
 
     @abstractmethod
     def save_memory(self, key: str, value: Any) -> None:

@@ -10,6 +10,7 @@ from minichain.workflows_evaluation.base_test import BaseTest
 
 
 def get_test_args():
+    """Adding arguments for running test"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--interact",
@@ -23,10 +24,21 @@ def get_test_args():
 
 def create_chain_from_test(test: BaseTest, memory: BaseMemory = None,
                            llm: BaseLanguageModel = None,
-                           agent_cls=ConversationalAgent):
+                           agent_cls=ConversationalAgent,
+                           **kwargs):
+    """
+    Create Chain for running tests
+    Args:
+        test: instance of BaseTest
+        memory: memory store for chain
+        llm: model for agent
+        agent_cls: metadata class for instantiating agent
+    Returns:
+        Chain
+    """
     llm = llm or ChatOpenAI(temperature=0)
     memory = memory or BufferMemory()
     agent = agent_cls.from_llm_and_tools(
-        llm, test.tools, policy_desp=test.policy
+        llm, test.tools, **kwargs
     )
     return Chain(tools=test.tools, agent=agent, memory=memory)

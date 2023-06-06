@@ -73,7 +73,7 @@ Output values: is_order_valid: bool"""
 
 if __name__ == '__main__':
     test = TestOrderStatusAndRefundRequest()
-    chain = create_chain_from_test(test=test)
+    chain = create_chain_from_test(test=test, policy=test.policy)
     tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
     args = get_test_args()
     if args.interact:

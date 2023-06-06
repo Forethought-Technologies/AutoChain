@@ -1,8 +1,11 @@
+from colorama import Fore
 
+from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
 from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
+from minichain.utils import print_with_color
 
 policy = """AI is responsible for the following policy
 Policy description: When a customer reports that they have not received their order, first check the order status in the system.
@@ -53,13 +56,11 @@ tools = [
 ]
 
 llm = ChatOpenAI(temperature=0)
-agent = ConversationalAgent.from_llm_and_tools(llm, tools, policy_desp=policy)
+agent = ConversationalAgent.from_llm_and_tools(llm, tools, policy=policy)
 memory = BufferMemory()
 
 chain = Chain(tools=tools, agent=agent, memory=memory)
-response = chain.run("where is my order", return_only_outputs=True)
 while True:
-    print(f">>> Assistant: {response['message']}")
-    print("\n")
-    query = input(">>> User: ")
+    query = input(">> User: ")  # for example "where is my order"
     response = chain.run(query)
+    print_with_color(f">> Assistant: {response['message']}", Fore.GREEN)

@@ -77,7 +77,7 @@ class BaseLanguageModel(BaseModel):
     Example:
         .. code-block:: python
 
-            from langchain.chat_models import ChatOpenAI
+            from minichain.models import ChatOpenAI
             openai = ChatOpenAI(model_name="gpt-3.5-turbo")
     """
 

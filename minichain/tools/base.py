@@ -12,7 +12,7 @@ from minichain.errors import ToolRunningError
 
 
 class Tool(ABC, BaseModel):
-    """Interface LangChain tools must implement."""
+    """Interface MiniChain tools must implement."""
 
     name: str
     """The unique name of the tool that clearly communicates its purpose."""

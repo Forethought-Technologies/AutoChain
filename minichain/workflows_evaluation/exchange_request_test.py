@@ -66,17 +66,12 @@ Output values: status_code: int, user_location: str, order_number: str"""
                  user_query="i would like to return my item",
                  user_context="Your order id is 638; you name is Jacky; email is blah@gmail.com",
                  expected_outcome="cannot issue refund because user is international"),
-        # TestCase(test_name="cannot issue refund because user is international",
-        #          user_query="i would like to return my item",
-        #          user_context="Rou name is Jacky; email is blah@gmail.com, not sure about order "
-        #                       "number",
-        #          expected_outcome="cannot issue refund because user is international"),
     ]
 
 
 if __name__ == '__main__':
     test = TestExchangeOrReturnTest()
-    chain = create_chain_from_test(test=test)
+    chain = create_chain_from_test(test=test, policy=test.policy)
     tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
 
     args = get_test_args()
