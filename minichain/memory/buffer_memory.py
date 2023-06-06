@@ -6,7 +6,7 @@ from minichain.agent.message import ChatMessageHistory
 
 
 class BufferMemory(BaseMemory):
-    """Buffer for storing conversation memory."""
+    """Buffer for storing conversation memory and an in-memory kv store."""
     chat_history = ChatMessageHistory()
     entire_history = defaultdict(list)
     kv_memory = {}
@@ -19,7 +19,7 @@ class BufferMemory(BaseMemory):
         return self.kv_memory.get(key, default)
 
     def load_conversation(self, **kwargs) -> Any:
-        """Return history buffer."""
+        """Return history buffer and format it into a conversational string format."""
         return self.chat_history.format_message()
 
     def save_memory(self, key: str, value: Any) -> None:

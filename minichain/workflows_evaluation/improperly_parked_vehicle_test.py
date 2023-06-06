@@ -6,7 +6,7 @@ from minichain.workflows_evaluation.test_utils import get_test_args, create_chai
 class TestImproperlyParkedVehicle(BaseTest):
     @staticmethod
     def check_active_reservation(user_id: str):
-        if user_id in ["antoine"]:
+        if user_id in ["jack"]:
             return str({'status_code': 200, 'is_active_reservation': True, 'vehicle_id': 123})
         else:
             return str({'status_code': 200, 'is_active_reservation': False})
@@ -49,7 +49,7 @@ Output values: illegally_parked: bool, message: str"""
         TestCase(test_name="found name and resolved",
                  user_query="I parked a Lime vehicle on the street, can you tell me if it's "
                             "properly parked?",
-                 user_context="user id is antoine. not sure about vehicle id or plate number",
+                 user_context="user id is jack. not sure about vehicle id or plate number",
                  expected_outcome="found active reservation and explain why it is not properly "
                                   "parked"),
         TestCase(test_name="no id provided, hand off to agent",
@@ -70,7 +70,7 @@ Output values: illegally_parked: bool, message: str"""
 
 if __name__ == '__main__':
     test = TestImproperlyParkedVehicle()
-    chain = create_chain_from_test(test=test)
+    chain = create_chain_from_test(test=test, policy=test.policy)
     tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
     args = get_test_args()
     if args.interact:

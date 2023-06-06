@@ -11,5 +11,7 @@ class OutputParserException(Exception):
 
 
 class ToolRunningError(Exception):
+    """Exception when tool fails to run"""
+
     def __init__(self, message):
         self.message = message

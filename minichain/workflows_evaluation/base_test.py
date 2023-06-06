@@ -17,6 +17,7 @@ from minichain.utils import print_with_color
 
 @dataclass
 class TestCase:
+    """Standardized data class for each test case for BastTest"""
     test_name: str = ""
     user_query: str = ""
     user_context: str = ""
@@ -36,7 +37,7 @@ class BaseTest(ABC):
 
     @property
     @abstractmethod
-    def test_cases(self):
+    def test_cases(self) -> List[TestCase]:
         """"""
 
 

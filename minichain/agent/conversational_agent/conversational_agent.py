@@ -25,6 +25,8 @@ class ConversationalAgent(BaseAgent):
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
+
+    # injected policy into the prompt
     policy: str = ""
 
     @classmethod
@@ -34,7 +36,6 @@ class ConversationalAgent(BaseAgent):
         tools: List[Tool],
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prompt: str = STEP_BY_STEP_PROMPT,
-        policy_desp: str = "",
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> ConversationalAgent:
@@ -54,7 +55,6 @@ class ConversationalAgent(BaseAgent):
             output_parser=_output_parser,
             prompt_template=prompt_template,
             tools=tools,
-            policy=policy_desp,
             **kwargs,
         )
 

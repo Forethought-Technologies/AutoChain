@@ -15,7 +15,10 @@ from minichain.tools.simple_handoff.tools import HandOffToAgent
 
 
 class BaseChain(BaseModel, ABC):
-    """Base interface that all chains should implement."""
+    """
+    Base interface that all chains should implement.
+    Chain will standardize inputs and outputs, the main entry pointy is the run function.
+    """
 
     agent: Optional[ConversationalAgent] = None
     tools: List[Tool] = []
@@ -57,7 +60,7 @@ class BaseChain(BaseModel, ABC):
         user_query: str,
         return_only_outputs: bool = False,
     ) -> Dict[str, Any]:
-        """Wrapper for _run function which formats the input and outputs
+        """Wrapper for _run function by formatting the input and outputs
 
         Args:
             user_query: user query
@@ -80,7 +83,11 @@ class BaseChain(BaseModel, ABC):
         self,
         inputs: Dict[str, Any],
     ) -> AgentFinish:
-        """Run text through and get agent response."""
+        """
+        Run inputs including user query and past conversation with agent and get response back
+        calls _take_next_step function to determine what should be the next step after
+        collecting all the inputs and memorized contents
+        """
         # Construct a mapping of tool name to tool for easy lookup
         name_to_tool_map = {tool.name: tool for tool in self.tools}
 
@@ -92,11 +99,17 @@ class BaseChain(BaseModel, ABC):
         # We now enter the agent loop (until it returns something).
         while self._should_continue(iterations, time_elapsed):
             print(f"\nInputs: {inputs}\n Intermediate steps: {intermediate_steps}\n")
-            next_step_output = self._take_next_step(
-                name_to_tool_map,
-                inputs,
-                intermediate_steps,
-            )
+            next_step_output = self._should_answer(inputs=inputs)
+
+            # if next_step_output is None which means should ask agent to answer and take next
+            # step
+            if not next_step_output:
+                next_step_output = self._take_next_step(
+                    name_to_tool_map,
+                    inputs,
+                    intermediate_steps,
+                )
+
             if isinstance(next_step_output, AgentFinish):
                 next_step_output.intermediate_steps = intermediate_steps
                 return next_step_output
@@ -104,7 +117,8 @@ class BaseChain(BaseModel, ABC):
             intermediate_steps.append(next_step_output)
             iterations += 1
             time_elapsed = time.time() - start_time
-        # force the termination
+
+        # force the termination when shouldn't continue
         output = AgentFinish(
             message="Agent stopped due to iteration limit or time limit.",
             log="",
@@ -133,8 +147,33 @@ class BaseChain(BaseModel, ABC):
 
         return True
 
+    def _should_answer(self, inputs) -> Optional[AgentFinish]:
+        """
+        Let agent determines if it should continue to answer questions
+        or that is the end of the conversation
+        Args:
+            inputs: Dict contains user query and other memorized contents
+
+        Returns:
+            None if should answer
+            AgentFinish if should NOT answer and respond to user with message
+        """
+        output = None
+        # check if agent should answer this query
+        if self.last_query != inputs['query']:
+            output = self.agent.should_answer(**inputs)
+            self.last_query = inputs['query']
+
+        return output
+
 
 class Chain(BaseChain):
+    """
+    Default chain with _take_next_step implemented
+    It handles a few common error cases with agent, such as taking repeated action with same
+    inputs and whether agent should continue the conversation
+    """
+
     return_intermediate_steps: bool = False
     handle_parsing_errors = True
 
@@ -160,33 +199,39 @@ class Chain(BaseChain):
         inputs: Dict[str, str],
         intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
-        output = None
-        # check if agent should answer this query
-        if self.last_query != inputs['query']:
-            output = self.agent.should_answer(**inputs)
-            self.last_query = inputs['query']
+        """
+        How agent determines the next step after observing the inputs and intermediate steps
+        Args:
+            name_to_tool_map: map of tool name to the actual tool object
+            inputs: a dictionary of all inputs, such as user query, past conversation and
+                observations
+            intermediate_steps: list of actions and observations previously have taken
 
-        if not output:
-            try:
-                # Call the LLM to see what to do.
-                output = self.agent.plan(
-                    intermediate_steps,
-                    **inputs,
-                )
-            except Exception as e:
-                if not self.handle_parsing_errors:
-                    raise e
-                observation = f"Invalid or incomplete response due to {e}"
-                print(observation)
-                output = AgentFinish(message=HandOffToAgent().run(""), log=observation)
-                return output
+        Returns:
+            Either AgentFinish to respond to user or AgentAction to take the next action
+        """
+
+        try:
+            # Call the LLM to see what to do.
+            output = self.agent.plan(
+                intermediate_steps,
+                **inputs,
+            )
+        except Exception as e:
+            if not self.handle_parsing_errors:
+                raise e
+            observation = f"Invalid or incomplete response due to {e}"
+            print(observation)
+            output = AgentFinish(message=HandOffToAgent().run(""), log=observation)
+            return output
 
         if isinstance(output, AgentAction):
             output = self.agent.clarify_args_for_agent_action(output,
                                                               intermediate_steps,
                                                               **inputs)
 
-        # If the tool chosen is the finishing tool, then we end and return.
+        # If agent plans to respond to AgentFinish or there is a clarifying question, respond to
+        # user by returning AgentFinish
         if isinstance(output, AgentFinish):
             return output
 
