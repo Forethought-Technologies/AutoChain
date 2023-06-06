@@ -1,4 +1,5 @@
 """Base interface that all chains should implement."""
+import logging
 import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, List
@@ -13,6 +14,8 @@ from minichain.memory.base import BaseMemory
 from minichain.tools.base import Tool
 from minichain.tools.simple_handoff.tools import HandOffToAgent
 
+logger = logging.getLogger(__name__)
+
 
 class BaseChain(BaseModel, ABC):
     """
@@ -23,7 +26,6 @@ class BaseChain(BaseModel, ABC):
     agent: Optional[ConversationalAgent] = None
     tools: List[Tool] = []
     memory: Optional[BaseMemory] = None
-    verbosity: str = ""
     last_query: str = ""
     max_iterations: Optional[int] = 15
     max_execution_time: Optional[float] = None
@@ -71,7 +73,7 @@ class BaseChain(BaseModel, ABC):
 
         """
         inputs = self.prep_inputs(user_query)
-
+        logger.info(f"\n Input to agent: {inputs}")
         try:
             output = self._run(inputs)
         except (KeyboardInterrupt, Exception) as e:
@@ -98,7 +100,7 @@ class BaseChain(BaseModel, ABC):
         start_time = time.time()
         # We now enter the agent loop (until it returns something).
         while self._should_continue(iterations, time_elapsed):
-            print(f"\nInputs: {inputs}\n Intermediate steps: {intermediate_steps}\n")
+            logger.info(f"\n Intermediate steps: {intermediate_steps}\n")
             next_step_output = self._should_answer(inputs=inputs)
 
             # if next_step_output is None which means should ask agent to answer and take next
