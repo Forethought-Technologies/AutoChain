@@ -8,8 +8,8 @@ from colorama import Fore
 
 from minichain.agent.base_agent import BaseAgent
 from minichain.agent.message import UserMessage, BaseMessage
-from minichain.agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, \
+from minichain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
+from minichain.agent.conversational_agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, \
     CLARIFYING_QUESTION_PROMPT, STEP_BY_STEP_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.agent.structs import AgentAction, AgentFinish

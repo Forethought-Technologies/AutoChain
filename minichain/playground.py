@@ -1,5 +1,4 @@
 
-from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.chain.chain import Chain
 from minichain.memory.buffer_memory import BufferMemory
 from minichain.models.chat_openai import ChatOpenAI

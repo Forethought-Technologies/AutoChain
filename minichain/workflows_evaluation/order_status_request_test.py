@@ -1,6 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_test_args
+from minichain.workflows_evaluation.test_utils import get_test_args, create_chain_from_test
 
 
 class TestOrderStatusAndRefundRequest(BaseTest):
@@ -37,21 +37,21 @@ In case of lost or missing orders after all attempts to locate it have been exha
 """
 
     tools = [
-                Tool(
-                    name="Order Status",
-                    func=snowflake_order_status,
-                    description="""This function checks order status for a given order id.
+        Tool(
+            name="Order Status",
+            func=snowflake_order_status,
+            description="""This function checks order status for a given order id.
 Input args: order_id: non-empty str
 Output values: status_code: int, order_id: str, tracking_url: str, message: str"""
-                ),
-                Tool(
-                    name="Validate Order Status",
-                    func=validate_order_status_input,
-                    description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
+        ),
+        Tool(
+            name="Validate Order Status",
+            func=validate_order_status_input,
+            description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
 Input args: order_id: non-empty str
 Output values: is_order_valid: bool"""
-                ),
-            ]
+        ),
+    ]
 
     test_cases = [
         TestCase(test_name="get order success case",
@@ -72,9 +72,11 @@ Output values: is_order_valid: bool"""
 
 
 if __name__ == '__main__':
-    tests = WorkflowTester(tests=[TestOrderStatusAndRefundRequest()], output_dir="./test_results")
+    test = TestOrderStatusAndRefundRequest()
+    chain = create_chain_from_test(test=test)
+    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
     args = get_test_args()
     if args.interact:
-        tests.run_interactive()
+        tester.run_interactive()
     else:
-        tests.run_all_tests()
+        tester.run_all_tests()

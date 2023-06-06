@@ -1,5 +1,5 @@
 # MiniChain
-Large language models (LLMs) are shown huge success in different text generation tasks and
+Large language models (LLMs) have shown huge success in different text generation tasks and
 enable developers to build autonomous agent based on natural language objectives.  
 However, most of the agents require heavy customization for a specific purpose, and existing 
 tools are sometimes overwhelming to be adapted for different use cases. As the result, it is 

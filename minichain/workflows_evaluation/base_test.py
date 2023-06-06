@@ -6,11 +6,9 @@ from typing import List, Tuple, Any, Dict
 import pandas as pd
 from colorama import Fore
 
-from minichain.agent.conversational_agent import ConversationalAgent
 from minichain.agent.message import UserMessage
 from minichain.chain import constants
-from minichain.chain.chain import Chain
-from minichain.memory.buffer_memory import BufferMemory
+from minichain.chain.chain import BaseChain
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool
@@ -37,11 +35,6 @@ class BaseTest(ABC):
         """Workflow policy"""
 
     @property
-    def agent_cls(self):
-        """Specify agent used for this workflow"""
-        return ConversationalAgent
-
-    @property
     @abstractmethod
     def test_cases(self):
         """"""
@@ -49,15 +42,14 @@ class BaseTest(ABC):
 
 class WorkflowTester:
 
-    def __init__(self, tests: List[BaseTest], output_dir: str):
-        self.agent_chain = None
+    def __init__(self, tests: List[BaseTest], agent_chain: BaseChain, output_dir: str):
+        self.agent_chain = agent_chain
         self.tests = tests
         self.output_dir = output_dir
-        self.memory = BufferMemory()
         self.llm = ChatOpenAI(temperature=0)
 
     def test_each_case(self, test_case: TestCase):
-        self.memory.clear()
+        self.agent_chain.memory.clear()
 
         user_query = test_case.user_query
         conversation_history = [("user", user_query)]
@@ -85,11 +77,6 @@ class WorkflowTester:
         return conversation_history, is_agent_helpful, response
 
     def run_test(self, test):
-        agent = test.agent_cls.from_llm_and_tools(
-            self.llm, test.tools, policy_desp=test.policy
-        )
-        self.agent_chain = Chain(tools=test.tools, agent=agent, memory=self.memory)
-
         test_results = []
         for i, test_case in enumerate(test.test_cases):
             conversation_history, is_agent_helpful, last_response = self.test_each_case(test_case)
@@ -117,12 +104,8 @@ class WorkflowTester:
             self.run_test(test)
 
     def run_interactive(self):
-        self.memory.clear()
+        self.agent_chain.memory.clear()
         test = self.tests[0]
-        agent = test.agent_cls.from_llm_and_tools(
-            self.llm, test.tools, policy_desp=test.policy
-        )
-        self.agent_chain = Chain(tools=test.tools, agent=agent, memory=self.memory)
 
         while True:
             user_query = input(">> User: ")
@@ -163,7 +146,8 @@ Context:
 Previous conversation:
 {conversation}"""))
 
-        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0]
+        output: Generation = \
+            self.llm.generate(messages=messages, stop=["."]).generations[0]
         return output.message.content
 
     def determine_if_agent_solved_problem(self,
@@ -181,7 +165,8 @@ Previous conversation:
 Expected outcome is {expected_outcome}
 Does conversation reach the expected outcome for user? Answer with yes or no with explanation"""))
 
-        output: Generation = self.llm.generate(messages=messages, stop=["."]).generations[0]
+        output: Generation = \
+            self.llm.generate(messages=messages, stop=["."]).generations[0]
         if 'yes' in output.message.content.lower():
             # Agent solved the problem
             return True, output.message.content

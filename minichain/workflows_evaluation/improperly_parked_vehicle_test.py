@@ -1,6 +1,6 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_test_args
+from minichain.workflows_evaluation.test_utils import get_test_args, create_chain_from_test
 
 
 class TestImproperlyParkedVehicle(BaseTest):
@@ -69,9 +69,11 @@ Output values: illegally_parked: bool, message: str"""
 
 
 if __name__ == '__main__':
-    tests = WorkflowTester(tests=[TestImproperlyParkedVehicle()], output_dir="./test_results")
+    test = TestImproperlyParkedVehicle()
+    chain = create_chain_from_test(test=test)
+    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
     args = get_test_args()
     if args.interact:
-        tests.run_interactive()
+        tester.run_interactive()
     else:
-        tests.run_all_tests()
+        tester.run_all_tests()
