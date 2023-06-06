@@ -1,5 +1,3 @@
-import argparse
-
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from minichain.workflows_evaluation.test_utils import get_test_args, create_chain_from_test

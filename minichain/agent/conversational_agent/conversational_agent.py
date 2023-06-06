@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from string import Template
 from typing import Any, List, Optional, Dict, Union
 
@@ -9,7 +10,8 @@ from colorama import Fore
 from minichain.agent.base_agent import BaseAgent
 from minichain.agent.message import UserMessage, BaseMessage
 from minichain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.conversational_agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, SHOULD_ANSWER_PROMPT, \
+from minichain.agent.conversational_agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, \
+    SHOULD_ANSWER_PROMPT, \
     CLARIFYING_QUESTION_PROMPT, STEP_BY_STEP_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.agent.structs import AgentAction, AgentFinish
@@ -17,6 +19,8 @@ from minichain.models.base import Generation, BaseLanguageModel
 from minichain.tools.base import Tool
 from minichain.tools.simple_handoff.tools import HandOffToAgent
 from minichain.utils import print_with_color
+
+logger = logging.getLogger(__name__)
 
 
 class ConversationalAgent(BaseAgent):
@@ -104,7 +108,6 @@ class ConversationalAgent(BaseAgent):
         prompt: str = "",
         input_variables: Optional[List[str]] = None,
     ) -> JSONPromptTemplate:
-
         """Create prompt in the style of the zero shot agent.
 
         Args:
@@ -123,6 +126,15 @@ class ConversationalAgent(BaseAgent):
     def plan(
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
+        """
+        Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
+        Args:
+            intermediate_steps: List of AgentAction that has been performed with outputs
+            **kwargs: key value pairs from chain, which contains query and other stored memories
+
+        Returns:
+            AgentAction or AgentFinish
+        """
         print_with_color(f"Planning", Fore.LIGHTYELLOW_EX)
         tool_names = ", ".join([tool.name for tool in self.tools])
         tool_strings = "\n\n".join(
@@ -135,7 +147,7 @@ class ConversationalAgent(BaseAgent):
             **kwargs
         }
         final_prompt = self.get_final_prompt(self.prompt_template, intermediate_steps, **inputs)
-        print(f"Full Input: {final_prompt[0].content} \n")
+        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
@@ -166,7 +178,7 @@ class ConversationalAgent(BaseAgent):
 
         final_prompt = self.get_final_prompt(clarifying_template, intermediate_steps,
                                              **inputs)
-        print(f"Clarification inputs: {final_prompt[0].content}")
+        logger.info(f"\nClarification inputs: {final_prompt[0].content}")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         return self.output_parser.parse_clarification(full_output.message.content,
                                                       agent_action=agent_action)
@@ -176,13 +188,13 @@ class ConversationalAgent(BaseAgent):
                                                      inputs=action.tool_input,
                                                      error=error)
 
-        print(f"Fixing tool input prompt: {prompt}")
+        logger.info(f"\nFixing tool input prompt: {prompt}")
         messages = UserMessage(content=prompt)
         output = self.llm.generate([messages])
         text = output.generations[0].message.content
         inputs = text[text.index("{"):text.rindex("}") + 1].strip()
         new_tool_inputs = json.loads(inputs)
 
-        print(f"Fixed tool input: {new_tool_inputs}")
+        logger.info(f"\nFixed tool output: {new_tool_inputs}")
         new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs)
         return new_action
