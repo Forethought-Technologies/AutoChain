@@ -1,5 +1,5 @@
 from langchain.agents import AgentType
-from langchain.tools import Tool
+from langchain.tools import Tool as LCTool
 
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from minichain.workflows_evaluation.test_utils import get_test_args
@@ -34,7 +34,7 @@ If the order has already shipped, inform them that it is not possible to change 
 """
 
     tools = [
-        Tool(
+        LCTool(
             name="check order status",
             func=check_order_status,
             description="""This function checks the order status based on order_id
@@ -42,7 +42,7 @@ Input args: order_id: non-empty str
 Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
 tracking_url: str, message: str"""
         ),
-        Tool(
+        LCTool(
             name="change shipping address",
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
@@ -60,11 +60,12 @@ Output values: status_code: int, order_id: str, shipping_address: str"""
                  expected_outcome="found order status and changed shipping address"),
     ]
 
+    chain = create_langchain_from_test(tools=tools,
+                                       agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
+
 
 if __name__ == '__main__':
-    test = TestChangeShippingAddressWithLC()
-    chain = create_langchain_from_test(test=test, agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
-    tests = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+    tests = WorkflowTester(tests=[TestChangeShippingAddressWithLC()], output_dir="./test_results")
 
     args = get_test_args()
     if args.interact:

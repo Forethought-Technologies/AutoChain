@@ -27,8 +27,8 @@ class TestCase:
 class BaseTest(ABC):
     @property
     @abstractmethod
-    def policy(self) -> str:
-        """Workflow policy"""
+    def chain(self) -> BaseChain:
+        """Chain to test with, which support run(<user_query>) function"""
 
     @property
     @abstractmethod
@@ -43,14 +43,14 @@ class BaseTest(ABC):
 
 class WorkflowTester:
 
-    def __init__(self, tests: List[BaseTest], agent_chain: BaseChain, output_dir: str):
-        self.agent_chain = agent_chain
+    def __init__(self, tests: List[BaseTest], output_dir: str):
+        self.chain = None
         self.tests = tests
         self.output_dir = output_dir
         self.llm = ChatOpenAI(temperature=0)
 
     def test_each_case(self, test_case: TestCase):
-        self.agent_chain.memory.clear()
+        self.chain.memory.clear()
 
         user_query = test_case.user_query
         conversation_history = [("user", user_query)]
@@ -60,7 +60,7 @@ class WorkflowTester:
         max_turn = 8
         response = {}
         while not conversation_end and len(conversation_history) < max_turn:
-            response: Dict[str, Any] = self.agent_chain.run(user_query)
+            response: Dict[str, Any] = self.chain.run(user_query)
 
             agent_message = response['message']
             conversation_history.append(("assistant", agent_message))
@@ -79,6 +79,7 @@ class WorkflowTester:
 
     def run_test(self, test):
         test_results = []
+        self.chain = test.chain
         for i, test_case in enumerate(test.test_cases):
             conversation_history, is_agent_helpful, last_response = self.test_each_case(test_case)
             test_results.append({
@@ -105,13 +106,14 @@ class WorkflowTester:
             self.run_test(test)
 
     def run_interactive(self):
-        self.agent_chain.memory.clear()
         test = self.tests[0]
+        self.chain = test.chain
+        self.chain.memory.clear()
 
         while True:
             user_query = input(">> User: ")
-            response = self.agent_chain.run(user_query)['message']
-            print_with_color(response, Fore.GREEN)
+            response = self.chain.run(user_query)['message']
+            print_with_color(f">> Assistant: {response}", Fore.GREEN)
 
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:
         messages = [

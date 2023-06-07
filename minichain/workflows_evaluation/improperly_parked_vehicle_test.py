@@ -67,11 +67,11 @@ Output values: illegally_parked: bool, message: str"""
                  expected_outcome="hand off to agent, don't return fake vehicle status"),
     ]
 
+    chain = create_chain_from_test(tools=tools, policy=policy)
+
 
 if __name__ == '__main__':
-    test = TestImproperlyParkedVehicle()
-    chain = create_chain_from_test(test=test, policy=test.policy)
-    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+    tester = WorkflowTester(tests=[TestImproperlyParkedVehicle()], output_dir="./test_results")
     args = get_test_args()
     if args.interact:
         tester.run_interactive()

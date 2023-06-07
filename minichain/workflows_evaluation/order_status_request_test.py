@@ -70,11 +70,12 @@ Output values: is_order_valid: bool"""
                  expected_outcome="get refund or replacement")
     ]
 
+    chain = create_chain_from_test(tools=tools, policy=policy)
+
 
 if __name__ == '__main__':
-    test = TestOrderStatusAndRefundRequest()
-    chain = create_chain_from_test(test=test, policy=test.policy)
-    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+    tester = WorkflowTester(tests=[TestOrderStatusAndRefundRequest()], output_dir="./test_results")
+
     args = get_test_args()
     if args.interact:
         tester.run_interactive()

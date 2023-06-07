@@ -67,11 +67,11 @@ Output values: status_code: int, order_id: str, shipping_address: str"""
                                   "agent"),
     ]
 
+    chain = create_chain_from_test(tools=tools, policy=policy)
+
 
 if __name__ == '__main__':
-    test = TestChangeShippingAddress()
-    chain = create_chain_from_test(test=test, policy=test.policy)
-    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+    tester = WorkflowTester(tests=[TestChangeShippingAddress()], output_dir="./test_results")
 
     args = get_test_args()
     if args.interact:
