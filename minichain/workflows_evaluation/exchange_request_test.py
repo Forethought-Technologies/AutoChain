@@ -66,11 +66,11 @@ Output values: status_code: int, user_location: str, order_number: str"""
                  expected_outcome="cannot issue refund because user is international"),
     ]
 
+    chain = create_chain_from_test(tools=tools, policy=policy)
+
 
 if __name__ == '__main__':
-    test = TestExchangeOrReturnTest()
-    chain = create_chain_from_test(test=test, policy=test.policy)
-    tester = WorkflowTester(tests=[test], agent_chain=chain, output_dir="./test_results")
+    tester = WorkflowTester(tests=[TestExchangeOrReturnTest()], output_dir="./test_results")
 
     args = get_test_args()
     if args.interact:

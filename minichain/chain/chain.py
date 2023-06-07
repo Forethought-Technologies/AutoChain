@@ -257,6 +257,8 @@ class Chain(BaseChain):
                     if new_agent_action and new_agent_action.tool_input != output.tool_input:
                         observation = tool.run(output.tool_input)
 
+                print(f"Took action '{tool.name}' with inputs '{output.tool_input}', "
+                      f"and the observation is {observation}")
             else:
                 observation = f"Tool {output.tool} if not supported"
 

@@ -1,5 +1,6 @@
 import argparse
 import logging
+from typing import List
 
 from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
 from minichain.chain.chain import Chain
@@ -7,7 +8,7 @@ from minichain.memory.base import BaseMemory
 from minichain.memory.buffer_memory import BufferMemory
 from minichain.models.base import BaseLanguageModel
 from minichain.models.chat_openai import ChatOpenAI
-from minichain.workflows_evaluation.base_test import BaseTest
+from minichain.tools.base import Tool
 
 
 def get_test_args():
@@ -32,14 +33,14 @@ def get_test_args():
     return args
 
 
-def create_chain_from_test(test: BaseTest, memory: BaseMemory = None,
+def create_chain_from_test(tools: List[Tool], memory: BaseMemory = None,
                            llm: BaseLanguageModel = None,
                            agent_cls=ConversationalAgent,
                            **kwargs):
     """
     Create Chain for running tests
     Args:
-        test: instance of BaseTest
+        tools: list of minichain tools
         memory: memory store for chain
         llm: model for agent
         agent_cls: metadata class for instantiating agent
@@ -49,6 +50,6 @@ def create_chain_from_test(test: BaseTest, memory: BaseMemory = None,
     llm = llm or ChatOpenAI(temperature=0)
     memory = memory or BufferMemory()
     agent = agent_cls.from_llm_and_tools(
-        llm=llm, tools=test.tools, **kwargs
+        llm=llm, tools=tools, **kwargs
     )
-    return Chain(tools=test.tools, agent=agent, memory=memory)
+    return Chain(tools=tools, agent=agent, memory=memory)

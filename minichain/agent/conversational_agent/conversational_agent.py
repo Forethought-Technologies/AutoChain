@@ -155,7 +155,8 @@ class ConversationalAgent(BaseAgent):
 
         print_with_color(f"Full output: {json.loads(full_output.message.content)}", Fore.YELLOW)
         if isinstance(agent_output, AgentAction):
-            print_with_color(f"Taking action {agent_output.tool}", Fore.LIGHTYELLOW_EX)
+            print_with_color(f"Plan to take action '{agent_output.tool}'", Fore.LIGHTYELLOW_EX)
+
             # call hand off to agent and finish workflow
             if agent_output.tool == HandOffToAgent().name:
                 return AgentFinish(
