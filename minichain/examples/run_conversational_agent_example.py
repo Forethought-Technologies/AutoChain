@@ -15,4 +15,6 @@ memory = BufferMemory()
 agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
 chain = Chain(agent=agent, memory=memory, tools=tools)
 
-print(chain.run("what is the weather today")['message'])
+user_query = "what is the weather today"
+print(f">> User: {user_query}")
+print(f">> Assistant: {chain.run(user_query)['message']}")

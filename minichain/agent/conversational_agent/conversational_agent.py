@@ -56,20 +56,19 @@ class ConversationalAgent(BaseAgent):
             **kwargs,
         )
 
-    def _construct_scratchpad(
-        self, intermediate_steps: List[AgentAction]
-    ) -> Union[str, List[BaseMessage]]:
-        """Construct the scratchpad that lets the agent continue its thought process."""
-        thoughts = ""
-        for action in intermediate_steps:
-            thoughts += action.response
-        return thoughts
-
     def get_final_prompt(
         self, template: JSONPromptTemplate, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> List[BaseMessage]:
+        def _construct_scratchpad(
+            actions: List[AgentAction]
+        ) -> Union[str, List[BaseMessage]]:
+            scratchpad = ""
+            for action in actions:
+                scratchpad += action.response
+            return scratchpad
+
         """Create the full inputs for the LLMChain from intermediate steps."""
-        thoughts = self._construct_scratchpad(intermediate_steps)
+        thoughts = _construct_scratchpad(intermediate_steps)
         new_inputs = {"agent_scratchpad": thoughts}
         full_inputs = {**kwargs, **new_inputs}
         prompt = template.format_prompt(**full_inputs)

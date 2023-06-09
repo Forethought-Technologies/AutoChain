@@ -178,9 +178,9 @@ class Chain(BaseChain):
 
     return_intermediate_steps: bool = False
     handle_parsing_errors = True
+    graceful_exit_tool: Tool = HandOffToAgent()
 
-    @staticmethod
-    def handle_repeated_action(agent_action: AgentAction) -> AgentFinish:
+    def handle_repeated_action(self, agent_action: AgentAction) -> AgentFinish:
         if agent_action.model_response:
             print(f"Action taken before: {agent_action.tool}, "
                   f"input: {agent_action.tool_input}")
@@ -191,8 +191,8 @@ class Chain(BaseChain):
             )
         else:
             return AgentFinish(
-                message=HandOffToAgent().run(""),
-                log=f"Handing off to agent"
+                message=self.graceful_exit_tool.run(""),
+                log=f"Gracefully exit due to repeated action"
             )
 
     def _take_next_step(
@@ -224,7 +224,7 @@ class Chain(BaseChain):
                 raise e
             observation = f"Invalid or incomplete response due to {e}"
             print(observation)
-            output = AgentFinish(message=HandOffToAgent().run(""), log=observation)
+            output = AgentFinish(message=self.graceful_exit_tool.run(""), log=observation)
             return output
 
         if isinstance(output, AgentAction):
