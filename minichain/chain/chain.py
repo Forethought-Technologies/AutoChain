@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, List
 
 from pydantic import BaseModel
 
-from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from minichain.agent.base_agent import BaseAgent
 from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.chain import constants
 from minichain.errors import ToolRunningError
@@ -23,7 +23,7 @@ class BaseChain(BaseModel, ABC):
     Chain will standardize inputs and outputs, the main entry pointy is the run function.
     """
 
-    agent: Optional[ConversationalAgent] = None
+    agent: Optional[BaseAgent] = None
     tools: List[Tool] = []
     memory: Optional[BaseMemory] = None
     last_query: str = ""

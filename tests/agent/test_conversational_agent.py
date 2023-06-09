@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from minichain.agent.support_agent.support_agent import SupportAgent
 from minichain.agent.message import BaseMessage, AIMessage
 from minichain.agent.structs import AgentFinish
 from minichain.models.base import LLMResult, Generation, BaseLanguageModel
@@ -20,7 +20,7 @@ class MockLLM(BaseLanguageModel):
 
 
 def test_should_answer_prompt():
-    agent = ConversationalAgent.from_llm_and_tools(
+    agent = SupportAgent.from_llm_and_tools(
         llm=MockLLM(message="yes, question is resolved"),
         tools=[])
 
@@ -28,7 +28,7 @@ def test_should_answer_prompt():
     response = agent.should_answer(**input)
     assert isinstance(response, AgentFinish)
 
-    agent = ConversationalAgent(llm=MockLLM(message="no, question is not resolved"))
+    agent = SupportAgent(llm=MockLLM(message="no, question is not resolved"))
     response = agent.should_answer(**input)
     assert response is None
 
@@ -49,7 +49,7 @@ def test_plan():
         "workflow_finished": "No"
     })
 
-    agent = ConversationalAgent.from_llm_and_tools(
+    agent = SupportAgent.from_llm_and_tools(
         llm=MockLLM(message=mock_generation_response),
         tools=[HandOffToAgent()])
 

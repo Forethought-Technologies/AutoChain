@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Sequence, Dict, Union
+from typing import Any, List, Optional, Sequence, Union
 
 from pydantic import BaseModel, Extra
 
-from minichain.agent.conversational_agent.prompt import SHOULD_ANSWER_PROMPT, \
-    STEP_BY_STEP_PROMPT
 from minichain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
 from minichain.models.base import BaseLanguageModel
 from minichain.tools.base import Tool
@@ -29,15 +26,16 @@ class BaseAgent(BaseModel, ABC):
         cls,
         llm: BaseLanguageModel,
         tools: Sequence[Tool],
+        prompt: str,
         output_parser: Optional[AgentOutputParser] = None,
-        prompt: str = STEP_BY_STEP_PROMPT,
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> BaseAgent:
         """Construct an agent from an LLM and tools."""
 
-    def should_answer(self, inputs: Dict[str, Any],
-                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT
+    def should_answer(self,
+                      should_answer_prompt_template: str = "",
+                      **kwargs
                       ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""

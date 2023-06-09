@@ -2,7 +2,7 @@ import argparse
 import logging
 from typing import List
 
-from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from minichain.agent.support_agent.support_agent import SupportAgent
 from minichain.chain.chain import Chain
 from minichain.memory.base import BaseMemory
 from minichain.memory.buffer_memory import BufferMemory
@@ -35,7 +35,7 @@ def get_test_args():
 
 def create_chain_from_test(tools: List[Tool], memory: BaseMemory = None,
                            llm: BaseLanguageModel = None,
-                           agent_cls=ConversationalAgent,
+                           agent_cls=SupportAgent,
                            **kwargs):
     """
     Create Chain for running tests
