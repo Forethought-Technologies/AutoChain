@@ -8,37 +8,44 @@ from typing import Any, List, Optional, Dict, Union
 from colorama import Fore
 
 from minichain.agent.base_agent import BaseAgent
-from minichain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.message import BaseMessage
+from minichain.agent.message import UserMessage, BaseMessage
+from minichain.agent.support_agent.output_parser import SupportJSONOutputParser
+from minichain.agent.support_agent.prompt import FIX_TOOL_INPUT_PROMPT_FORMAT, \
+    SHOULD_ANSWER_PROMPT, \
+    CLARIFYING_QUESTION_PROMPT, STEP_BY_STEP_PROMPT
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.agent.structs import AgentAction, AgentFinish
-from minichain.agent.conversational_agent.prompt import CLARIFYING_QUESTION_PROMPT, PLANNING_PROMPT
 from minichain.models.base import Generation, BaseLanguageModel
 from minichain.tools.base import Tool
+from minichain.tools.simple_handoff.tools import HandOffToAgent
 from minichain.utils import print_with_color
 
 logger = logging.getLogger(__name__)
 
 
-class ConversationalAgent(BaseAgent):
-    output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
+class SupportAgent(BaseAgent):
+    output_parser: SupportJSONOutputParser = SupportJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
+
+    # injected policy into the prompt
+    policy: str = ""
 
     @classmethod
     def from_llm_and_tools(
         cls,
         llm: BaseLanguageModel,
         tools: List[Tool] = None,
-        output_parser: Optional[ConvoJSONOutputParser] = None,
-        prompt: str = PLANNING_PROMPT,
+        output_parser: Optional[SupportJSONOutputParser] = None,
+        prompt: str = STEP_BY_STEP_PROMPT,
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
-    ) -> ConversationalAgent:
+    ) -> SupportAgent:
         """Construct an agent from an LLM and tools."""
         tools = tools or []
+        tools.append(HandOffToAgent())
 
         prompt_template = cls.get_prompt_template(
             prompt=prompt,
@@ -46,7 +53,7 @@ class ConversationalAgent(BaseAgent):
         )
 
         allowed_tools = {tool.name: tool for tool in tools}
-        _output_parser = output_parser or ConvoJSONOutputParser()
+        _output_parser = output_parser or SupportJSONOutputParser()
         return cls(
             llm=llm,
             allowed_tools=allowed_tools,
@@ -55,6 +62,28 @@ class ConversationalAgent(BaseAgent):
             tools=tools,
             **kwargs,
         )
+
+    def should_answer(self,
+                      should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT,
+                      **kwargs
+                      ) -> Optional[AgentFinish]:
+        """Determine if agent should continue to answer user questions based on the latest user
+        query"""
+        if "query" not in kwargs or "history" not in kwargs or not kwargs['history']:
+            return None
+
+        def _parse_response(res: str):
+            if "yes" in res.lower():
+                return AgentFinish(
+                    message="Thank your for contacting",
+                    log=f"Thank your for contacting"
+                )
+            else:
+                return None
+
+        prompt = Template(should_answer_prompt_template).substitute(**kwargs)
+        response = self.llm.generate([UserMessage(content=prompt)]).generations[0].message.content
+        return _parse_response(response)
 
     def _construct_scratchpad(
         self, intermediate_steps: List[AgentAction]
@@ -115,6 +144,7 @@ class ConversationalAgent(BaseAgent):
         inputs = {
             "tool_names": tool_names,
             "tools": tool_strings,
+            "policy": self.policy,
             **kwargs
         }
         final_prompt = self.get_final_prompt(self.prompt_template, intermediate_steps, **inputs)
@@ -128,25 +158,45 @@ class ConversationalAgent(BaseAgent):
         if isinstance(agent_output, AgentAction):
             print_with_color(f"Plan to take action '{agent_output.tool}'", Fore.LIGHTYELLOW_EX)
 
+            # call hand off to agent and finish workflow
+            if agent_output.tool == HandOffToAgent().name:
+                return AgentFinish(
+                    message=HandOffToAgent().run(""),
+                    log=f"Handing off to agent"
+                )
+
         return agent_output
 
     def clarify_args_for_agent_action(self, agent_action: AgentAction,
                                       intermediate_steps: List[AgentAction], **kwargs: Any):
         print_with_color(f"Deciding if need clarification", Fore.LIGHTYELLOW_EX)
-        if not self.allowed_tools.get(agent_action.tool):
-            return agent_action
-        else:
-            inputs = {
-                "tool_name": agent_action.tool,
-                "tool_desp": self.allowed_tools.get(agent_action.tool).description,
-                **kwargs
-            }
+        inputs = {
+            "tool_name": agent_action.tool,
+            "tool_desp": self.allowed_tools.get(agent_action.tool).description,
+            **kwargs
+        }
 
-            clarifying_template = self.get_prompt_template(prompt=CLARIFYING_QUESTION_PROMPT)
+        clarifying_template = self.get_prompt_template(prompt=CLARIFYING_QUESTION_PROMPT)
 
-            final_prompt = self.get_final_prompt(clarifying_template, intermediate_steps,
-                                                 **inputs)
-            logger.info(f"\nClarification inputs: {final_prompt[0].content}")
-            full_output: Generation = self.llm.generate(final_prompt).generations[0]
-            return self.output_parser.parse_clarification(full_output.message.content,
-                                                          agent_action=agent_action)
+        final_prompt = self.get_final_prompt(clarifying_template, intermediate_steps,
+                                             **inputs)
+        logger.info(f"\nClarification inputs: {final_prompt[0].content}")
+        full_output: Generation = self.llm.generate(final_prompt).generations[0]
+        return self.output_parser.parse_clarification(full_output.message.content,
+                                                      agent_action=agent_action)
+
+    def fix_action_input(self, tool: Tool, action: AgentAction, error: str) -> AgentAction:
+        prompt = FIX_TOOL_INPUT_PROMPT_FORMAT.format(tool_description=tool.description,
+                                                     inputs=action.tool_input,
+                                                     error=error)
+
+        logger.info(f"\nFixing tool input prompt: {prompt}")
+        messages = UserMessage(content=prompt)
+        output = self.llm.generate([messages])
+        text = output.generations[0].message.content
+        inputs = text[text.index("{"):text.rindex("}") + 1].strip()
+        new_tool_inputs = json.loads(inputs)
+
+        logger.info(f"\nFixed tool output: {new_tool_inputs}")
+        new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs)
+        return new_action

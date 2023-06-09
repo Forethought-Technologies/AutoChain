@@ -3,12 +3,13 @@ from typing import Union
 
 from colorama import Fore
 
-from minichain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
 from minichain.errors import OutputParserException
+from minichain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
+from minichain.tools.simple_handoff.tools import HandOffToAgent
 from minichain.utils import print_with_color
 
 
-class ConvoJSONOutputParser(AgentOutputParser):
+class SupportJSONOutputParser(AgentOutputParser):
 
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         try:
@@ -17,8 +18,13 @@ class ConvoJSONOutputParser(AgentOutputParser):
         except Exception:
             raise OutputParserException(f"Not a valid json: `{text}`")
 
+        handoff_action = HandOffToAgent()
         action_name = response.get("tool", {}).get("name")
         action_args = response.get("tool", {}).get("args")
+        if action_name == handoff_action.name:
+            return AgentAction(tool=handoff_action.name, tool_input={},
+                               log="Needs to hand off",
+                               model_response=response.get("response", ""))
 
         if ("no" in response.get("thoughts", {}).get("need_use_tool").lower().strip()
             or not action_name
@@ -27,7 +33,9 @@ class ConvoJSONOutputParser(AgentOutputParser):
             if output_message:
                 return AgentFinish(message=response.get("response"), log=output_message)
             else:
-                return AgentFinish(message="Sorry, i don't understand", log=output_message)
+                return AgentAction(tool=handoff_action.name,
+                                   tool_input={}, log="Empty model response",
+                                   model_response=output_message)
 
         return AgentAction(tool=action_name,
                            tool_input=action_args,
