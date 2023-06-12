@@ -58,7 +58,7 @@ llm = ChatOpenAI(temperature=0)
 agent = SupportAgent.from_llm_and_tools(llm, tools, policy=policy)
 memory = BufferMemory()
 
-chain = Chain(tools=tools, agent=agent, memory=memory)
+chain = Chain(agent=agent, memory=memory)
 while True:
     query = input(">> User: ")  # for example "where is my order"
     response = chain.run(query)

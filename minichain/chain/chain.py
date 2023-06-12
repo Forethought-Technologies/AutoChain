@@ -24,7 +24,6 @@ class BaseChain(BaseModel, ABC):
     """
 
     agent: Optional[BaseAgent] = None
-    tools: List[Tool] = []
     memory: Optional[BaseMemory] = None
     last_query: str = ""
     max_iterations: Optional[int] = 15
@@ -93,7 +92,7 @@ class BaseChain(BaseModel, ABC):
         collecting all the inputs and memorized contents
         """
         # Construct a mapping of tool name to tool for easy lookup
-        name_to_tool_map = {tool.name: tool for tool in self.tools}
+        name_to_tool_map = {tool.name: tool for tool in self.agent.tools}
 
         intermediate_steps: List[AgentAction] = self.memory.load_memory(
             constants.OBSERVATIONS, []
