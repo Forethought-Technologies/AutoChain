@@ -39,7 +39,7 @@ missing for a given tool to be used. This function will either outputs an `Agent
 asks the clarifying question or `AgentAction` that is same as action just checked, which means
 no more clarifying question is needed.
 
-## Difference with LangChain
+## Differences with LangChain
 
 As we design the agent, we aims to make it easier to understand and troubleshoot as we believe
 MiniChain is a framework for experimentation. So we tool some design choices to remove layers

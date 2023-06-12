@@ -10,10 +10,12 @@ from langchain.tools import Tool as LCTool
 from minichain.chain.langchain_wapper_chain import LangChainWrapperChain
 
 
-def create_langchain_from_test(tools: List[LCTool],
-                               agent_type: AgentType,
-                               memory: LCBaseMemory = None,
-                               llm: LCBaseLanguageModel = None):
+def create_langchain_from_test(
+    tools: List[LCTool],
+    agent_type: AgentType,
+    memory: LCBaseMemory = None,
+    llm: LCBaseLanguageModel = None,
+):
     """
     Create LangChainWrapperChain by instantiating LangChain agent
     Args:
@@ -28,7 +30,8 @@ def create_langchain_from_test(tools: List[LCTool],
     llm = llm or LangchainModel(temperature=0)
     memory = memory or LCConversationBufferMemory(memory_key="chat_history")
 
-    langchain = initialize_agent(tools, llm, agent=agent_type,
-                                 verbose=True, memory=memory)
+    langchain = initialize_agent(
+        tools, llm, agent=agent_type, verbose=True, memory=memory
+    )
 
     return LangChainWrapperChain(langchain=langchain)

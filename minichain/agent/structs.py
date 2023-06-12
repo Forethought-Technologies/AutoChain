@@ -26,8 +26,10 @@ class AgentAction(BaseModel):
         if self.model_response and not self.observation:
             # share the model response or log message as output if tool fails to call
             return self.model_response
-        return f"Observation from using tool '{self.tool}' for inputs {self.tool_input} " \
-               f"is '{self.observation}'\n"
+        return (
+            f"Observation from using tool '{self.tool}' for inputs {self.tool_input} "
+            f"is '{self.observation}'\n"
+        )
 
 
 class AgentFinish(BaseModel):
@@ -38,8 +40,10 @@ class AgentFinish(BaseModel):
     intermediate_steps: List[AgentAction] = []
 
     def format_output(self) -> Dict[str, Any]:
-        final_output = {"message": self.message,
-                        constants.INTERMEDIATE_STEPS: self.intermediate_steps}
+        final_output = {
+            "message": self.message,
+            constants.INTERMEDIATE_STEPS: self.intermediate_steps,
+        }
         return final_output
 
 
@@ -49,7 +53,8 @@ class AgentOutputParser(BaseModel):
         """Parse text into agent action/finish."""
 
     @staticmethod
-    def parse_clarification(text: str,
-                            agent_action: AgentAction) -> Union[AgentAction, AgentFinish]:
+    def parse_clarification(
+        text: str, agent_action: AgentAction
+    ) -> Union[AgentAction, AgentFinish]:
         """Parse clarification outputs"""
         return agent_action

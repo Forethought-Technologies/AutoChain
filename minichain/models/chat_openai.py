@@ -8,8 +8,13 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 from pydantic import Extra, Field, root_validator
 
 from minichain.agent.message import BaseMessage
-from minichain.models.base import LLMResult, convert_dict_to_message, convert_message_to_dict, \
-    Generation, BaseLanguageModel
+from minichain.models.base import (
+    LLMResult,
+    convert_dict_to_message,
+    convert_message_to_dict,
+    Generation,
+    BaseLanguageModel,
+)
 
 logger = logging.getLogger(__name__)
 

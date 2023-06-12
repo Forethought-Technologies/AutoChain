@@ -33,10 +33,9 @@ class BaseAgent(BaseModel, ABC):
     ) -> BaseAgent:
         """Construct an agent from an LLM and tools."""
 
-    def should_answer(self,
-                      should_answer_prompt_template: str = "",
-                      **kwargs
-                      ) -> Optional[AgentFinish]:
+    def should_answer(
+        self, should_answer_prompt_template: str = "", **kwargs
+    ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""
         return None
@@ -48,14 +47,16 @@ class BaseAgent(BaseModel, ABC):
         """Plan for the next step"""
 
     @abstractmethod
-    def clarify_args_for_agent_action(self, agent_action: AgentAction,
-                                      intermediate_steps: List[AgentAction],
-                                      **kwargs: Any) -> Union[AgentAction, AgentFinish]:
+    def clarify_args_for_agent_action(
+        self,
+        agent_action: AgentAction,
+        intermediate_steps: List[AgentAction],
+        **kwargs: Any,
+    ) -> Union[AgentAction, AgentFinish]:
         """Ask clarifying question if needed"""
 
-    def fix_action_input(self,
-                         tool: Tool,
-                         action: AgentAction,
-                         error: str) -> Optional[AgentAction]:
+    def fix_action_input(
+        self, tool: Tool, action: AgentAction, error: str
+    ) -> Optional[AgentAction]:
         """If the tool failed due to error, what should be the fix for inputs"""
         pass

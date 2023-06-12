@@ -13,7 +13,7 @@ Flow diagram describes the high level picture of the default chain interaction w
 
 ![alt text](./imgs/Minichain.drawio.png)
 
-## Difference with LangChain
+## Differences with LangChain
 
 To remove abstraction and internal concepts, we expose a more flatten and simplified interface
 for chain and explained in details below.   

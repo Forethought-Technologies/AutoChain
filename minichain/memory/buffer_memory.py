@@ -7,6 +7,7 @@ from minichain.agent.message import ChatMessageHistory
 
 class BufferMemory(BaseMemory):
     """Buffer for storing conversation memory and an in-memory kv store."""
+
     chat_history = ChatMessageHistory()
     entire_history = defaultdict(list)
     kv_memory = {}
@@ -25,12 +26,14 @@ class BufferMemory(BaseMemory):
     def save_memory(self, key: str, value: Any) -> None:
         self.kv_memory[key] = value
 
-    def save_conversation(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+    def save_conversation(
+        self, inputs: Dict[str, Any], outputs: Dict[str, str]
+    ) -> None:
         """Save context from this conversation to buffer."""
-        self.entire_history['input'].append(inputs)
-        self.entire_history['output'].append(outputs)
-        self.chat_history.add_user_message(inputs['query'])
-        self.chat_history.add_ai_message(outputs['message'])
+        self.entire_history["input"].append(inputs)
+        self.entire_history["output"].append(outputs)
+        self.chat_history.add_user_message(inputs["query"])
+        self.chat_history.add_ai_message(outputs["message"])
 
     def clear(self) -> None:
         """Clear memory contents."""

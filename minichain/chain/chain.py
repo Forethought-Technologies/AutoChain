@@ -1,4 +1,4 @@
-"""Base interface that all chains should implement."""
+"""Base interface that all chains should implement and default Chain"""
 import logging
 import time
 from abc import ABC, abstractmethod
@@ -50,7 +50,9 @@ class BaseChain(BaseModel, ABC):
         output_dict = output.format_output()
         if self.memory is not None:
             self.memory.save_conversation(inputs=inputs, outputs=output_dict)
-            self.memory.save_memory(key=constants.OBSERVATIONS, value=output.intermediate_steps)
+            self.memory.save_memory(
+                key=constants.OBSERVATIONS, value=output.intermediate_steps
+            )
 
         if return_only_outputs:
             return output_dict
@@ -93,7 +95,9 @@ class BaseChain(BaseModel, ABC):
         # Construct a mapping of tool name to tool for easy lookup
         name_to_tool_map = {tool.name: tool for tool in self.tools}
 
-        intermediate_steps: List[AgentAction] = self.memory.load_memory(constants.OBSERVATIONS, [])
+        intermediate_steps: List[AgentAction] = self.memory.load_memory(
+            constants.OBSERVATIONS, []
+        )
         # Let's start tracking the number of iterations and time elapsed
         iterations = 0
         time_elapsed = 0.0
@@ -124,7 +128,7 @@ class BaseChain(BaseModel, ABC):
         output = AgentFinish(
             message="Agent stopped due to iteration limit or time limit.",
             log="",
-            intermediate_steps=intermediate_steps
+            intermediate_steps=intermediate_steps,
         )
         return output
 
@@ -162,9 +166,9 @@ class BaseChain(BaseModel, ABC):
         """
         output = None
         # check if agent should answer this query
-        if self.last_query != inputs['query']:
+        if self.last_query != inputs["query"]:
             output = self.agent.should_answer(**inputs)
-            self.last_query = inputs['query']
+            self.last_query = inputs["query"]
 
         return output
 
@@ -182,17 +186,19 @@ class Chain(BaseChain):
 
     def handle_repeated_action(self, agent_action: AgentAction) -> AgentFinish:
         if agent_action.model_response:
-            print(f"Action taken before: {agent_action.tool}, "
-                  f"input: {agent_action.tool_input}")
+            print(
+                f"Action taken before: {agent_action.tool}, "
+                f"input: {agent_action.tool_input}"
+            )
             return AgentFinish(
                 message=agent_action.response,
                 log=f"Action taken before: {agent_action.tool}, "
-                    f"input: {agent_action.tool_input}"
+                f"input: {agent_action.tool_input}",
             )
         else:
             return AgentFinish(
                 message=self.graceful_exit_tool.run(""),
-                log=f"Gracefully exit due to repeated action"
+                log=f"Gracefully exit due to repeated action",
             )
 
     def _take_next_step(
@@ -224,13 +230,15 @@ class Chain(BaseChain):
                 raise e
             observation = f"Invalid or incomplete response due to {e}"
             print(observation)
-            output = AgentFinish(message=self.graceful_exit_tool.run(""), log=observation)
+            output = AgentFinish(
+                message=self.graceful_exit_tool.run(""), log=observation
+            )
             return output
 
         if isinstance(output, AgentAction):
-            output = self.agent.clarify_args_for_agent_action(output,
-                                                              intermediate_steps,
-                                                              **inputs)
+            output = self.agent.clarify_args_for_agent_action(
+                output, intermediate_steps, **inputs
+            )
 
         # If agent plans to respond to AgentFinish or there is a clarifying question, respond to
         # user by returning AgentFinish
@@ -252,13 +260,19 @@ class Chain(BaseChain):
                 try:
                     observation = tool.run(output.tool_input)
                 except ToolRunningError as e:
-                    new_agent_action = self.agent.fix_action_input(tool, output,
-                                                                   error=str(e))
-                    if new_agent_action and new_agent_action.tool_input != output.tool_input:
+                    new_agent_action = self.agent.fix_action_input(
+                        tool, output, error=str(e)
+                    )
+                    if (
+                        new_agent_action
+                        and new_agent_action.tool_input != output.tool_input
+                    ):
                         observation = tool.run(output.tool_input)
 
-                print(f"Took action '{tool.name}' with inputs '{output.tool_input}', "
-                      f"and the observation is {observation}")
+                print(
+                    f"Took action '{tool.name}' with inputs '{output.tool_input}', "
+                    f"and the observation is {observation}"
+                )
             else:
                 observation = f"Tool {output.tool} if not supported"
 

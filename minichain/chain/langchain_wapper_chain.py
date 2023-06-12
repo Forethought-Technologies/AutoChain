@@ -13,6 +13,7 @@ class LangChainWrapperChain(BaseChain):
     """
     Wrapper chain instantiate from LangChain's Chain object to match MiniChain interface
     """
+
     langchain: LangChain = None
     memory: Optional[BaseMemory] = None
 
