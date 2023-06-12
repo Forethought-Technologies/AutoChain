@@ -45,7 +45,7 @@ tools = [Tool(
 
 memory = BufferMemory()
 agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
-chain = Chain(agent=agent, memory=memory, tools=tools)
+chain = Chain(agent=agent, memory=memory)
 
 print(chain.run("what is the weather today")['message'])
 ```

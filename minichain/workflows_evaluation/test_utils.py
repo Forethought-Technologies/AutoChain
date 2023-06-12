@@ -53,4 +53,4 @@ def create_chain_from_test(
     llm = llm or ChatOpenAI(temperature=0)
     memory = memory or BufferMemory()
     agent = agent_cls.from_llm_and_tools(llm=llm, tools=tools, **kwargs)
-    return Chain(tools=tools, agent=agent, memory=memory)
+    return Chain(agent=agent, memory=memory)
