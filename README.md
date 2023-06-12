@@ -19,9 +19,9 @@ make more customizations as they are building their own agent.
 
 ### Features
 
-- 🚀 light weighted and extensible conversational pipeline
-- 🔗 agent that can run different custom tools
-- 💾 tracking conversation history and tools outputs memory
+- 🚀 light weighted and extensible generative agent pipeline
+- 🔗 agent that can use different custom tools
+- 💾 simple memory tracks conversation history and tools outputs
 - 🤖 automated agent evaluation with simulated conversations
 
 ## Setup
@@ -70,7 +70,7 @@ print(chain.run("Write me a poem about AI")['message'])
 
 We could add a list of tools to the agent and chain similar to LangChain
 
-```
+```python
 tools = [Tool(
     name="Get weather",
     func=lambda *args, **kwargs: "Today is a sunny day",
@@ -90,11 +90,10 @@ also be run interactively.
 
 Although MiniChain is heavily inspired by [LangChain](https://github.com/hwchase17/langchain),
 we took some design choices to make it more suitable for experimentation and iterations by
-removing layers of abstraction and internal concept.
-In addition, MiniChain provides a novel way to evaluate autonomous agent with simulated
-conversations.
-Although we could create a MiniChain from LangChain by following the interface, there are some
-notable differences.
+removing layers of abstraction and internal concepts.
+In addition, MiniChain provides a novel way to automatically evaluate generative agent with 
+simulated conversations.
+There are some notable differences in MiniChain structure.
 
 1. Flatten prompt
    In LangChain, prompts are broken into prefix, tools string, suffix and other pieces. We
@@ -102,21 +101,22 @@ notable differences.
    easier and more approachable to reader to understand how prompts are generated.
 2. Up to 2 layers of abstraction
    We removed a lot of layers in LangChain and opt for a simpler interface structure, which
-   comes with a cost of losing some non-essential features such as async execution.
-3. Direct interaction with memory
+   comes with a cost of losing some non-essential features such as async execution and code 
+   duplication.
+3. Simpler interaction with memory
    Passing memorized information to prompt is the most important part of this kind of framework.
-   We interact memory is a simpler and direct way by treating all memorized information as key
-   value pairs and substitute them to placeholders in the prompt.
+   We simplify the memory interaction by having just memorized conversation and kv pairs. All 
+   of them will be passed as kv pairs and can substitute placeholders in prompts.
 
 ## Components overview
 
-There are a few key components in Minichain, which could be easily extended to build new agents.
+There are a few key concepts in Minichain, which could be easily extended to build new agents.
 
 ### Chain
 
-Chain is the overall orchestrator for agent interaction. It determines when to use tools or respond
-to users.
-Agent provides ways of interaction, while Chain determines how to
+`Chain` is the overall orchestrator for agent interaction. It determines when to use tools or respond
+to users. All the interactions with memory is limited to the `Chain` level.
+`Agent` provides ways of interaction, while `Chain` determines how to
 interact with agent.
 
 Read more about the [chain concept](./docs/chain.md)
@@ -155,7 +155,7 @@ the next step.
 
 ## Workflow Evaluation
 
-It is notoriously hard to evaluate autonomous agent in LangChain or AutoGPT. Agent's behavior
+It is notoriously hard to evaluate generative agent in LangChain or AutoGPT. Agent's behavior
 is nondeterministic and susceptible to small change to the prompt. It can be really hard to
 know if your agent is behaving correctly. The current path for evaluation is running the agent
 through a large number of preset queries and evaluate the generated responses. However, that is
@@ -163,7 +163,9 @@ limited to single turn conversation, not specific to areas, and very expensive t
 
 To effectively evaluate agents, we introduced the workflow evaluation
 which simulate the conversation between autonomous agent and simulated users with LLM under
-different user context and desired outcome of the conversation.
+different user context and desired outcome of the conversation. This way, we could add test 
+cases for different user scenarios and use LLM to evaluate if conversation reached the desired 
+outcomes. 
 
 Read more about our [evaluation strategy](./docs/workflow_evaluation.md)
 
@@ -183,10 +185,4 @@ flag `-i`
 
 ```shell
 python minichain/workflows_evaluation/order_status_request_test.py -i
-```
-
-Also, you could get the actual prompt used and intermediate steps by passing the `-d` flag
-
-```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i -d
 ```
