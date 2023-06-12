@@ -67,6 +67,12 @@ flag `-i`
 python minichain/workflows_evaluation/order_status_request_test.py -i
 ```
 
+Also, you could get the actual prompt used and intermediate steps by passing the `-d` flag
+
+```shell
+python minichain/workflows_evaluation/order_status_request_test.py -i -d
+```
+
 All of the test results will be saved to `./test_results` directory by default in jsonl format.
 Each test case results would look like the following
 
