@@ -27,7 +27,9 @@ class BaseMemory(BaseModel, ABC):
         """Save the context of this model run to memory."""
 
     @abstractmethod
-    def save_conversation(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+    def save_conversation(
+        self, inputs: Dict[str, Any], outputs: Dict[str, str]
+    ) -> None:
         """Save the context of this model run to memory."""
 
     @abstractmethod

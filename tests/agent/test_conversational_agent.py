@@ -16,13 +16,15 @@ class MockLLM(BaseLanguageModel):
         messages: List[BaseMessage],
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
-        return LLMResult(generations=[Generation(message=AIMessage(content=self.message))])
+        return LLMResult(
+            generations=[Generation(message=AIMessage(content=self.message))]
+        )
 
 
 def test_should_answer_prompt():
     agent = SupportAgent.from_llm_and_tools(
-        llm=MockLLM(message="yes, question is resolved"),
-        tools=[])
+        llm=MockLLM(message="yes, question is resolved"), tools=[]
+    )
 
     input = {"query": "user query", "history": "conversation history"}
     response = agent.should_answer(**input)
@@ -34,24 +36,21 @@ def test_should_answer_prompt():
 
 
 def test_plan():
-    mock_generation_response = json.dumps({
-        "thoughts": {
-            "plan": "Given workflow policy and previous observations",
-            "need_use_tool": "Yes if needs to use another tool not used in previous observations else No"
-        },
-        "tool": {
-            "name": "",
-            "args": {
-                "arg_name": ""
-            }
-        },
-        "response": "response to suer",
-        "workflow_finished": "No"
-    })
+    mock_generation_response = json.dumps(
+        {
+            "thoughts": {
+                "plan": "Given workflow policy and previous observations",
+                "need_use_tool": "Yes if needs to use another tool not used in previous observations else No",
+            },
+            "tool": {"name": "", "args": {"arg_name": ""}},
+            "response": "response to suer",
+            "workflow_finished": "No",
+        }
+    )
 
     agent = SupportAgent.from_llm_and_tools(
-        llm=MockLLM(message=mock_generation_response),
-        tools=[HandOffToAgent()])
+        llm=MockLLM(message=mock_generation_response), tools=[HandOffToAgent()]
+    )
 
     input = {"query": "user query", "history": "conversation history"}
     action = agent.plan(intermediate_steps=[], **input)

@@ -19,19 +19,18 @@ In case of lost or missing orders after all attempts to locate it have been exha
 
 def snowflake_order_status(order_id):
     if "6381" in order_id:
-        return str({
-            "status_code": 200,
-            'tracking_link': "https://www.fedex.com/fedextrack/no-results-found?trknbr=12312312321",
-            'carrier': "FedEx",
-            'location': 'Minneapolis shipping center',
-            'message': 'Expected arrival 12PM-8PM April 15th, 2023',
-            'last_time': '8:23AM, April 11th, 2023',
-        })
+        return str(
+            {
+                "status_code": 200,
+                "tracking_link": "https://www.fedex.com/fedextrack/no-results-found?trknbr=12312312321",
+                "carrier": "FedEx",
+                "location": "Minneapolis shipping center",
+                "message": "Expected arrival 12PM-8PM April 15th, 2023",
+                "last_time": "8:23AM, April 11th, 2023",
+            }
+        )
     else:
-        return str({
-            'status_code': 404,
-            'message': 'Order ID not found.'
-        })
+        return str({"status_code": 404, "message": "Order ID not found."})
 
 
 def validate_order_status_input(order_id):
@@ -45,13 +44,13 @@ tools = [
         name="Order Status",
         func=snowflake_order_status,
         description="""This function checks order status for a given order id.
-                Args: order_id"""
+                Args: order_id""",
     ),
     Tool(
         name="Validate Order Status",
         func=validate_order_status_input,
         description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
-                Args: order_id"""
+                Args: order_id""",
     ),
 ]
 

@@ -33,10 +33,13 @@ def get_test_args():
     return args
 
 
-def create_chain_from_test(tools: List[Tool], memory: BaseMemory = None,
-                           llm: BaseLanguageModel = None,
-                           agent_cls=SupportAgent,
-                           **kwargs):
+def create_chain_from_test(
+    tools: List[Tool],
+    memory: BaseMemory = None,
+    llm: BaseLanguageModel = None,
+    agent_cls=SupportAgent,
+    **kwargs
+):
     """
     Create Chain for running tests
     Args:
@@ -49,7 +52,5 @@ def create_chain_from_test(tools: List[Tool], memory: BaseMemory = None,
     """
     llm = llm or ChatOpenAI(temperature=0)
     memory = memory or BufferMemory()
-    agent = agent_cls.from_llm_and_tools(
-        llm=llm, tools=tools, **kwargs
-    )
+    agent = agent_cls.from_llm_and_tools(llm=llm, tools=tools, **kwargs)
     return Chain(tools=tools, agent=agent, memory=memory)

@@ -1,30 +1,32 @@
 from minichain.tools.base import Tool
 from minichain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from minichain.workflows_evaluation.test_utils import get_test_args, create_chain_from_test
+from minichain.workflows_evaluation.test_utils import (
+    get_test_args,
+    create_chain_from_test,
+)
 
 
 class TestExchangeOrReturnTest(BaseTest):
-
     @staticmethod
     def check_return_eligibility(order_number: str, **kwargs):
         if order_number == "123" or order_number == "345":
-            return {
-                "status_code": 200, "return_ok": True
-            }
+            return {"status_code": 200, "return_ok": True}
         else:
-            return {
-                "status_code": 200, "return_ok": False
-            }
+            return {"status_code": 200, "return_ok": False}
 
     @staticmethod
     def check_user_status(email: str):
         if "test@gmail.com" in email:
             return {
-                "status_code": 200, "user_location": "international", "order_number": "123"
+                "status_code": 200,
+                "user_location": "international",
+                "order_number": "123",
             }
         else:
             return {
-                "status_code": 200, "user_location": "domestic", "order_number": "345"
+                "status_code": 200,
+                "user_location": "domestic",
+                "order_number": "345",
             }
 
     policy = """"Assist customers with returns and exchanges.
@@ -43,7 +45,7 @@ class TestExchangeOrReturnTest(BaseTest):
             func=check_return_eligibility,
             description="""This function if order can be returned or exchanged
 Input args: order_number: non-empty str
-Output values: status_code: int, return_ok: bool """
+Output values: status_code: int, return_ok: bool """,
         ),
         Tool(
             name="change user status",
@@ -51,26 +53,32 @@ Output values: status_code: int, return_ok: bool """
             description="""This function checks user location and determine if user is 
 international or domestic based on email
 Input args: email: non-empty str
-Output values: status_code: int, user_location: str, order_number: str"""
+Output values: status_code: int, user_location: str, order_number: str""",
         ),
     ]
 
     test_cases = [
-        TestCase(test_name="exchange with ok order number and email",
-                 user_query="i would like to return my item",
-                 user_context="order number is 345, email is blah@gmail.com",
-                 expected_outcome="issue return to user"),
-        TestCase(test_name="exchange is not ok based on order number",
-                 user_query="i would like to return my item",
-                 user_context="Your order id is 638; you name is Jacky; email is blah@gmail.com",
-                 expected_outcome="cannot issue refund because user is international"),
+        TestCase(
+            test_name="exchange with ok order number and email",
+            user_query="i would like to return my item",
+            user_context="order number is 345, email is blah@gmail.com",
+            expected_outcome="issue return to user",
+        ),
+        TestCase(
+            test_name="exchange is not ok based on order number",
+            user_query="i would like to return my item",
+            user_context="Your order id is 638; you name is Jacky; email is blah@gmail.com",
+            expected_outcome="cannot issue refund because user is international",
+        ),
     ]
 
     chain = create_chain_from_test(tools=tools, policy=policy)
 
 
-if __name__ == '__main__':
-    tester = WorkflowTester(tests=[TestExchangeOrReturnTest()], output_dir="./test_results")
+if __name__ == "__main__":
+    tester = WorkflowTester(
+        tests=[TestExchangeOrReturnTest()], output_dir="./test_results"
+    )
 
     args = get_test_args()
     if args.interact:

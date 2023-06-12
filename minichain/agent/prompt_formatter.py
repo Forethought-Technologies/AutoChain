@@ -15,6 +15,7 @@ class JSONPromptTemplate(BaseModel):
 
     class Config:
         """Configuration for this pydantic object."""
+
         extra = Extra.forbid
         arbitrary_types_allowed = True
 
