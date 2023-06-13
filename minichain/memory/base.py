@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 from typing import (
     Any,
     Dict,
-    List,
+    Optional,
+    Union,
 )
 
 from pydantic import BaseModel
@@ -15,7 +16,9 @@ class BaseMemory(BaseModel, ABC):
     """Base interface for memory in chains."""
 
     @abstractmethod
-    def load_memory(self, key: str = None, default: Any = None, **kwargs) -> Any:
+    def load_memory(
+        self, key: Union[str, None] = None, default: Optional[Any] = None, **kwargs: Any
+    ) -> Any:
         """Return key-value pairs given the text input to the chain."""
 
     @abstractmethod

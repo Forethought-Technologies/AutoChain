@@ -4,11 +4,10 @@ from __future__ import annotations
 from abc import ABC
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 
+from minichain.errors import ToolRunningError
 from pydantic import (
     BaseModel,
 )
-
-from minichain.errors import ToolRunningError
 
 
 class Tool(ABC, BaseModel):
@@ -18,20 +17,20 @@ class Tool(ABC, BaseModel):
     """The unique name of the tool that clearly communicates its purpose."""
     description: str
     """Used to tell the model how/when/why to use the tool.
-    
+
     You can provide few-shot examples as a part of the description.
     """
     args_schema: Optional[Type[BaseModel]] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
     return_direct: bool = False
     """Whether to return the tool's output directly. Setting this to True means
-    
+
     that after the tool is called, the AgentExecutor will stop looping.
     """
     verbose: bool = False
     """Whether to log the tool's progress."""
 
-    func: Callable[..., str] = None
+    func: Union[Callable[..., str], None] = None
 
     def _parse_input(
         self,
@@ -75,12 +74,14 @@ class Tool(ABC, BaseModel):
             parsed_input = self._parse_input(tool_input)
         except ValueError as e:
             # return exception as observation
-            raise ToolRunningError(message=f"Tool input args value Error: {e}")
+            raise ToolRunningError(message=f"Tool input args value Error: {e}") from e
 
         try:
             tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
             observation = self._run(*tool_args, **tool_kwargs)
         except (Exception, KeyboardInterrupt) as e:
-            raise ToolRunningError(message=f"Failed to run tool {self.name} due to {e}")
+            raise ToolRunningError(
+                message=f"Failed to run tool {self.name} due to {e}"
+            ) from e
 
         return observation

@@ -1,8 +1,8 @@
 from collections import defaultdict
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from minichain.memory.base import BaseMemory
 from minichain.agent.message import ChatMessageHistory
+from minichain.memory.base import BaseMemory
 
 
 class BufferMemory(BaseMemory):
@@ -12,7 +12,9 @@ class BufferMemory(BaseMemory):
     entire_history = defaultdict(list)
     kv_memory = {}
 
-    def load_memory(self, key: str = None, default: Any = None, **kwargs) -> Any:
+    def load_memory(
+        self, key: Optional[str] = None, default: Optional[Any] = None, **kwargs
+    ) -> Any:
         """Return history buffer by key or all memories."""
         if not key:
             return self.kv_memory

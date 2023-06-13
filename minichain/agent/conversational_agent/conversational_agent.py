@@ -3,20 +3,19 @@ from __future__ import annotations
 import json
 import logging
 from string import Template
-from typing import Any, List, Optional, Dict, Union
+from typing import Any, Dict, List, Optional, Union
 
 from colorama import Fore
-
 from minichain.agent.base_agent import BaseAgent
 from minichain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
-from minichain.agent.message import BaseMessage
-from minichain.agent.prompt_formatter import JSONPromptTemplate
-from minichain.agent.structs import AgentAction, AgentFinish
 from minichain.agent.conversational_agent.prompt import (
     CLARIFYING_QUESTION_PROMPT,
     PLANNING_PROMPT,
 )
-from minichain.models.base import Generation, BaseLanguageModel
+from minichain.agent.message import BaseMessage
+from minichain.agent.prompt_formatter import JSONPromptTemplate
+from minichain.agent.structs import AgentAction, AgentFinish
+from minichain.models.base import BaseLanguageModel, Generation
 from minichain.tools.base import Tool
 from minichain.utils import print_with_color
 
@@ -28,6 +27,7 @@ class ConversationalAgent(BaseAgent):
     Simple conversational agent who can use tools available to make a conversation by following
     the conversational planning prompt
     """
+
     output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
@@ -38,7 +38,7 @@ class ConversationalAgent(BaseAgent):
     def from_llm_and_tools(
         cls,
         llm: BaseLanguageModel,
-        tools: List[Tool] = None,
+        tools: Optional[List[Tool]] = None,
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prompt: str = PLANNING_PROMPT,
         input_variables: Optional[List[str]] = None,
@@ -116,7 +116,7 @@ class ConversationalAgent(BaseAgent):
         Returns:
             AgentAction or AgentFinish
         """
-        print_with_color(f"Planning", Fore.LIGHTYELLOW_EX)
+        print_with_color("Planning", Fore.LIGHTYELLOW_EX)
         tool_names = ", ".join([tool.name for tool in self.tools])
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
@@ -162,7 +162,7 @@ class ConversationalAgent(BaseAgent):
         Returns:
             Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
         """
-        print_with_color(f"Deciding if need clarification", Fore.LIGHTYELLOW_EX)
+        print_with_color("Deciding if need clarification", Fore.LIGHTYELLOW_EX)
         if not self.allowed_tools.get(agent_action.tool):
             return agent_action
         else:
