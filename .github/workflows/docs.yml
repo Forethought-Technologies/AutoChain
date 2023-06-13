@@ -1,0 +1,41 @@
+name: Build Docs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+      - name: Install poetry
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "poetry>=1.5.0"
+      - name: Configure poetry
+        run: python -m poetry config virtualenvs.create false
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python -m poetry install
+      - name: Install Material for MkDocs Insiders
+        run: python -m poetry run pip install git+https://${{ secrets.MK_DOCS_ACTIONS_TOKEN }}@github.com/squidfunk/mkdocs-material-insiders.git
+      - uses: actions/cache@v2
+        with:
+          key: mkdocs-cards-${{ github.ref }}
+          path: .cache
+      - name: Build Docs with Insiders
+        run: python -m poetry run mkdocs build --config-file mkdocs.insiders.yml
+      # TODO: figure out deployment platform
+      # - name: Deploy Docs with Insiders
+      #   run: python -m poetry run mkdocs gh-deploy --config-file mkdocs.insiders.yml --force
