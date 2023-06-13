@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 class ConversationalAgent(BaseAgent):
+    """
+    Simple conversational agent who can use tools available to make a conversation by following
+    the conversational planning prompt
+    """
     output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
@@ -59,8 +63,8 @@ class ConversationalAgent(BaseAgent):
             **kwargs,
         )
 
+    @staticmethod
     def get_final_prompt(
-        self,
         template: JSONPromptTemplate,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
@@ -144,6 +148,20 @@ class ConversationalAgent(BaseAgent):
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ):
+        """
+        Ask clarifying question if needed. When agent is about to perform an action, we could
+        use this function with different prompt to ask clarifying question for input if needed.
+        Sometimes the planning response would already have the clarifying question, but we found
+        it is more precise if there is a different prompt just for clarifying args
+
+        Args:
+            agent_action: agent action about to take
+            intermediate_steps: observations so far
+            **kwargs:
+
+        Returns:
+            Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
+        """
         print_with_color(f"Deciding if need clarification", Fore.LIGHTYELLOW_EX)
         if not self.allowed_tools.get(agent_action.tool):
             return agent_action
