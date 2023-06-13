@@ -1,6 +1,6 @@
 # Chain
 
-If you have worked on LangChain before, you already knows 80% of what chain does.  
+If you have worked on LangChain before, you already knows 80% of what chain does.
 Chain is the orchestrator for agent, which controls when to involve agent in which way. It
 offers a framework to interact with agents by controlling the information flow. Chain is
 stateful with a memory component that memorize past conversations and any other intermediate
@@ -11,12 +11,12 @@ and `memory` that stored stateful information.
 
 Flow diagram describes the high level picture of the default chain interaction with an agent.
 
-![alt text](./imgs/Minichain.drawio.png)
+![alt text](./img/minichain.drawio.png)
 
 ## Differences with LangChain
 
 To remove abstraction and internal concepts, we expose a more flatten and simplified interface
-for chain and explained in details below.   
+for chain and explained in details below.
 The main difference is we give more control to user rather than abstracting them into different
 parent classes.
 
@@ -54,6 +54,3 @@ say "Thank you" in the end but agent might not understand this as end of the con
 it could still try to respond with more contents, even clarifying questions in some cases. To
 mitigate this problem, we introduce the `_should_answer` step in `BaseChain` to stop agent from
 further interaction
-
-
-
