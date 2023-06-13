@@ -1,7 +1,7 @@
 # MiniChain
 
 Large language models (LLMs) have shown huge success in different text generation tasks and
-enable developers to build autonomous agents based on natural language objectives.  
+enable developers to build autonomous agents based on natural language objectives.
 
 However, most of the agents require heavy customization for a specific purpose, and adapting
 existing tools for different use cases is sometimes overwhelming. As a result, it is
@@ -34,7 +34,7 @@ cd minichain
 pyenv virtualenv 3.10.11 venv
 pyenv local venv
 
-pip install -r requirements.txt
+pip install .
 
 export OPENAI_API_KEY=
 export PYTHONPATH=`pwd`
@@ -130,7 +130,7 @@ This flow diagram describes the high level picture of the default chain interact
 
 ### Agent
 
-Agent is the component that decides how to respond to the user or whether an agent requires to use tools.  
+Agent is the component that decides how to respond to the user or whether an agent requires to use tools.
 It could contain different prompts for different functionalities an agent could have. The main goal
 for an agent is to plan for the next step, either respond to the user with `AgentFinish` or take an
 action with `AgentAction`.
