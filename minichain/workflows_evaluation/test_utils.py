@@ -1,6 +1,6 @@
 import argparse
 import logging
-from typing import List
+from typing import List, Optional
 
 from minichain.agent.support_agent.support_agent import SupportAgent
 from minichain.chain.chain import Chain
@@ -35,8 +35,8 @@ def get_test_args():
 
 def create_chain_from_test(
     tools: List[Tool],
-    memory: BaseMemory = None,
-    llm: BaseLanguageModel = None,
+    memory: Optional[BaseMemory] = None,
+    llm: Optional[BaseLanguageModel] = None,
     agent_cls=SupportAgent,
     **kwargs
 ):
