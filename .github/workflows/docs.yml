@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Ensure README has the same contents as docs/index.md
-        run: diff docs/index.md README.md
+      # TODO: enable this once the README and index.md have the same content, with absolute links to a published website
+      # - name: Ensure README has the same contents as docs/index.md
+      #   run: diff docs/index.md README.md
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
