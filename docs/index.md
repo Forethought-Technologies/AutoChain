@@ -34,7 +34,7 @@ cd minichain
 pyenv virtualenv 3.10.11 venv
 pyenv local venv
 
-pip install -r requirements.txt
+pip install .
 
 export OPENAI_API_KEY=
 export PYTHONPATH=`pwd`
