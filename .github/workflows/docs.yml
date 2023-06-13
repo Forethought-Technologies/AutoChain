@@ -50,5 +50,4 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: minichain
           directory: site/
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           wranglerVersion: '3'
