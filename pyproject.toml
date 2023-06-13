@@ -39,14 +39,14 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-colorama = "^0.4.6"
-pydantic = "^1.10.9"
-google-api-python-client = {version = "^2.89.0", optional = true}
-chromadb = "^0.3.26"
-pandas = "^2.0.2"
-langchain = "^0.0.199"
-openai = {version = "^0.27.8", optional = true}
-types-colorama = "^0.4.15.11"
+colorama = ">=0.4.6"
+pydantic = ">=1.10.9"
+google-api-python-client = {version = ">=2.89.0", optional = true}
+chromadb = ">=0.3.26"
+pandas = ">=2.0.2"
+langchain = ">=0.0.199"
+openai = {version = ">=0.27.8", optional = true}
+types-colorama = ">=0.4.15.11"
 
 
 [tool.poetry.group.dev.dependencies]
