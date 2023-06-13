@@ -53,7 +53,20 @@ class BaseAgent(BaseModel, ABC):
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
-        """Ask clarifying question if needed"""
+        """
+        Ask clarifying question if needed. When agent is about to perform an action, we could
+        use this function with different prompt to ask clarifying question for input if needed.
+        Sometimes the planning response would already have the clarifying question, but we found
+        it is more precise if there is a different prompt just for clarifying args
+
+        Args:
+            agent_action: agent action about to take
+            intermediate_steps: observations so far
+            **kwargs:
+
+        Returns:
+            Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
+        """
 
     def fix_action_input(
         self, tool: Tool, action: AgentAction, error: str

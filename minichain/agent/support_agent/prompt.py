@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-STEP_BY_STEP_PROMPT = """You are a customer support agent tries to find the next step to help user 
+PLANNING_PROMPT = """You are a customer support agent tries to find the next step to help user 
 question based on workflow policy, previous conversation, observations from tools.
 Ask user clarifying question if arg value is missing or response to user question. Always reply to user with non empty response.
 Workflow policy: 

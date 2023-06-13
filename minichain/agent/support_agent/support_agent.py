@@ -14,7 +14,7 @@ from minichain.agent.support_agent.prompt import (
     FIX_TOOL_INPUT_PROMPT_FORMAT,
     SHOULD_ANSWER_PROMPT,
     CLARIFYING_QUESTION_PROMPT,
-    STEP_BY_STEP_PROMPT,
+    PLANNING_PROMPT,
 )
 from minichain.agent.prompt_formatter import JSONPromptTemplate
 from minichain.agent.structs import AgentAction, AgentFinish
@@ -27,13 +27,19 @@ logger = logging.getLogger(__name__)
 
 
 class SupportAgent(BaseAgent):
+    """
+    SupportAgent is a type of agent that tries to answer user question using a list of tools
+    The main difference with conversational agent is different prompt and handling when agent
+    is not sure how to answer the question. It has a special variable in prompt called "policy",
+    which determines the main logic agent should follow
+    """
     output_parser: SupportJSONOutputParser = SupportJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
 
-    # injected policy into the prompt
+    # injected policy agent should follow into the prompt
     policy: str = ""
 
     @classmethod
@@ -42,7 +48,7 @@ class SupportAgent(BaseAgent):
         llm: BaseLanguageModel,
         tools: List[Tool] = None,
         output_parser: Optional[SupportJSONOutputParser] = None,
-        prompt: str = STEP_BY_STEP_PROMPT,
+        prompt: str = PLANNING_PROMPT,
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> SupportAgent:
@@ -91,8 +97,8 @@ class SupportAgent(BaseAgent):
         )
         return _parse_response(response)
 
+    @staticmethod
     def get_final_prompt(
-        self,
         template: JSONPromptTemplate,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
@@ -186,7 +192,21 @@ class SupportAgent(BaseAgent):
         agent_action: AgentAction,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
-    ):
+    ) -> Union[AgentAction, AgentFinish]:
+        """
+        Ask clarifying question if needed. When agent is about to perform an action, we could
+        use this function with different prompt to ask clarifying question for input if needed.
+        Sometimes the planning response would already have the clarifying question, but we found
+        it is more precise if there is a different prompt just for clarifying args
+
+        Args:
+            agent_action: agent action about to take
+            intermediate_steps: observations so far
+            **kwargs:
+
+        Returns:
+            Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
+        """
         print_with_color(f"Deciding if need clarification", Fore.LIGHTYELLOW_EX)
         inputs = {
             "tool_name": agent_action.tool,
@@ -218,7 +238,7 @@ class SupportAgent(BaseAgent):
         messages = UserMessage(content=prompt)
         output = self.llm.generate([messages])
         text = output.generations[0].message.content
-        inputs = text[text.index("{") : text.rindex("}") + 1].strip()
+        inputs = text[text.index("{"): text.rindex("}") + 1].strip()
         new_tool_inputs = json.loads(inputs)
 
         logger.info(f"\nFixed tool output: {new_tool_inputs}")
