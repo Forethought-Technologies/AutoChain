@@ -43,6 +43,9 @@ jobs:
           path: .cache
       - name: Build Docs with Insiders
         run: python -m poetry run mkdocs build --config-file mkdocs.insiders.yml
-      # TODO: figure out deployment platform
-      # - name: Deploy Docs with Insiders
-      #   run: python -m poetry run mkdocs gh-deploy --config-file mkdocs.insiders.yml --force
+      - name: Publish
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN_PAGES }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages publish --project-name=minichain
