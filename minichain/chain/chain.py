@@ -196,7 +196,7 @@ class Chain(BaseChain):
             )
         else:
             return AgentFinish(
-                message=self.graceful_exit_tool.run(""),
+                message=self.graceful_exit_tool.run(),
                 log=f"Gracefully exit due to repeated action",
             )
 
@@ -230,7 +230,7 @@ class Chain(BaseChain):
             observation = f"Invalid or incomplete response due to {e}"
             print(observation)
             output = AgentFinish(
-                message=self.graceful_exit_tool.run(""), log=observation
+                message=self.graceful_exit_tool.run(), log=observation
             )
             return output
 

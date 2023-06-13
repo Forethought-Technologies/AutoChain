@@ -176,7 +176,7 @@ class SupportAgent(BaseAgent):
             # call hand off to agent and finish workflow
             if agent_output.tool == HandOffToAgent().name:
                 return AgentFinish(
-                    message=HandOffToAgent().run(""), log=f"Handing off to agent"
+                    message=HandOffToAgent().run(), log=f"Handing off to agent"
                 )
 
         return agent_output

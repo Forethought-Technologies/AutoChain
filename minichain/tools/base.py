@@ -67,7 +67,7 @@ class Tool(ABC, BaseModel):
 
     def run(
         self,
-        tool_input: Union[str, Dict],
+        tool_input: Union[str, Dict] = "",
         **kwargs: Any,
     ) -> Any:
         """Run the tool."""
