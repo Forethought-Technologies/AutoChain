@@ -49,3 +49,12 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN_PAGES }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           command: pages deploy --project-name=minichain ./site/
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN_PAGES }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: minichain
+          directory: site/
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: '3'
