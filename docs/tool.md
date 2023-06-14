@@ -1,12 +1,12 @@
 # Tool
 
-The ability to use tools make the agent incredible more powerful as shown in LangChain and
+The ability to use tools makes the agent incredible more powerful as shown in LangChain and
 AutoGPT. We follow the similar concept of tool in LangChain here as well.
-All the tools in LangChain can be easily ported over to MiniChain if you like since they follow
-very similar interface.
+All the tools in LangChain can be easily ported over to MiniChain since they follow very 
+similar interface.  
 Tool is essentially an object that implements a `run` function that takes in a dictionary of
 kwargs. Since input parsing can be reused, in most cases, user would just need to pass the
-callable function to create a new tool, while LLM will generate the inputs on the fly when it
+callable function to create a new tool, and LLM will generate the inputs on the fly when it
 needs to use the tool. As the result, the interface for `Tool` is below:
 
 **name**

@@ -22,18 +22,19 @@ We try to solve all three problems with automatically evaluates different user s
 **simulated conversations**.
 
 The idea is we could have two model actors to conversation with each other, one is the
-autonomous agent and another pretends to be an user with specific context and goal.
-At the end of the conversation, there can be another critic model with different prompt to
-evaluate the quality of the response based on the conversation history to measure if agent
+autonomous agent and another pretends to be an user with specific context and goal. Agent and 
+user will have multiple turns of conversation until agent or user decides to stop or max number 
+of iterations is reached.  
+At the end of the conversation, there will be another critic model with a different prompt to
+evaluate the quality of the responses based on the conversation history to measure if agent
 achieved the desired outcome.
 
-Simulate user will have varied conversations with autonomous agent under different situations,
-another LLM would determine if the conversation reaches the desired outcome. Human could also
-inspect the conversation history and action taken by agent at the end of the test to evaluate
-the quality of the autonomous agent.
+Simulated user will can have varied conversations with autonomous agent under different 
+situations. Human or a LLM could inspect the conversation history and action taken by 
+agent at the end of the test to evaluate the quality of the autonomous agent.
 There are a couple key concepts to build such test cases
 
-**tools** Since most of the agent would need to use tools, you would also need to provide the
+**tools** Since most of the agent would need to use tools, you could provide a list of
 required tools with their name, function callable, and tool description. The better your tool
 name and description are, higher the chain agent would use the right tool with right arguments.
 
@@ -51,7 +52,7 @@ name and description are, higher the chain agent would use the right tool with r
 
 ### How to run workflow tests
 
-There are two modes for running workflow tests. Interactively or running all test cases.
+There are two modes for running workflow tests. Interactively or running all test cases end to end.
 For example in `minichain/workflows_evaluation/refund_request_test.py`, it has already defined
 a few test cases.
 Running all the test cases defined in the test
