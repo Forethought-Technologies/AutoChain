@@ -48,7 +48,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN_PAGES }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: autochain
+          projectName: minichain
           directory: site/
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           wranglerVersion: '3'
