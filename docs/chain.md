@@ -17,8 +17,7 @@ Flow diagram describes the high level picture of the default chain interaction w
 
 To remove abstraction and internal concepts, we expose a more flatten and simplified interface
 for chain and explained in details below.
-The main difference is we give more control to user rather than abstracting them into different
-parent classes.
+The main difference is we simply the flow and removed as many internal concepts as possible.
 
 ## BaseChain and Chain
 
