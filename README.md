@@ -1,4 +1,4 @@
-# MiniChain
+# AutoChain
 
 Large language models (LLMs) have shown huge success in different text generation tasks and
 enable developers to build autonomous agents based on natural language objectives.
@@ -10,7 +10,7 @@ still very challenging to customize on top of existing agents.
 In addition, evaluating such autonomous agents powered by LLMs by trying different use
 cases under different potential user scenarios is a very manual and expensive task.
 
-MiniChain took inspiration from LangChain and AutoGPT and aims to solve
+AutoChain took inspiration from LangChain and AutoGPT and aims to solve
 both problems by providing a lightweight and extensible framework
 for developers to build their own conversational agents using LLMs with custom tools and
 automatically evaluating different user scenarios with simulated conversations.
@@ -30,7 +30,7 @@ make more customizations as they are building their own agent.
 After cloning the repo
 
 ```shell
-cd minichain
+cd autochain
 pyenv virtualenv 3.10.11 venv
 pyenv local venv
 
@@ -43,24 +43,24 @@ export PYTHONPATH=`pwd`
 Run your first conversation with agent interactively
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/order_status_request_test.py -i
 ```
 
 ## Example usage
 
-If you have experience with LangChain, you already know 80% of the MiniChain interface.
+If you have experience with LangChain, you already know 80% of the AutoChain interface.
 
-MiniChain aims to make creating a new customized agent very straight forward with as few
-concepts as possible. Using MiniChain is very simple.
+AutoChain aims to make creating a new customized agent very straight forward with as few
+concepts as possible. Using AutoChain is very simple.
 Read more about [example usages](./docs/examples.md).
 
 The most basic example can use our default chain and `ConversationalAgent`:
 
 ```python
-from minichain.chain.chain import Chain
-from minichain.memory.buffer_memory import BufferMemory
-from minichain.models.chat_openai import ChatOpenAI
-from minichain.agent.conversational_agent.conversational_agent import ConversationalAgent
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+from autochain.agent.conversational_agent.conversational_agent import ConversationalAgent
 
 llm = ChatOpenAI(temperature=0)
 memory = BufferMemory()
@@ -84,18 +84,18 @@ agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
 chain = Chain(agent=agent, memory=memory, tools=tools)
 ```
 
-Check out [more examples](./docs/examples.md) under `minichain/examples` and workflow evaluation
+Check out [more examples](./docs/examples.md) under `autochain/examples` and workflow evaluation
 cases which can
 also be run interactively.
 
 ## Main difference with LangChain
 
-Although MiniChain is heavily inspired by [LangChain](https://github.com/hwchase17/langchain),
+Although AutoChain is heavily inspired by [LangChain](https://github.com/hwchase17/langchain),
 we took some design choices to make it more suitable for experimentation and iterations by
 removing layers of abstraction and internal concepts.
-In addition, MiniChain provides a novel way to automatically evaluate generative agents with
+In addition, AutoChain provides a novel way to automatically evaluate generative agents with
 simulated conversations.
-There are some notable differences in MiniChain's structure.
+There are some notable differences in AutoChain's structure.
 
 1. Flatten prompt
    In LangChain, prompts are broken into prefix, tools string, suffix and other pieces. We
@@ -112,7 +112,7 @@ There are some notable differences in MiniChain's structure.
 
 ## Components overview
 
-There are a few key concepts in MiniChain, which could be easily extended to build new agents.
+There are a few key concepts in AutoChain, which could be easily extended to build new agents.
 
 ### Chain
 
@@ -126,7 +126,7 @@ Read more about the [chain concept](./docs/chain.md).
 
 This flow diagram describes the high level picture of the default chain interaction with an agent.
 
-![alt text](./docs/img/Minichain.drawio.png)
+![alt text](./docs/img/autochain.drawio.png)
 
 ### Agent
 
@@ -141,7 +141,7 @@ Read more about [agent](./docs/agent.md)
 
 The ability to use tools make the agent incredible more powerful as shown in LangChain and
 AutoGPT. We follow a similar concept of "tool" as in LangChain here as well.
-All the tools in LangChain can be easily ported over to MiniChain if you like, since they follow
+All the tools in LangChain can be easily ported over to AutoChain if you like, since they follow
 a very similar interface, and tool outputs are still called `observations`.
 
 Read more about [tool](./docs/tools.md).
@@ -176,18 +176,18 @@ Read more about our [evaluation strategy](./docs/workflow_evaluation.md).
 ### How to run workflow tests
 
 There are two modes for running workflow tests. Interactively or running all test cases.
-For example in `minichain/workflows_evaluation/refund_request_test.py`, it has already defined
+For example in `autochain/workflows_evaluation/refund_request_test.py`, it has already defined
 a few test cases.
 
 Running all the test cases defined in the test:
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py
+python autochain/workflows_evaluation/order_status_request_test.py
 ```
 
 You can also interactively having a conversation with that agent by passing the interactive
 flag `-i`:
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/order_status_request_test.py -i
 ```
