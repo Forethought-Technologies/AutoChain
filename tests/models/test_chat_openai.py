@@ -3,9 +3,9 @@ from unittest import mock
 
 import pytest
 
-from minichain.agent.message import UserMessage
-from minichain.models.base import LLMResult
-from minichain.models.chat_openai import ChatOpenAI
+from autochain.agent.message import UserMessage
+from autochain.models.base import LLMResult
+from autochain.models.chat_openai import ChatOpenAI
 
 
 @pytest.fixture

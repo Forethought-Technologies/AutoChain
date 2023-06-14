@@ -11,7 +11,7 @@ and `memory` that stored stateful information.
 
 Flow diagram describes the high level picture of the default chain interaction with an agent.
 
-![alt text](./img/minichain.drawio.png)
+![alt text](./img/autochain.drawio.png)
 
 ## Differences with LangChain
 
@@ -21,7 +21,7 @@ The main difference is we simply the flow and removed as many internal concepts 
 
 ## BaseChain and Chain
 
-This is the most generic interface for implementing any chain in MiniChain. It contains a few
+This is the most generic interface for implementing any chain in AutoChain. It contains a few
 features user could override. `BaseChain` is the generic interface where `Chain` is the default
 chain implementation by implementing the only abstract method `_take_next_step`
 

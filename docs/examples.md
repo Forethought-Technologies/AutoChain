@@ -1,7 +1,7 @@
 # Example usage
 
-MiniChain aims to make creating a new customized agent very straight forward with as few
-concepts as possible. Using MiniChain is also very simple.
+AutoChain aims to make creating a new customized agent very straight forward with as few
+concepts as possible. Using AutoChain is also very simple.
 
 ## Create a conversational agent without tools
 
@@ -26,11 +26,11 @@ the agent.
 ## Checkout more examples in workflow_evaluation and examples
 
 There are examples we created with mocked tools to demonstrate the ability of the agent.
-You could check out `minichain/examples` and play with agents there after setting the
+You could check out `autochain/examples` and play with agents there after setting the
 OPENAI_API_KEY.
 In addition, you could run each workflow evaluation test interactively by passing `-i` flag in
 the end. For example
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/order_status_request_test.py -i
 ```

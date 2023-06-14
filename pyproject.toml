@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "minichain"
+name = "autochain"
 version = "0.0.1"
-description = "MiniChain: Build lightweight, extensible, and testable LLM Agents"
+description = "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: add URLs, homepage, documentation
 authors = [
     "Yi Lu <yi.lu@forethought.ai>",
@@ -98,4 +98,4 @@ ignore = [
 # "__init__.py" = ["F401"]
 
 [tool.ruff.isort]
-known-third-party = ["minichain"]
+known-third-party = ["autochain"]

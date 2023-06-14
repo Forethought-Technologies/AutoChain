@@ -1,5 +1,5 @@
-from minichain.chain import constants
-from minichain.memory.buffer_memory import BufferMemory
+from autochain.chain import constants
+from autochain.memory.buffer_memory import BufferMemory
 
 
 def test_buffer_kv_memory():

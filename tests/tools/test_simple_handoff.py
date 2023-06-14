@@ -1,4 +1,4 @@
-from minichain.tools.simple_handoff.tool import HandOffToAgent
+from autochain.tools.simple_handoff.tool import HandOffToAgent
 
 
 def test_simple_handoff() -> None:

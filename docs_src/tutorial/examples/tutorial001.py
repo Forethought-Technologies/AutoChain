@@ -1,7 +1,7 @@
-from minichain.chain.chain import Chain
-from minichain.memory.buffer_memory import BufferMemory
-from minichain.models.chat_openai import ChatOpenAI
-from minichain.agent.conversational_agent.conversational_agent import (
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+from autochain.agent.conversational_agent.conversational_agent import (
     ConversationalAgent,
 )
 

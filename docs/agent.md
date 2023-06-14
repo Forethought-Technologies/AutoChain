@@ -42,14 +42,14 @@ no more clarifying question is needed.
 ## Differences with LangChain
 
 As we design the agent, we aim to make it easier to understand and troubleshoot as we believe
-MiniChain is a framework for experimentation. So we took some design choices to remove layers
+AutoChain is a framework for experimentation. So we took some design choices to remove layers
 of abstractions/concepts. Some notable differences are
 
 1. Different way to create and update prompt. In LangChain, prompts are broken into prefix,
    tools string, suffix and other pieces. While that is efficient for reuse, it can also be hard
-   to understand what prompt is used and how to update it. So in MiniChain, there is just one
+   to understand what prompt is used and how to update it. So in AutoChain, there is just one
    prompt with placeholders that can be substituted with variables from inputs.
 2. Fewer layers of abstraction. Although inheritance is commonly used, we opt to have just 2
    layers of abstractions, `BaseAgent` and the actual agent implementation for example. However, 
    this comes with a cost of not able to share as much code across agents. This is not very 
-   concerning to us because MiniChain aims to just enable quick experimentation.
+   concerning to us because AutoChain aims to just enable quick experimentation.
