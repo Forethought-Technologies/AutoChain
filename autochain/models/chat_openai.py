@@ -1,20 +1,22 @@
 """OpenAI chat wrapper."""
 from __future__ import annotations
 
+import enum
+import inspect
 import logging
 import os
+import re
 from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 from pydantic import Extra, Field, root_validator
 
-from autochain.agent.message import BaseMessage
+from autochain.agent.message import BaseMessage, UserMessage, AIMessage, SystemMessage
 from autochain.models.base import (
     LLMResult,
-    convert_dict_to_message,
-    convert_message_to_dict,
     Generation,
     BaseLanguageModel,
 )
+from autochain.tools.base import Tool
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +58,78 @@ class ChatOpenAI(BaseLanguageModel):
     max_tokens: Optional[int] = None
     """Maximum number of tokens to generate."""
 
+    function_calling_allowed_list = ["gpt-3.5-turbo-0613", "gpt-4-0613"]
+    """List of openai models support function_calling"""
+
     class Config:
         """Configuration for this pydantic object."""
 
         extra = Extra.ignore
+
+    @staticmethod
+    def convert_dict_to_message(_dict: dict) -> BaseMessage:
+        role = _dict["role"]
+        if role == "user":
+            return UserMessage(content=_dict["content"])
+        elif role == "assistant":
+            return AIMessage(
+                content=_dict["content"], function_call=_dict.get("function_call", {})
+            )
+        elif role == "system":
+            return SystemMessage(content=_dict["content"])
+        else:
+            raise ValueError(f"Unsupported role {role}")
+
+    @staticmethod
+    def convert_message_to_dict(message: BaseMessage) -> dict:
+        if isinstance(message, UserMessage):
+            message_dict = {"role": "user", "content": message.content}
+        elif isinstance(message, AIMessage):
+            message_dict = {"role": "assistant", "content": message.content}
+        elif isinstance(message, SystemMessage):
+            message_dict = {"role": "system", "content": message.content}
+        else:
+            raise ValueError(f"Got unknown type {message}")
+        return message_dict
+
+    @staticmethod
+    def convert_tool_to_dict(tool: Tool):
+        """Convert tool into function parameter for openai"""
+        inspection = inspect.getfullargspec(tool.func)
+
+        def _type_to_string(t: type) -> str:
+            prog = re.compile(r"<class '(\w+)'>")
+            cls = prog.findall(str(t))
+
+            primary_type_map = {"str": "string"}
+
+            if len(cls) > 0:
+                cls_name = cls[0].split(".")[-1]
+                return primary_type_map.get(cls_name, cls_name)
+
+            if issubclass(t, enum.Enum):
+                return "enum"
+
+            return str(t)
+
+        arg_annotations = inspection.annotations
+        properties = {}
+        for k, v in arg_annotations.items():
+            properties.update({k: {"type": _type_to_string(v)}})
+
+        required_args = inspection.args[: len(inspection.defaults)]
+
+        output = {
+            "name": tool.name,
+            "description": tool.description,
+            "parameters": {
+                "type": "object",
+                "properties": properties,
+                "required": required_args,
+            },
+        }
+
+        return output
 
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
@@ -91,27 +161,52 @@ class ChatOpenAI(BaseLanguageModel):
     def generate(
         self,
         messages: List[BaseMessage],
+        functions: Optional[List[Tool]] = None,
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
-        message_dicts, params = self._create_message_dicts(messages, stop)
-        response = self.generate_with_retry(messages=message_dicts, **params)
+        message_dicts, function_dicts, params = self._create_message_dicts(
+            messages, functions, stop
+        )
+
+        if (
+            len(function_dicts) > 0
+            and self.model_name not in self.function_calling_allowed_list
+        ):
+            raise RuntimeError(
+                f"{self.model_name} is not supported for function calling, "
+                f"supported list is {self.function_calling_allowed_list}"
+            )
+        generation_param = {
+            "messages": message_dicts,
+            **params,
+        }
+        if len(function_dicts) > 0:
+            generation_param["functions"] = function_dicts
+
+        response = self.generate_with_retry(**generation_param)
         return self._create_llm_result(response)
 
     def _create_message_dicts(
-        self, messages: List[BaseMessage], stop: Optional[List[str]]
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        self,
+        messages: List[BaseMessage],
+        tools: Optional[List[Tool]],
+        stop: Optional[List[str]],
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, Any]]:
         params: Dict[str, Any] = {**{"model": self.model_name}, **self._default_params}
         if stop is not None:
             if "stop" in params:
                 raise ValueError("`stop` found in both the input and default params.")
             params["stop"] = stop
-        message_dicts = [convert_message_to_dict(m) for m in messages]
-        return message_dicts, params
+        message_dicts = [self.convert_message_to_dict(m) for m in messages]
+        function_dicts = []
+        if tools:
+            function_dicts = [self.convert_tool_to_dict(t) for t in tools]
+        return message_dicts, function_dicts, params
 
     def _create_llm_result(self, response: Mapping[str, Any]) -> LLMResult:
         generations = []
         for res in response["choices"]:
-            message = convert_dict_to_message(res["message"])
+            message = self.convert_dict_to_message(res["message"])
             gen = Generation(message=message)
             generations.append(gen)
         llm_output = {"token_usage": response["usage"], "model_name": self.model_name}

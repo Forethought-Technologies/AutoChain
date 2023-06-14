@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Any, Dict
 
 from pydantic import BaseModel, Field
 
@@ -31,6 +31,7 @@ class AIMessage(BaseMessage):
     """Type of message that is spoken by the AI."""
 
     example: bool = False
+    function_call: Dict[str, Any] = {}
 
     @property
     def type(self) -> str:

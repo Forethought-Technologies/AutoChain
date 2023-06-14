@@ -168,7 +168,7 @@ class SupportAgent(BaseAgent):
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
-            full_output.message.content
+            full_output.message
         )
 
         print_with_color(
@@ -224,7 +224,7 @@ class SupportAgent(BaseAgent):
         logger.info(f"\nClarification inputs: {final_prompt[0].content}")
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         return self.output_parser.parse_clarification(
-            full_output.message.content, agent_action=agent_action
+            full_output.message, agent_action=agent_action
         )
 
     def fix_action_input(

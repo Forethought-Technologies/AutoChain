@@ -6,15 +6,17 @@ from string import Template
 from typing import Any, Dict, List, Optional, Union
 
 from colorama import Fore
+
 from autochain.agent.base_agent import BaseAgent
-from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
-from autochain.agent.conversational_agent.prompt import (
-    CLARIFYING_QUESTION_PROMPT,
-    PLANNING_PROMPT,
-)
 from autochain.agent.message import BaseMessage
+from autochain.agent.openai_funtion_agent.output_parser import (
+    OpenAIFunctionOutputParser,
+)
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
+from autochain.agent.openai_funtion_agent.prompt import (
+    PLANNING_PROMPT,
+)
 from autochain.models.base import BaseLanguageModel, Generation
 from autochain.tools.base import Tool
 from autochain.utils import print_with_color
@@ -22,13 +24,9 @@ from autochain.utils import print_with_color
 logger = logging.getLogger(__name__)
 
 
-class ConversationalAgent(BaseAgent):
-    """
-    Simple conversational agent who can use tools available to make a conversation by following
-    the conversational planning prompt
-    """
+class OpenAIFunctionAgent(BaseAgent):
+    """ """
 
-    output_parser: ConvoJSONOutputParser = ConvoJSONOutputParser()
     llm: BaseLanguageModel = None
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
@@ -39,12 +37,11 @@ class ConversationalAgent(BaseAgent):
         cls,
         llm: BaseLanguageModel,
         tools: Optional[List[Tool]] = None,
-        output_parser: Optional[ConvoJSONOutputParser] = None,
+        output_parser: Optional[OpenAIFunctionOutputParser] = None,
         prompt: str = PLANNING_PROMPT,
         input_variables: Optional[List[str]] = None,
         **kwargs: Any,
-    ) -> ConversationalAgent:
-        """Construct an agent from an LLM and tools."""
+    ) -> OpenAIFunctionAgent:
         tools = tools or []
 
         prompt_template = cls.get_prompt_template(
@@ -53,7 +50,7 @@ class ConversationalAgent(BaseAgent):
         )
 
         allowed_tools = {tool.name: tool for tool in tools}
-        _output_parser = output_parser or ConvoJSONOutputParser()
+        _output_parser = output_parser or OpenAIFunctionOutputParser()
         return cls(
             llm=llm,
             allowed_tools=allowed_tools,
@@ -107,27 +104,15 @@ class ConversationalAgent(BaseAgent):
     def plan(
         self, intermediate_steps: List[AgentAction], **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
-        """
-        Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
-        Args:
-            intermediate_steps: List of AgentAction that has been performed with outputs
-            **kwargs: key value pairs from chain, which contains query and other stored memories
-
-        Returns:
-            AgentAction or AgentFinish
-        """
         print_with_color("Planning", Fore.LIGHTYELLOW_EX)
-        tool_names = ", ".join([tool.name for tool in self.tools])
-        tool_strings = "\n\n".join(
-            [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
-        )
-        inputs = {"tool_names": tool_names, "tools": tool_strings, **kwargs}
         final_prompt = self.get_final_prompt(
-            self.prompt_template, intermediate_steps, **inputs
+            self.prompt_template, intermediate_steps, **kwargs
         )
-        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
 
-        full_output: Generation = self.llm.generate(final_prompt).generations[0]
+        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
+        full_output: Generation = self.llm.generate(
+            final_prompt, self.tools
+        ).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message
         )
@@ -141,46 +126,3 @@ class ConversationalAgent(BaseAgent):
             )
 
         return agent_output
-
-    def clarify_args_for_agent_action(
-        self,
-        agent_action: AgentAction,
-        intermediate_steps: List[AgentAction],
-        **kwargs: Any,
-    ):
-        """
-        Ask clarifying question if needed. When agent is about to perform an action, we could
-        use this function with different prompt to ask clarifying question for input if needed.
-        Sometimes the planning response would already have the clarifying question, but we found
-        it is more precise if there is a different prompt just for clarifying args
-
-        Args:
-            agent_action: agent action about to take
-            intermediate_steps: observations so far
-            **kwargs:
-
-        Returns:
-            Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
-        """
-        print_with_color("Deciding if need clarification", Fore.LIGHTYELLOW_EX)
-        if not self.allowed_tools.get(agent_action.tool):
-            return agent_action
-        else:
-            inputs = {
-                "tool_name": agent_action.tool,
-                "tool_desp": self.allowed_tools.get(agent_action.tool).description,
-                **kwargs,
-            }
-
-            clarifying_template = self.get_prompt_template(
-                prompt=CLARIFYING_QUESTION_PROMPT
-            )
-
-            final_prompt = self.get_final_prompt(
-                clarifying_template, intermediate_steps, **inputs
-            )
-            logger.info(f"\nClarification inputs: {final_prompt[0].content}")
-            full_output: Generation = self.llm.generate(final_prompt).generations[0]
-            return self.output_parser.parse_clarification(
-                full_output.message, agent_action=agent_action
-            )
