@@ -19,7 +19,7 @@ from minichain.agent.support_agent.prompt import (
 )
 from minichain.models.base import BaseLanguageModel, Generation
 from minichain.tools.base import Tool
-from minichain.tools.simple_handoff.tools import HandOffToAgent
+from minichain.tools.simple_handoff.tool import HandOffToAgent
 from minichain.utils import print_with_color
 
 logger = logging.getLogger(__name__)

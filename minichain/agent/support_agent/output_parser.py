@@ -5,7 +5,7 @@ from colorama import Fore
 
 from minichain.errors import OutputParserException
 from minichain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
-from minichain.tools.simple_handoff.tools import HandOffToAgent
+from minichain.tools.simple_handoff.tool import HandOffToAgent
 from minichain.utils import print_with_color
 
 
