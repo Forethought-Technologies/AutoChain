@@ -1,6 +1,7 @@
 """
 Base interface that all chains should implement
 """
+import logging
 import time
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, List
@@ -10,9 +11,11 @@ from pydantic import BaseModel
 from minichain.agent.base_agent import BaseAgent
 from minichain.agent.structs import AgentFinish, AgentAction
 from minichain.chain import constants
-from minichain.chain.chain import logger
 from minichain.memory.base import BaseMemory
 from minichain.tools.base import Tool
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseChain(BaseModel, ABC):
