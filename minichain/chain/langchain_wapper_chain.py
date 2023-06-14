@@ -1,11 +1,11 @@
-"""Base interface that all chains should implement."""
+"""Wrapper of LangChain to follow the same chain interface"""
 from typing import Any, Dict, List, Optional
 
 from langchain.chains.base import Chain as LangChain
 from langchain.schema import BaseMemory
 
 from minichain.agent.structs import AgentFinish, AgentAction
-from minichain.chain.chain import BaseChain
+from minichain.chain.base_chain import BaseChain
 from minichain.tools.base import Tool
 
 
