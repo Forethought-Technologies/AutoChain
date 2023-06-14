@@ -8,7 +8,7 @@ from colorama import Fore
 
 from minichain.agent.message import UserMessage
 from minichain.chain import constants
-from minichain.chain.chain import BaseChain
+from minichain.chain.base_chain import BaseChain
 from minichain.models.base import Generation
 from minichain.models.chat_openai import ChatOpenAI
 from minichain.tools.base import Tool

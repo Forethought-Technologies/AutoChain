@@ -126,7 +126,7 @@ Read more about the [chain concept](./docs/chain.md).
 
 This flow diagram describes the high level picture of the default chain interaction with an agent.
 
-![alt text](./docs/imgs/Minichain.drawio.png)
+![alt text](./docs/img/Minichain.drawio.png)
 
 ### Agent
 

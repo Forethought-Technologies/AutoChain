@@ -5,7 +5,7 @@ from minichain.agent.support_agent.support_agent import SupportAgent
 from minichain.agent.message import BaseMessage, AIMessage
 from minichain.agent.structs import AgentFinish
 from minichain.models.base import LLMResult, Generation, BaseLanguageModel
-from minichain.tools.simple_handoff.tools import HandOffToAgent
+from minichain.tools.simple_handoff.tool import HandOffToAgent
 
 
 class MockLLM(BaseLanguageModel):
