@@ -68,9 +68,7 @@ class Chain(BaseChain):
                 raise e
             observation = f"Invalid or incomplete response due to {e}"
             print(observation)
-            output = AgentFinish(
-                message=self.graceful_exit_tool.run(), log=observation
-            )
+            output = AgentFinish(message=self.graceful_exit_tool.run(), log=observation)
             return output
 
         if isinstance(output, AgentAction):
