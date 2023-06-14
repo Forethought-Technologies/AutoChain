@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import enum
+import inspect
 import logging
+import re
 from abc import abstractmethod
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -15,6 +18,7 @@ from tenacity import (
 
 from autochain.agent.message import BaseMessage
 from autochain.agent.message import UserMessage, AIMessage, SystemMessage
+from autochain.tools.base import Tool
 
 logger = logging.getLogger(__name__)
 
@@ -39,30 +43,6 @@ class LLMResult(BaseModel):
     each input could have multiple generations."""
     llm_output: Optional[dict] = None
     """For arbitrary LLM provider specific output."""
-
-
-def convert_dict_to_message(_dict: dict) -> BaseMessage:
-    role = _dict["role"]
-    if role == "user":
-        return UserMessage(content=_dict["content"])
-    elif role == "assistant":
-        return AIMessage(content=_dict["content"])
-    elif role == "system":
-        return SystemMessage(content=_dict["content"])
-    else:
-        raise ValueError(f"Unsupported role {role}")
-
-
-def convert_message_to_dict(message: BaseMessage) -> dict:
-    if isinstance(message, UserMessage):
-        message_dict = {"role": "user", "content": message.content}
-    elif isinstance(message, AIMessage):
-        message_dict = {"role": "assistant", "content": message.content}
-    elif isinstance(message, SystemMessage):
-        message_dict = {"role": "system", "content": message.content}
-    else:
-        raise ValueError(f"Got unknown type {message}")
-    return message_dict
 
 
 class BaseLanguageModel(BaseModel):
@@ -154,6 +134,7 @@ class BaseLanguageModel(BaseModel):
     def generate(
         self,
         messages: List[BaseMessage],
+        functions: Optional[List[Tool]] = None,
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
         pass

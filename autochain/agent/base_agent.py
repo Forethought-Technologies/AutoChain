@@ -46,7 +46,6 @@ class BaseAgent(BaseModel, ABC):
     ) -> Union[AgentAction, AgentFinish]:
         """Plan for the next step"""
 
-    @abstractmethod
     def clarify_args_for_agent_action(
         self,
         agent_action: AgentAction,
@@ -67,6 +66,7 @@ class BaseAgent(BaseModel, ABC):
         Returns:
             Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
         """
+        return agent_action
 
     def fix_action_input(
         self, tool: Tool, action: AgentAction, error: str
