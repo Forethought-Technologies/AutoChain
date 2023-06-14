@@ -1225,13 +1225,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "langchain"
-version = "0.0.199"
+version = "0.0.200"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "langchain-0.0.199-py3-none-any.whl", hash = "sha256:a7502802a09a3cddb36e9a8ecfb2010d386ad32569424b4fef32af700c19d80f"},
-    {file = "langchain-0.0.199.tar.gz", hash = "sha256:9758f890173513c840d7fd8f5c79ab765e6547ce65168eb41e23052db51d0b45"},
+    {file = "langchain-0.0.200-py3-none-any.whl", hash = "sha256:f1567c52991e375ab1e41354587c54a931cf84e8e1a6427b380320825ec9390e"},
+    {file = "langchain-0.0.200.tar.gz", hash = "sha256:31c535deb45049d17aea3370de4ac5e21452ffb8b5e1a73a7ec477600b9e3b74"},
 ]
 
 [package.dependencies]
