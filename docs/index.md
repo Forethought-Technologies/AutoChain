@@ -142,7 +142,7 @@ Read more about [agent](./agent.md).
 The ability to use tools make the agent incredible more powerful as shown in LangChain and
 AutoGPT. We follow a similar concept of "tool" as in LangChain here as well.
 All the tools in LangChain can be easily ported over to MiniChain if you like, since they follow
-a very similar interface.
+a very similar interface, and tool outputs are still called `observations`.
 
 Read more about [tool](./tool.md).
 
