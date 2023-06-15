@@ -1,11 +1,11 @@
 import json
 from typing import List, Optional
 
-from minichain.agent.support_agent.support_agent import SupportAgent
-from minichain.agent.message import BaseMessage, AIMessage
-from minichain.agent.structs import AgentFinish
-from minichain.models.base import LLMResult, Generation, BaseLanguageModel
-from minichain.tools.simple_handoff.tool import HandOffToAgent
+from autochain.agent.support_agent.support_agent import SupportAgent
+from autochain.agent.message import BaseMessage, AIMessage
+from autochain.agent.structs import AgentFinish
+from autochain.models.base import LLMResult, Generation, BaseLanguageModel
+from autochain.tools.simple_handoff.tool import HandOffToAgent
 
 
 class MockLLM(BaseLanguageModel):

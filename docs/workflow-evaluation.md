@@ -53,25 +53,25 @@ name and description are, higher the chain agent would use the right tool with r
 ### How to run workflow tests
 
 There are two modes for running workflow tests. Interactively or running all test cases end to end.
-For example in `minichain/workflows_evaluation/refund_request_test.py`, it has already defined
+For example in `autochain/workflows_evaluation/refund_request_test.py`, it has already defined
 a few test cases.
 Running all the test cases defined in the test
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py
+python autochain/workflows_evaluation/order_status_request_test.py
 ```
 
 You can also interactively having a conversation with that agent by passing the interactive
 flag `-i`
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/order_status_request_test.py -i
 ```
 
 Also, you could get the actual prompt used and intermediate steps by passing the `-d` flag
 
 ```shell
-python minichain/workflows_evaluation/order_status_request_test.py -i -d
+python autochain/workflows_evaluation/order_status_request_test.py -i -d
 ```
 
 All of the test results will be saved to `./test_results` directory by default in jsonl format.

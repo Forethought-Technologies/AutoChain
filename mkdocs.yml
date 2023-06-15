@@ -1,5 +1,5 @@
-site_name: MiniChain
-site_description: "MiniChain: Build lightweight, extensible, and testable LLM Agents"
+site_name: AutoChain
+site_description: "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: set the proper docs website URL once the domain is defined
 site_url: https://engineering.forethought.ai
 theme:
@@ -22,7 +22,7 @@ theme:
   - search.suggest
   - search.highlight
   - content.tabs.link
-  # TODO if MiniChain gets its own logo and icon, it could be put in these directories
+  # TODO if AutoChain gets its own logo and icon, it could be put in these directories
   # if the intention is to preserve Forethought's logo, remove this comment
   logo: img/icon.png
   favicon: img/icon.png

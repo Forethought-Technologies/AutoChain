@@ -1,4 +1,4 @@
-from minichain.tools.internal_search.chromadb_tool import ChromaDBSearch, ChromaDoc
+from autochain.tools.internal_search.chromadb_tool import ChromaDBSearch, ChromaDoc
 
 
 def test_chromadb_tool_run():
