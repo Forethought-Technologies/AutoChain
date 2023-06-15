@@ -10,7 +10,13 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 from pydantic import Extra, Field, root_validator
 
-from autochain.agent.message import BaseMessage, UserMessage, AIMessage, SystemMessage
+from autochain.agent.message import (
+    BaseMessage,
+    UserMessage,
+    AIMessage,
+    SystemMessage,
+    FunctionMessage,
+)
 from autochain.models.base import (
     LLMResult,
     Generation,
@@ -19,6 +25,83 @@ from autochain.models.base import (
 from autochain.tools.base import Tool
 
 logger = logging.getLogger(__name__)
+
+
+def convert_dict_to_message(_dict: dict) -> BaseMessage:
+    role = _dict["role"]
+    if role == "user":
+        return UserMessage(content=_dict["content"])
+    elif role == "assistant":
+        return AIMessage(
+            content=_dict["content"] or "hum..",
+            function_call=_dict.get("function_call", {}),
+        )
+    elif role == "system":
+        return SystemMessage(content=_dict["content"])
+    else:
+        raise ValueError(f"Unsupported role {role}")
+
+
+def convert_message_to_dict(message: BaseMessage) -> dict:
+    if isinstance(message, UserMessage):
+        message_dict = {"role": "user", "content": message.content}
+    elif isinstance(message, AIMessage):
+        message_dict = {"role": "assistant", "content": message.content}
+    elif isinstance(message, SystemMessage):
+        message_dict = {"role": "system", "content": message.content}
+    elif isinstance(message, FunctionMessage):
+        message_dict = {
+            "role": "function",
+            "content": message.content,
+            "name": message.name,
+        }
+    else:
+        raise ValueError(f"Got unknown type {message}")
+    return message_dict
+
+
+def convert_tool_to_dict(tool: Tool):
+    """Convert tool into function parameter for openai"""
+    inspection = inspect.getfullargspec(tool.func)
+
+    def _type_to_string(t: type) -> str:
+        prog = re.compile(r"<class '(\w+)'>")
+        cls = prog.findall(str(t))
+
+        primary_type_map = {"str": "string"}
+
+        if len(cls) > 0:
+            cls_name = cls[0].split(".")[-1]
+            return primary_type_map.get(cls_name, cls_name)
+
+        if issubclass(t, enum.Enum):
+            return "enum"
+
+        return str(t)
+
+    arg_annotations = inspection.annotations
+    if arg_annotations:
+        properties = {
+            arg: {"type": _type_to_string(t)} for arg, t in arg_annotations.items()
+        }
+    else:
+        properties = {arg: {"type": "string"} for arg, t in inspection.args}
+
+    required_args = (
+        inspection.args[: len(inspection.defaults)] if inspection.defaults else []
+    )
+
+    output = {
+        "name": tool.name,
+        "description": tool.description,
+        "parameters": {
+            "type": "object",
+            "properties": properties,
+            "required": required_args,
+        },
+    }
+
+    return output
 
 
 class ChatOpenAI(BaseLanguageModel):
@@ -65,71 +148,6 @@ class ChatOpenAI(BaseLanguageModel):
         """Configuration for this pydantic object."""
 
         extra = Extra.ignore
-
-    @staticmethod
-    def convert_dict_to_message(_dict: dict) -> BaseMessage:
-        role = _dict["role"]
-        if role == "user":
-            return UserMessage(content=_dict["content"])
-        elif role == "assistant":
-            return AIMessage(
-                content=_dict["content"], function_call=_dict.get("function_call", {})
-            )
-        elif role == "system":
-            return SystemMessage(content=_dict["content"])
-        else:
-            raise ValueError(f"Unsupported role {role}")
-
-    @staticmethod
-    def convert_message_to_dict(message: BaseMessage) -> dict:
-        if isinstance(message, UserMessage):
-            message_dict = {"role": "user", "content": message.content}
-        elif isinstance(message, AIMessage):
-            message_dict = {"role": "assistant", "content": message.content}
-        elif isinstance(message, SystemMessage):
-            message_dict = {"role": "system", "content": message.content}
-        else:
-            raise ValueError(f"Got unknown type {message}")
-        return message_dict
-
-    @staticmethod
-    def convert_tool_to_dict(tool: Tool):
-        """Convert tool into function parameter for openai"""
-        inspection = inspect.getfullargspec(tool.func)
-
-        def _type_to_string(t: type) -> str:
-            prog = re.compile(r"<class '(\w+)'>")
-            cls = prog.findall(str(t))
-
-            primary_type_map = {"str": "string"}
-
-            if len(cls) > 0:
-                cls_name = cls[0].split(".")[-1]
-                return primary_type_map.get(cls_name, cls_name)
-
-            if issubclass(t, enum.Enum):
-                return "enum"
-
-            return str(t)
-
-        arg_annotations = inspection.annotations
-        properties = {}
-        for k, v in arg_annotations.items():
-            properties.update({k: {"type": _type_to_string(v)}})
-
-        required_args = inspection.args[: len(inspection.defaults)]
-
-        output = {
-            "name": tool.name,
-            "description": tool.description,
-            "parameters": {
-                "type": "object",
-                "properties": properties,
-                "required": required_args,
-            },
-        }
-
-        return output
 
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
@@ -197,16 +215,16 @@ class ChatOpenAI(BaseLanguageModel):
             if "stop" in params:
                 raise ValueError("`stop` found in both the input and default params.")
             params["stop"] = stop
-        message_dicts = [self.convert_message_to_dict(m) for m in messages]
+        message_dicts = [convert_message_to_dict(m) for m in messages]
         function_dicts = []
         if tools:
-            function_dicts = [self.convert_tool_to_dict(t) for t in tools]
+            function_dicts = [convert_tool_to_dict(t) for t in tools]
         return message_dicts, function_dicts, params
 
     def _create_llm_result(self, response: Mapping[str, Any]) -> LLMResult:
         generations = []
         for res in response["choices"]:
-            message = self.convert_dict_to_message(res["message"])
+            message = convert_dict_to_message(res["message"])
             gen = Generation(message=message)
             generations.append(gen)
         llm_output = {"token_usage": response["usage"], "model_name": self.model_name}

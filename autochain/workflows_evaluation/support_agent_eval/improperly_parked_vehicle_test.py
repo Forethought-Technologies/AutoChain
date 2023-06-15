@@ -6,28 +6,28 @@ from autochain.workflows_evaluation.test_utils import (
 )
 
 
+def check_active_reservation(user_id: str):
+    if user_id in ["jack"]:
+        return str(
+            {"status_code": 200, "is_active_reservation": True, "vehicle_id": 123}
+        )
+    else:
+        return str({"status_code": 200, "is_active_reservation": False})
+
+
+def check_vehicle_parking(vehicle_id: int):
+    """
+    Checks if the vehicle is properly parked, requires the vehicle_id
+    """
+    if vehicle_id in [123, 456]:
+        return str({"status_code": 200, "illegally_parked": True})
+    elif vehicle_id in [789]:
+        return str({"status_code": 200, "illegally_parked": False})
+    else:
+        return str({"status_code": 404, "message": "vehicle was not found"})
+
+
 class TestImproperlyParkedVehicle(BaseTest):
-    @staticmethod
-    def check_active_reservation(user_id: str):
-        if user_id in ["jack"]:
-            return str(
-                {"status_code": 200, "is_active_reservation": True, "vehicle_id": 123}
-            )
-        else:
-            return str({"status_code": 200, "is_active_reservation": False})
-
-    @staticmethod
-    def check_vehicle_parking(vehicle_id: int):
-        """
-        Checks if the vehicle is properly parked, requires the vehicle_id
-        """
-        if vehicle_id in [123, 456]:
-            return str({"status_code": 200, "illegally_parked": True})
-        elif vehicle_id in [789]:
-            return str({"status_code": 200, "illegally_parked": False})
-        else:
-            return str({"status_code": 404, "message": "vehicle was not found"})
-
     policy = """Assistant helps the customer figure out whether the vehicle in question is properly parked.
 Assistant can ask the customer for their user_id or the vehicle_id.  
 This might be a vehicle the customer used, or just someone else's vehicle that they are reporting. Assistant should check if the customer currently has an active rental.

@@ -11,6 +11,8 @@ from typing import (
 
 from pydantic import BaseModel
 
+from autochain.agent.message import ChatMessageHistory, MessageType
+
 
 class BaseMemory(BaseModel, ABC):
     """Base interface for memory in chains."""
@@ -22,7 +24,7 @@ class BaseMemory(BaseModel, ABC):
         """Return key-value pairs given the text input to the chain."""
 
     @abstractmethod
-    def load_conversation(self, **kwargs) -> Dict[str, Any]:
+    def load_conversation(self, **kwargs) -> ChatMessageHistory:
         """Return key-value pairs given the text input to the chain."""
 
     @abstractmethod
@@ -31,7 +33,7 @@ class BaseMemory(BaseModel, ABC):
 
     @abstractmethod
     def save_conversation(
-        self, inputs: Dict[str, Any], outputs: Dict[str, str]
+        self, message: str, message_type: MessageType, **kwargs
     ) -> None:
         """Save the context of this model run to memory."""
 

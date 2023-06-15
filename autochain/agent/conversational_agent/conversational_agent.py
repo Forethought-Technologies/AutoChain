@@ -101,7 +101,7 @@ class ConversationalAgent(BaseAgent):
         template = Template(prompt)
 
         if input_variables is None:
-            input_variables = ["input", "chat_history", "agent_scratchpad"]
+            input_variables = ["input", "agent_scratchpad"]
         return JSONPromptTemplate(template=template, input_variables=input_variables)
 
     def plan(
@@ -156,7 +156,7 @@ class ConversationalAgent(BaseAgent):
 
         Args:
             agent_action: agent action about to take
-            intermediate_steps: observations so far
+            intermediate_steps: list of agent action taken so far
             **kwargs:
 
         Returns:

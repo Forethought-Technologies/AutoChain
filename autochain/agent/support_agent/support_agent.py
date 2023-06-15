@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from colorama import Fore
 from autochain.agent.base_agent import BaseAgent
-from autochain.agent.message import BaseMessage, UserMessage
+from autochain.agent.message import BaseMessage, UserMessage, ChatMessageHistory
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.agent.support_agent.output_parser import SupportJSONOutputParser
@@ -98,7 +98,7 @@ class SupportAgent(BaseAgent):
         return _parse_response(response)
 
     @staticmethod
-    def get_final_prompt(
+    def format_prompt(
         template: JSONPromptTemplate,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
@@ -135,15 +135,19 @@ class SupportAgent(BaseAgent):
         template = Template(prompt)
 
         if input_variables is None:
-            input_variables = ["input", "chat_history", "agent_scratchpad"]
+            input_variables = ["input", "agent_scratchpad"]
         return JSONPromptTemplate(template=template, input_variables=input_variables)
 
     def plan(
-        self, intermediate_steps: List[AgentAction], **kwargs: Any
+        self,
+        history: ChatMessageHistory,
+        intermediate_steps: List[AgentAction],
+        **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
         Args:
+            history:
             intermediate_steps: List of AgentAction that has been performed with outputs
             **kwargs: key value pairs from chain, which contains query and other stored memories
 
@@ -159,14 +163,15 @@ class SupportAgent(BaseAgent):
             "tool_names": tool_names,
             "tools": tool_strings,
             "policy": self.policy,
+            "history": history.format_message(),
             **kwargs,
         }
-        final_prompt = self.get_final_prompt(
+        final_messages = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
-        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
+        logger.info(f"\nFull Input: {[m.content for m in final_messages]} \n")
 
-        full_output: Generation = self.llm.generate(final_prompt).generations[0]
+        full_output: Generation = self.llm.generate(final_messages).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message
         )
@@ -190,6 +195,7 @@ class SupportAgent(BaseAgent):
     def clarify_args_for_agent_action(
         self,
         agent_action: AgentAction,
+        history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
@@ -201,7 +207,8 @@ class SupportAgent(BaseAgent):
 
         Args:
             agent_action: agent action about to take
-            intermediate_steps: observations so far
+            history: conversation history including the latest query
+            intermediate_steps: list of agent action taken so far
             **kwargs:
 
         Returns:
@@ -211,6 +218,7 @@ class SupportAgent(BaseAgent):
         inputs = {
             "tool_name": agent_action.tool,
             "tool_desp": self.allowed_tools.get(agent_action.tool).description,
+            "history": history.format_message(),
             **kwargs,
         }
 
@@ -218,7 +226,7 @@ class SupportAgent(BaseAgent):
             prompt=CLARIFYING_QUESTION_PROMPT
         )
 
-        final_prompt = self.get_final_prompt(
+        final_prompt = self.format_prompt(
             clarifying_template, intermediate_steps, **inputs
         )
         logger.info(f"\nClarification inputs: {final_prompt[0].content}")
