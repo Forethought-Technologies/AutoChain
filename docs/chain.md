@@ -1,9 +1,9 @@
 # Chain
 
 If you have worked on LangChain before, you already knows 80% of what chain does.
-Chain is the orchestrator for agent, which controls when to involve agent in which way. It
-offers a framework to interact with agents by controlling the information flow. Chain is
-stateful with a memory component that memorize past conversations and any other intermediate
+Chain is the stateful orchestrator for agent, which controls when to involve agent in which way. It
+offers a framework to interact with agents by controlling the information flow. Chain leverages a 
+memory component that memorizes past conversations and any other intermediate
 steps, such as tool outputs.
 
 For a typical chain, it contains an `agent` to interact with, list of `tools` that agent might use
@@ -50,6 +50,6 @@ the `agent` to plan for next step and execute `tools` selected by `agent`
 
 It is often unclear when agent should stop responding to user query. Sometimes user would just
 say "Thank you" in the end but agent might not understand this as end of the conversation, so
-it could still try to respond with more contents, even clarifying questions in some cases. To
-mitigate this problem, we introduce the `_should_answer` step in `BaseChain` to stop agent from
-further interaction
+it could still try to respond with more contents, even clarifying questions in some cases. By 
+default, agent will always respond to user until user stops. In the case that is not desired, we 
+introduce the `_should_answer` step in `BaseChain` to stop agent from further interaction.
