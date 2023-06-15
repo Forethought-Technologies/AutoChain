@@ -1,3 +1,7 @@
+from autochain.agent.openai_funtions_agent.openai_functions_agent import (
+    OpenAIFunctionAgent,
+)
+from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import (
@@ -6,38 +10,38 @@ from autochain.workflows_evaluation.test_utils import (
 )
 
 
-class TestChangeShippingAddress(BaseTest):
-    @staticmethod
-    def check_order_status(order_id: str, **kwargs):
-        """Returns order information as a dictionary, where order_status can be "shipped" or "not_shipped" """
-        if order_id == "123":
-            return {
-                "status_code": 200,
-                "order_id": "123",
-                "order_status": "shipped",
-                "tracking_url": "example.com/123",
-                "shipping_address": "300 ivy street san francisco ca",
-            }
-        elif order_id == "456":
-            return {
-                "status_code": 200,
-                "order_id": "456",
-                "order_status": "not_shipped",
-                "tracking_url": "example.com/456",
-                "shipping_address": "301 ivy street san francisco ca",
-            }
-        else:
-            return {"status_code": 400, "message": "order not found"}
-
-    @staticmethod
-    def change_shipping_address(order_id: str, new_address: str, **kwargs):
-        """Changes the shipping address for unshipped orders. Requires the order_id and the new_address inputs"""
+def check_order_status(order_id: str, **kwargs):
+    """Returns order information as a dictionary, where order_status can be "shipped" or "not_shipped" """
+    if order_id == "123":
         return {
             "status_code": 200,
-            "order_id": order_id,
-            "shipping_address": new_address,
+            "order_id": "123",
+            "order_status": "shipped",
+            "tracking_url": "example.com/123",
+            "shipping_address": "300 ivy street san francisco ca",
         }
+    elif order_id == "456":
+        return {
+            "status_code": 200,
+            "order_id": "456",
+            "order_status": "not_shipped",
+            "tracking_url": "example.com/456",
+            "shipping_address": "301 ivy street san francisco ca",
+        }
+    else:
+        return {"status_code": 400, "message": "order not found"}
 
+
+def change_shipping_address(order_id: str, new_address: str, **kwargs):
+    """Changes the shipping address for unshipped orders. Requires the order_id and the new_address inputs"""
+    return {
+        "status_code": 200,
+        "order_id": order_id,
+        "shipping_address": new_address,
+    }
+
+
+class TestChangeShippingAddress(BaseTest):
     policy = """You are an AI assistant for customer support for the company Figs which sells nurse and medical staff clothes.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
@@ -46,20 +50,20 @@ If the order has already shipped, inform them that it is not possible to change 
 
     tools = [
         Tool(
-            name="check order status",
+            name="check_order_status",
             func=check_order_status,
             description="""This function checks the order status based on order_id
-Input args: order_id: non-empty str
-Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-tracking_url: str, message: str""",
+    Input args: order_id: non-empty str
+    Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
+    tracking_url: str, message: str""",
         ),
         Tool(
-            name="change shipping address",
+            name="change_shipping_address",
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
-order_id and new_address 
-Input args: order_id: non-empty str, new_address: non-empty str
-Output values: status_code: int, order_id: str, shipping_address: str""",
+    order_id and new_address 
+    Input args: order_id: non-empty str, new_address: non-empty str
+    Output values: status_code: int, order_id: str, shipping_address: str""",
         ),
     ]
 
@@ -88,7 +92,10 @@ Output values: status_code: int, order_id: str, shipping_address: str""",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, policy=policy)
+    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+    chain = create_chain_from_test(
+        tools=tools, agent_cls=OpenAIFunctionAgent, llm=llm, prompt=policy
+    )
 
 
 if __name__ == "__main__":

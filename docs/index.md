@@ -21,7 +21,7 @@ make more customizations as they are building their own agent.
 ## Features
 
 - 🚀 lightweight and extensible generative agent pipeline
-- 🔗 agent that can use different custom tools
+- 🔗 agent that can use different custom tools and support [function calling](https://platform.openai.com/docs/guides/gpt/function-calling) natively
 - 💾 simple memory tracking for conversation history and tools' outputs
 - 🤖 automated agent evaluation with simulated conversations
 
@@ -74,9 +74,9 @@ We could add a list of tools to the agent and chain similar to LangChain
 
 ```python
 tools = [Tool(
-    name="Get weather",
-    func=lambda *args, **kwargs: "Today is a sunny day",
-    description="""This function returns the weather information"""
+   name="Get weather",
+   func=lambda *args, **kwargs: "Today is a sunny day",
+   description="""This function returns the weather information"""
 )]
 
 memory = BufferMemory()
@@ -84,7 +84,16 @@ agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
 chain = Chain(agent=agent, memory=memory, tools=tools)
 ```
 
-Check out [more examples](./examples.md) under `autochain/examples` and workflow evaluation
+We also added supports for native [function calling](https://platform.openai. com/docs/guides/gpt/function-calling)
+for OpenAI model. We extrapolate the function spec in OpenAI format without user explicit
+instruction, so user could follow the same `Tool` interface.
+
+```python
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+agent = OpenAIFunctionAgent.from_llm_and_tools(llm=llm, tools=tools)
+```
+
+Check out [more examples](./docs/examples.md) under `autochain/examples` and workflow evaluation
 cases which can
 also be run interactively.
 
@@ -142,7 +151,7 @@ Read more about [agent](./agent.md).
 The ability to use tools make the agent incredible more powerful as shown in LangChain and
 AutoGPT. We follow a similar concept of "tool" as in LangChain here as well.
 All the tools in LangChain can be easily ported over to AutoChain if you like, since they follow
-a very similar interface, and tool outputs are still called `observations`.
+a very similar interface.
 
 Read more about [tool](./tool.md).
 
@@ -150,12 +159,13 @@ Read more about [tool](./tool.md).
 
 It is important for a chain to keep the memory for a particular conversation with a user. The memory
 interface exposes two ways to save memories. One is `save_conversation` which saves the chat
-history between the agent and the user, and `save_memory` to save any additional information such as
-`observations` as key-value pairs.
+history between the agent and the user, and `save_memory` to save any additional information
+for any specific business logics.
 
-Conversations are saved/updated before a chain responds to the user, and `observations` are saved
-after running tools. All memorized contents are usually provided to Agent for planning
-the next step.
+Conversations are saved/updated in the beginning and updated in the end. By default, memory
+saves conversation history, including the latest user query, and intermediate steps, which is a
+list of `AgentAction` taken with corresponding outputs.  
+All memorized contents are usually provided to Agent for planning the next step.
 
 ## Workflow Evaluation
 

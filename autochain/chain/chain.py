@@ -1,7 +1,8 @@
 """Default implementation of Chain"""
 import logging
-from typing import Dict, List
+from typing import Dict
 
+from autochain.agent.message import MessageType
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.chain.base_chain import BaseChain
 from autochain.errors import ToolRunningError
@@ -43,7 +44,6 @@ class Chain(BaseChain):
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],
-        intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
         """
         How agent determines the next step after observing the inputs and intermediate steps
@@ -51,7 +51,6 @@ class Chain(BaseChain):
             name_to_tool_map: map of tool name to the actual tool object
             inputs: a dictionary of all inputs, such as user query, past conversation and
                 observations
-            intermediate_steps: list of actions and observations previously have taken
 
         Returns:
             Either AgentFinish to respond to user or AgentAction to take the next action
@@ -60,7 +59,6 @@ class Chain(BaseChain):
         try:
             # Call the LLM to see what to do.
             output = self.agent.plan(
-                intermediate_steps,
                 **inputs,
             )
         except Exception as e:
@@ -72,9 +70,7 @@ class Chain(BaseChain):
             return output
 
         if isinstance(output, AgentAction):
-            output = self.agent.clarify_args_for_agent_action(
-                output, intermediate_steps, **inputs
-            )
+            output = self.agent.clarify_args_for_agent_action(output, **inputs)
 
         # If agent plans to respond to AgentFinish or there is a clarifying question, respond to
         # user by returning AgentFinish
@@ -113,6 +109,11 @@ class Chain(BaseChain):
                 observation = f"Tool {output.tool} if not supported"
 
             output.observation = observation
+            self.memory.save_conversation(
+                message=str(observation),
+                name=output.tool,
+                message_type=MessageType.FunctionMessage,
+            )
             return output
         else:
             raise ValueError(f"Unsupported action: {type(output)}")

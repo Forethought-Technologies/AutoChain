@@ -1,5 +1,4 @@
-# keys used in memory
-OBSERVATIONS = "observations"
+QUERY = "query"
 CONVERSATION_HISTORY = "history"
 
 # stores agent actions, which also contain their outputs

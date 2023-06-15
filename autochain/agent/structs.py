@@ -3,7 +3,9 @@ from typing import Union, Any, Dict, List
 
 from pydantic import BaseModel
 
+from autochain.agent.message import BaseMessage
 from autochain.chain import constants
+from autochain.models.base import Generation
 
 
 class AgentAction(BaseModel):
@@ -49,12 +51,12 @@ class AgentFinish(BaseModel):
 
 class AgentOutputParser(BaseModel):
     @abstractmethod
-    def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
+    def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:
         """Parse text into agent action/finish."""
 
     @staticmethod
     def parse_clarification(
-        text: str, agent_action: AgentAction
+        message: BaseMessage, agent_action: AgentAction
     ) -> Union[AgentAction, AgentFinish]:
         """Parse clarification outputs"""
         return agent_action

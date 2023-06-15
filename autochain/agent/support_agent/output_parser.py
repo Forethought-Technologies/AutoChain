@@ -3,6 +3,7 @@ from typing import Union
 
 from colorama import Fore
 
+from autochain.agent.message import BaseMessage
 from autochain.errors import OutputParserException
 from autochain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
 from autochain.tools.simple_handoff.tool import HandOffToAgent
@@ -10,7 +11,8 @@ from autochain.utils import print_with_color
 
 
 class SupportJSONOutputParser(AgentOutputParser):
-    def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
+    def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:
+        text = message.content
         try:
             clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
@@ -51,8 +53,9 @@ class SupportJSONOutputParser(AgentOutputParser):
 
     @staticmethod
     def parse_clarification(
-        text: str, agent_action: AgentAction
+        message: BaseMessage, agent_action: AgentAction
     ) -> Union[AgentAction, AgentFinish]:
+        text = message.content
         try:
             clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
             response = json.loads(clean_text)

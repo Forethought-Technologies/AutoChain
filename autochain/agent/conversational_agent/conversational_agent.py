@@ -101,7 +101,7 @@ class ConversationalAgent(BaseAgent):
         template = Template(prompt)
 
         if input_variables is None:
-            input_variables = ["input", "chat_history", "agent_scratchpad"]
+            input_variables = ["input", "agent_scratchpad"]
         return JSONPromptTemplate(template=template, input_variables=input_variables)
 
     def plan(
@@ -129,7 +129,7 @@ class ConversationalAgent(BaseAgent):
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
-            full_output.message.content
+            full_output.message
         )
 
         print_with_color(
@@ -156,7 +156,7 @@ class ConversationalAgent(BaseAgent):
 
         Args:
             agent_action: agent action about to take
-            intermediate_steps: observations so far
+            intermediate_steps: list of agent action taken so far
             **kwargs:
 
         Returns:
@@ -182,5 +182,5 @@ class ConversationalAgent(BaseAgent):
             logger.info(f"\nClarification inputs: {final_prompt[0].content}")
             full_output: Generation = self.llm.generate(final_prompt).generations[0]
             return self.output_parser.parse_clarification(
-                full_output.message.content, agent_action=agent_action
+                full_output.message, agent_action=agent_action
             )

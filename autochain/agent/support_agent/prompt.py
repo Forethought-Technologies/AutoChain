@@ -12,7 +12,7 @@ Assistant has access to the following tools:
 ${tools}
 
 Previous conversation so far:
-${history}User: ${query}
+${history}
 
 Previous observations:
 ${agent_scratchpad}
@@ -49,7 +49,7 @@ such as thank you or that's all.
 Answer with yes or no.
 
 Conversation:
-${history}User: ${query}
+${history}
 """
 
 CLARIFYING_QUESTION_PROMPT = """You are a customer support agent who is going to use '${tool_name}' tool.
@@ -57,7 +57,7 @@ Check if you have enough information from the previous conversation and observat
 "${tool_desp}"
 
 Previous conversation so far:
-${history}User: ${query}
+${history}
 
 Previous observations:
 ${agent_scratchpad}

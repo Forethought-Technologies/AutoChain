@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from string import Template
 from typing import Any, List, Optional, Sequence, Union
 
 from pydantic import BaseModel, Extra
 
+from autochain.agent.message import ChatMessageHistory
+from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
 from autochain.models.base import BaseLanguageModel
 from autochain.tools.base import Tool
@@ -42,14 +45,18 @@ class BaseAgent(BaseModel, ABC):
 
     @abstractmethod
     def plan(
-        self, intermediate_steps: List[AgentAction], **kwargs: Any
+        self,
+        query: str,
+        history: ChatMessageHistory,
+        intermediate_steps: List[AgentAction],
+        **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
         """Plan for the next step"""
 
-    @abstractmethod
     def clarify_args_for_agent_action(
         self,
         agent_action: AgentAction,
+        history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
@@ -61,15 +68,37 @@ class BaseAgent(BaseModel, ABC):
 
         Args:
             agent_action: agent action about to take
-            intermediate_steps: observations so far
+            history: conversation history including the latest query
+            intermediate_steps: list of agent action taken so far
             **kwargs:
 
         Returns:
             Either a clarifying question (AgentFinish) or take the planned action (AgentAction)
         """
+        return agent_action
 
     def fix_action_input(
         self, tool: Tool, action: AgentAction, error: str
     ) -> Optional[AgentAction]:
         """If the tool failed due to error, what should be the fix for inputs"""
         pass
+
+    @staticmethod
+    def get_prompt_template(
+        prompt: str = "",
+        input_variables: Optional[List[str]] = None,
+    ) -> JSONPromptTemplate:
+        """Create prompt in the style of the zero shot agent.
+
+        Args:
+            prompt: message to be injected between prefix and suffix.
+            input_variables: List of input variables the final prompt will expect.
+
+        Returns:
+            A PromptTemplate with the template assembled from the pieces here.
+        """
+        template = Template(prompt)
+
+        if input_variables is None:
+            input_variables = ["input", "agent_scratchpad"]
+        return JSONPromptTemplate(template=template, input_variables=input_variables)

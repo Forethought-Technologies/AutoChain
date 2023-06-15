@@ -9,11 +9,11 @@ from typing import Optional, Dict, Any, List
 from pydantic import BaseModel
 
 from autochain.agent.base_agent import BaseAgent
+from autochain.agent.message import MessageType, ChatMessageHistory
 from autochain.agent.structs import AgentFinish, AgentAction
 from autochain.chain import constants
 from autochain.memory.base import BaseMemory
 from autochain.tools.base import Tool
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +33,20 @@ class BaseChain(BaseModel, ABC):
     def prep_inputs(self, user_query: str) -> Dict[str, str]:
         """Load conversation history from memory and prep inputs."""
         inputs = {
-            "query": user_query,
+            constants.CONVERSATION_HISTORY: ChatMessageHistory(),
+            constants.INTERMEDIATE_STEPS: [],
         }
         if self.memory is not None:
-            conversation_history = self.memory.load_conversation()
-            inputs.update({constants.CONVERSATION_HISTORY: conversation_history})
+            intermediate_steps = self.memory.load_memory(
+                constants.INTERMEDIATE_STEPS, []
+            )
+            self.memory.save_conversation(
+                message=user_query, message_type=MessageType.UserMessage
+            )
+
+            inputs[constants.CONVERSATION_HISTORY] = self.memory.load_conversation()
+            inputs[constants.INTERMEDIATE_STEPS] = intermediate_steps
+
         return inputs
 
     def prep_output(
@@ -49,9 +58,11 @@ class BaseChain(BaseModel, ABC):
         """Save conversation into memory and prep outputs."""
         output_dict = output.format_output()
         if self.memory is not None:
-            self.memory.save_conversation(inputs=inputs, outputs=output_dict)
+            self.memory.save_conversation(
+                message=output.message, message_type=MessageType.AIMessage
+            )
             self.memory.save_memory(
-                key=constants.OBSERVATIONS, value=output.intermediate_steps
+                key=constants.INTERMEDIATE_STEPS, value=output.intermediate_steps
             )
 
         if return_only_outputs:
@@ -95,9 +106,8 @@ class BaseChain(BaseModel, ABC):
         # Construct a mapping of tool name to tool for easy lookup
         name_to_tool_map = {tool.name: tool for tool in self.agent.tools}
 
-        intermediate_steps: List[AgentAction] = self.memory.load_memory(
-            constants.OBSERVATIONS, []
-        )
+        intermediate_steps: List[AgentAction] = inputs[constants.INTERMEDIATE_STEPS]
+
         # Let's start tracking the number of iterations and time elapsed
         iterations = 0
         time_elapsed = 0.0
@@ -113,7 +123,6 @@ class BaseChain(BaseModel, ABC):
                 next_step_output = self._take_next_step(
                     name_to_tool_map,
                     inputs,
-                    intermediate_steps,
                 )
 
             if isinstance(next_step_output, AgentFinish):
@@ -121,6 +130,9 @@ class BaseChain(BaseModel, ABC):
                 return next_step_output
 
             intermediate_steps.append(next_step_output)
+            # update inputs
+            inputs[constants.INTERMEDIATE_STEPS] = intermediate_steps
+
             iterations += 1
             time_elapsed = time.time() - start_time
 
@@ -137,7 +149,6 @@ class BaseChain(BaseModel, ABC):
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],
-        intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
         """How agent determines the next step after observing the inputs and intermediate
         steps"""
@@ -166,8 +177,11 @@ class BaseChain(BaseModel, ABC):
         """
         output = None
         # check if agent should answer this query
-        if self.last_query != inputs["query"]:
+        last_query = (
+            inputs[constants.CONVERSATION_HISTORY].get_latest_user_message().content
+        )
+        if self.last_query != last_query:
             output = self.agent.should_answer(**inputs)
-            self.last_query = inputs["query"]
+            self.last_query = last_query
 
         return output

@@ -6,29 +6,29 @@ from autochain.workflows_evaluation.test_utils import (
 )
 
 
+def snowflake_order_status(order_id):
+    if "6381" in order_id:
+        return str(
+            {
+                "status_code": 200,
+                "tracking_link": "https://www.fedex.com/fedextrack/no-results-found?trknbr=12312312321",
+                "carrier": "FedEx",
+                "location": "Minneapolis shipping center",
+                "message": "Expected arrival 12PM-8PM April 15th, 2023",
+                "last_time": "8:23AM, April 11th, 2023",
+            }
+        )
+    else:
+        return str({"status_code": 404, "message": "Order ID not found."})
+
+
+def validate_order_status_input(order_id):
+    if order_id.isalnum():
+        return "True"
+    return "False"
+
+
 class TestOrderStatusAndRefundRequest(BaseTest):
-    @staticmethod
-    def snowflake_order_status(order_id):
-        if "6381" in order_id:
-            return str(
-                {
-                    "status_code": 200,
-                    "tracking_link": "https://www.fedex.com/fedextrack/no-results-found?trknbr=12312312321",
-                    "carrier": "FedEx",
-                    "location": "Minneapolis shipping center",
-                    "message": "Expected arrival 12PM-8PM April 15th, 2023",
-                    "last_time": "8:23AM, April 11th, 2023",
-                }
-            )
-        else:
-            return str({"status_code": 404, "message": "Order ID not found."})
-
-    @staticmethod
-    def validate_order_status_input(order_id):
-        if order_id.isalnum():
-            return "True"
-        return "False"
-
     policy = """AI is responsible for the following policy
 Policy description: When a customer reports that they have not received their order, first check the order status in the system. 
 If the order has shipped, provide them with a tracking link and ask them to confirm if there was a \"Missed Delivery\" notice left behind. 
