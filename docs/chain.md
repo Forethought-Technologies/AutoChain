@@ -4,7 +4,7 @@ If you have worked on LangChain before, you already knows 80% of what chain does
 Chain is the orchestrator for agent, which controls when to involve agent in which way. It
 offers a framework to interact with agents by controlling the information flow. Chain is
 stateful with a memory component that memorize past conversations and any other intermediate
-steps, such as outputs (called observation).
+steps, such as tool outputs.
 
 For a typical chain, it contains an `agent` to interact with, list of `tools` that agent might use
 and `memory` that stored stateful information.

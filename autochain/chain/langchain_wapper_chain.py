@@ -35,6 +35,5 @@ class LangChainWrapperChain(BaseChain):
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],
-        intermediate_steps: List[AgentAction],
     ) -> (AgentFinish, AgentAction):
         pass

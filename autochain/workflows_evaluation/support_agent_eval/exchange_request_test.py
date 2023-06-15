@@ -6,29 +6,29 @@ from autochain.workflows_evaluation.test_utils import (
 )
 
 
+def check_return_eligibility(order_number: str, **kwargs):
+    if order_number == "123" or order_number == "345":
+        return {"status_code": 200, "return_ok": True}
+    else:
+        return {"status_code": 200, "return_ok": False}
+
+
+def check_user_status(email: str):
+    if "test@gmail.com" in email:
+        return {
+            "status_code": 200,
+            "user_location": "international",
+            "order_number": "123",
+        }
+    else:
+        return {
+            "status_code": 200,
+            "user_location": "domestic",
+            "order_number": "345",
+        }
+
+
 class TestExchangeOrReturnTest(BaseTest):
-    @staticmethod
-    def check_return_eligibility(order_number: str, **kwargs):
-        if order_number == "123" or order_number == "345":
-            return {"status_code": 200, "return_ok": True}
-        else:
-            return {"status_code": 200, "return_ok": False}
-
-    @staticmethod
-    def check_user_status(email: str):
-        if "test@gmail.com" in email:
-            return {
-                "status_code": 200,
-                "user_location": "international",
-                "order_number": "123",
-            }
-        else:
-            return {
-                "status_code": 200,
-                "user_location": "domestic",
-                "order_number": "345",
-            }
-
     policy = """"Assist customers with returns and exchanges.
     1. Verify the customer's order number and check if the items have been worn, washed, or if the tags are attached.
     2. If the items are eligible for return or exchange, guide the customer through the return process by providing a link to the return form.

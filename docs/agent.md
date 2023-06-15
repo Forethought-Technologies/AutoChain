@@ -19,19 +19,19 @@ is not a query that should be handled by this agent, it could gracefully exit as
 possible.
 
 **plan**: This is the core of the agent which takes in all the stored memory, including past
-conversation history and tool outputs, named `observations`, and prompt the model to output
-either `AgentFinish` or`AgentAction`.  
+conversation history and tool outputs, which are saved to previous `AgentAction`, and prompt the 
+model to output either `AgentFinish` or`AgentAction` for the next step.  
 `AgentFinish` means agent decides to respond back to user with a
 message. While not just `plan` could output `AgentFinish`, `AgentFinish` is the **only** way to
 exits the chain and wait for next user inputs.  
 `AgentAction` means agent decides to use a tool and wants to perform an action before responding
 to user. Once chain observes agent would like to perform an action, it will calls the
-corresponding tool and store tool outputs, named `observations`, into the chain's memory for the
-next iteration of planning.
+corresponding tool and store tool outputs, into the chain's memory for the next iteration of 
+planning.
 
 **clarify_args_for_agent_action**
 When agent wants to take an action with tools, it is usually required to have some input arguments,
-which may or may not exists in the past conversation history or `observations`. While the
+which may or may not exists in the past conversation history or action outputs. While the
 smartest agent would output `AgentFinish` with response that asks user for missing information.
 It might not always be the case. To decouple the problem and make is simpler for agent, we
 could add another step that explicitly ask user for clarifying questions if any argument is
@@ -53,3 +53,22 @@ of abstractions/concepts. Some notable differences are
    layers of abstractions, `BaseAgent` and the actual agent implementation for example. However, 
    this comes with a cost of not able to share as much code across agents. This is not very 
    concerning to us because AutoChain aims to just enable quick experimentation.
+
+## Supported Agent Types
+We have added several different types of agent to showcase how to add new agents to AutoChain.  
+
+### ConversationalAgent
+This is the a basic agent with a simple and fixed prompt to have nice conversation with user.
+It could also use tools if provided.    
+While it does not use native OpenAI function calling, this agent showcases the interaction between 
+memory and prompts. Also it supports using ChatGPT model before `0613`.  
+
+### SupportAgent
+`SupportAgent` is an enhanced version of `ConversationalAgent` which has a policy in mind when 
+having the conversation with user. It will try to follow the policy as much as possible and 
+gracefully handoff when it is not sure.  
+
+### OpenAIFunctionAgent
+At Jun 13, OpenAI released [function calling](https://platform.openai. com/docs/guides/gpt/chat-completions-api)
+, which is a new way for model to use tools natively with function message. 
+`OpenAIFunctionAgent` supports native function calling when tools are provided.

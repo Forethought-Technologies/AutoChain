@@ -1,4 +1,4 @@
-from autochain.chain import constants
+from autochain.agent.message import MessageType
 from autochain.memory.buffer_memory import BufferMemory
 
 
@@ -17,20 +17,12 @@ def test_buffer_kv_memory():
 
 def test_buffer_conversation_memory():
     memory = BufferMemory()
-    memory.save_conversation(
-        inputs={
-            constants.CONVERSATION_HISTORY: "conversation history",
-            "query": "user query",
-        },
-        outputs={
-            "message": "response to user",
-            constants.INTERMEDIATE_STEPS: [],
-        },
-    )
+    memory.save_conversation("user query", MessageType.UserMessage)
+    memory.save_conversation("response to user", MessageType.AIMessage)
 
-    conversation = memory.load_conversation()
+    conversation = memory.load_conversation().format_message()
     assert conversation == "User: user query\nAssistant: response to user\n"
 
     memory.clear()
-    message_after_clear = memory.load_conversation()
+    message_after_clear = memory.load_conversation().format_message()
     assert message_after_clear == ""

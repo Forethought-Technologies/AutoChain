@@ -9,7 +9,7 @@ Assistant has access to the following tools:
 ${tools}
 
 Previous conversation so far:
-${history}User: ${query}
+${history}
 
 Previous observations:
 ${agent_scratchpad}
@@ -46,7 +46,7 @@ Check if you have enough information from the previous conversation and observat
 "${tool_desp}"
 
 Previous conversation so far:
-${history}User: ${query}
+${history}
 
 Previous observations:
 ${agent_scratchpad}

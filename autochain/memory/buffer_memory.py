@@ -1,7 +1,6 @@
-from collections import defaultdict
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-from autochain.agent.message import ChatMessageHistory
+from autochain.agent.message import ChatMessageHistory, MessageType
 from autochain.memory.base import BaseMemory
 
 
@@ -9,7 +8,6 @@ class BufferMemory(BaseMemory):
     """Buffer for storing conversation memory and an in-memory kv store."""
 
     chat_history = ChatMessageHistory()
-    entire_history = defaultdict(list)
     kv_memory = {}
 
     def load_memory(
@@ -21,24 +19,22 @@ class BufferMemory(BaseMemory):
 
         return self.kv_memory.get(key, default)
 
-    def load_conversation(self, **kwargs) -> Any:
+    def load_conversation(self, **kwargs) -> ChatMessageHistory:
         """Return history buffer and format it into a conversational string format."""
-        return self.chat_history.format_message()
+        return self.chat_history
 
     def save_memory(self, key: str, value: Any) -> None:
         self.kv_memory[key] = value
 
     def save_conversation(
-        self, inputs: Dict[str, Any], outputs: Dict[str, str]
+        self, message: str, message_type: MessageType, **kwargs
     ) -> None:
         """Save context from this conversation to buffer."""
-        self.entire_history["input"].append(inputs)
-        self.entire_history["output"].append(outputs)
-        self.chat_history.add_user_message(inputs["query"])
-        self.chat_history.add_ai_message(outputs["message"])
+        self.chat_history.save_message(
+            message=message, message_type=message_type, **kwargs
+        )
 
     def clear(self) -> None:
         """Clear memory contents."""
         self.chat_history.clear()
-        self.entire_history = defaultdict(list)
         self.kv_memory = {}
