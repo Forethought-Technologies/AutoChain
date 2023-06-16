@@ -1,6 +1,6 @@
 import enum
 from abc import abstractmethod
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict
 
 from pydantic import BaseModel, Field
 
