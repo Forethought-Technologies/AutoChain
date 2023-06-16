@@ -3,7 +3,7 @@ from langchain.tools import Tool as LCTool
 
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import get_test_args
-from autochain.workflows_evaluation.langchain_eval_examples.langchain_test_utils import (
+from autochain.workflows_evaluation.langchain_eval.langchain_test_utils import (
     create_langchain_from_test,
 )
 

@@ -20,7 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAIFunctionAgent(BaseAgent):
-    """ """
+    """
+    Agent supports function calling natively in OpenAI, which leverage function message to
+    determine which tool should be used
+    When tool is not selected, responds just like conversational agent
+    Tool descriptions are generated from typing from the tool
+    """
 
     llm: BaseLanguageModel = None
     allowed_tools: Dict[str, Tool] = {}
