@@ -34,6 +34,7 @@ nav:
   - agent.md
   - tool.md
   - workflow-evaluation.md
+  - release-notes.md
 
 markdown_extensions:
 - toc:
