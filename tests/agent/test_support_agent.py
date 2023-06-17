@@ -1,8 +1,15 @@
 import json
 from typing import List, Optional
 
+from autochain.tools.base import Tool
+
 from autochain.agent.support_agent.support_agent import SupportAgent
-from autochain.agent.message import BaseMessage, AIMessage
+from autochain.agent.message import (
+    BaseMessage,
+    AIMessage,
+    ChatMessageHistory,
+    MessageType,
+)
 from autochain.agent.structs import AgentFinish
 from autochain.models.base import LLMResult, Generation, BaseLanguageModel
 from autochain.tools.simple_handoff.tool import HandOffToAgent
@@ -14,6 +21,7 @@ class MockLLM(BaseLanguageModel):
     def generate(
         self,
         messages: List[BaseMessage],
+        functions: Optional[List[Tool]] = None,
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
         return LLMResult(
@@ -52,6 +60,10 @@ def test_plan():
         llm=MockLLM(message=mock_generation_response), tools=[HandOffToAgent()]
     )
 
-    input = {"query": "user query", "history": "conversation history"}
-    action = agent.plan(intermediate_steps=[], **input)
+    history = ChatMessageHistory()
+    history.save_message("first user query", MessageType.UserMessage)
+    history.save_message("assistant response", MessageType.AIMessage)
+    history.save_message("second user query", MessageType.UserMessage)
+
+    action = agent.plan(history=history, intermediate_steps=[])
     assert isinstance(action, AgentFinish)

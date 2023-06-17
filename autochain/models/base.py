@@ -45,6 +45,11 @@ class LLMResult(BaseModel):
     """For arbitrary LLM provider specific output."""
 
 
+class EmbeddingResult(BaseModel):
+    texts: List[str]
+    embeddings: List[List[float]]
+
+
 class BaseLanguageModel(BaseModel):
     """Wrapper around OpenAI Chat large language models.
 
@@ -74,8 +79,6 @@ class BaseLanguageModel(BaseModel):
     """Timeout for requests to OpenAI completion API. Default is 600 seconds."""
     max_retries: int = 6
     """Maximum number of retries to make when generating."""
-    streaming: bool = False
-    """Whether to stream the results or not."""
     n: int = 1
     """Number of chat completions to generate for each prompt."""
     max_tokens: Optional[int] = None
@@ -93,7 +96,6 @@ class BaseLanguageModel(BaseModel):
             "model": self.model_name,
             "request_timeout": self.request_timeout,
             "max_tokens": self.max_tokens,
-            "stream": self.streaming,
             "n": self.n,
             "temperature": self.temperature,
             **self.model_kwargs,
@@ -137,4 +139,7 @@ class BaseLanguageModel(BaseModel):
         functions: Optional[List[Tool]] = None,
         stop: Optional[List[str]] = None,
     ) -> LLMResult:
+        pass
+
+    def encode(self, texts: List[str]) -> EmbeddingResult:
         pass

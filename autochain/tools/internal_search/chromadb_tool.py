@@ -1,5 +1,5 @@
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Any, Dict, Optional
 
 import chromadb
@@ -13,9 +13,14 @@ from autochain.tools.base import Tool
 class ChromaDoc:
     doc: str
     metadata: Dict[str, Any]
+    id: str = field(default_factory=lambda: str(uuid.uuid1()))
 
 
 class ChromaDBSearch(Tool):
+    """
+    Use ChromaDB as internal search tool
+    """
+
     collection_name: str = "index"
     collection: Optional[Any] = None
 
@@ -38,7 +43,7 @@ class ChromaDBSearch(Tool):
             # we embed for you, or bring your own
             metadatas=[d.metadata for d in docs],
             # filter on arbitrary metadata!
-            ids=[str(uuid.uuid4()) for _ in docs],  # must be unique for each doc
+            ids=[d.id for d in docs],  # must be unique for each doc
         )
 
     def _run(
