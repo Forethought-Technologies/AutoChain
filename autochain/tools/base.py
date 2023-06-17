@@ -61,14 +61,14 @@ class Tool(ABC, BaseModel):
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Any:
+    ) -> str:
         return self.func(*args, **kwargs)
 
     def run(
         self,
         tool_input: Union[str, Dict] = "",
         **kwargs: Any,
-    ) -> Any:
+    ) -> str:
         """Run the tool."""
         try:
             parsed_input = self._parse_input(tool_input)
