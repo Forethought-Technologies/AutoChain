@@ -50,7 +50,6 @@ If the order has already shipped, inform them that it is not possible to change 
 
     tools = [
         Tool(
-            name="check_order_status",
             func=check_order_status,
             description="""This function checks the order status based on order_id
     Input args: order_id: non-empty str
@@ -58,7 +57,6 @@ If the order has already shipped, inform them that it is not possible to change 
     tracking_url: str, message: str""",
         ),
         Tool(
-            name="change_shipping_address",
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
     order_id and new_address 
