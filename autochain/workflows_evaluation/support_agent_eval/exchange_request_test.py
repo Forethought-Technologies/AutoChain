@@ -41,14 +41,12 @@ class TestExchangeOrReturnTest(BaseTest):
 
     tools = [
         Tool(
-            name="check return eligibility",
             func=check_return_eligibility,
             description="""This function if order can be returned or exchanged
 Input args: order_number: non-empty str
 Output values: status_code: int, return_ok: bool """,
         ),
         Tool(
-            name="change user status",
             func=check_user_status,
             description="""This function checks user location and determine if user is 
 international or domestic based on email
