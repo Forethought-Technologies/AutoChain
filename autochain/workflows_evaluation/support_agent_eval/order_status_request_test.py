@@ -40,14 +40,13 @@ In case of lost or missing orders after all attempts to locate it have been exha
 
     tools = [
         Tool(
-            name="Order Status",
+            name="Order Status",  # override tool name to make it more descriptive
             func=snowflake_order_status,
             description="""This function checks order status for a given order id.
 Input args: order_id: non-empty str
 Output values: status_code: int, order_id: str, tracking_url: str, message: str""",
         ),
         Tool(
-            name="Validate Order Status",
             func=validate_order_status_input,
             description="""This function checks if the input order ID is alphanumeric and returns a boolean value.
 Input args: order_id: non-empty str

@@ -7,21 +7,27 @@ from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 from autochain.errors import ToolRunningError
 from pydantic import (
     BaseModel,
+    root_validator,
 )
 
 
 class Tool(ABC, BaseModel):
     """Interface AutoChain tools must implement."""
 
-    name: str
-    """The unique name of the tool that clearly communicates its purpose."""
+    name: Optional[str] = None
+    """The unique name of the tool that clearly communicates its purpose.
+    If not provided, it will be named after the func name.
+    The more descriptive it is, the easier it would be for model to call the right tool
+    """
+
     description: str
     """Used to tell the model how/when/why to use the tool.
-
     You can provide few-shot examples as a part of the description.
     """
+
     args_schema: Optional[Type[BaseModel]] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
+
     return_direct: bool = False
     """Whether to return the tool's output directly. Setting this to True means
 
@@ -31,6 +37,13 @@ class Tool(ABC, BaseModel):
     """Whether to log the tool's progress."""
 
     func: Union[Callable[..., str], None] = None
+
+    @root_validator()
+    def validate_environment(cls, values: Dict) -> Dict:
+        """Validate that api key and python package exists in environment."""
+        if values.get("func") and not values.get("name"):
+            values["name"] = values["func"].__name__
+        return values
 
     def _parse_input(
         self,

@@ -15,7 +15,7 @@ def check_active_reservation(user_id: str):
         return str({"status_code": 200, "is_active_reservation": False})
 
 
-def check_vehicle_parking(vehicle_id: int):
+def check_vehicle_parking_status(vehicle_id: int):
     """
     Checks if the vehicle is properly parked, requires the vehicle_id
     """
@@ -35,15 +35,13 @@ Note that if the vehicle is not found in our system Assistant must escalate to c
 """
     tools = [
         Tool(
-            name="check user active reservation",
             func=check_active_reservation,
             description="""This function checks if user has active reservation and vehicle id
 Input args: user_id: non-empty str
 Output values: is_active_reservation: bool, vehicle_id: int""",
         ),
         Tool(
-            name="check vehicle parking status",
-            func=check_vehicle_parking,
+            func=check_vehicle_parking_status,
             description="""This function checks vehicle status using vehicle id.
 Input args: vehicle_id: non-empty int
 Output values: illegally_parked: bool, message: str""",
