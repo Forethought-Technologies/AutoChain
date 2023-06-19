@@ -1,6 +1,7 @@
 """Base implementation for tools or skills."""
 from __future__ import annotations
 
+import inspect
 from abc import ABC
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 
@@ -25,6 +26,8 @@ class Tool(ABC, BaseModel):
     You can provide few-shot examples as a part of the description.
     """
 
+    arg_description: Optional[Dict[str, Any]] = None
+
     args_schema: Optional[Type[BaseModel]] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
 
@@ -41,8 +44,21 @@ class Tool(ABC, BaseModel):
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that api key and python package exists in environment."""
-        if values.get("func") and not values.get("name"):
+        func = values.get("func")
+        if func and not values.get("name"):
             values["name"] = values["func"].__name__
+
+        # check if all args from arg_description exist in func args
+        if values.get("arg_description") and func:
+            inspection = inspect.getfullargspec(func)
+            override_args = set(values["arg_description"].keys())
+            args = set(inspection.args)
+            override_without_args = override_args - args
+            if len(override_without_args) > 0:
+                raise ValueError(
+                    f"Provide arg description for not existed args: {override_without_args}"
+                )
+
         return values
 
     def _parse_input(

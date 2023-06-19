@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import logging
-from string import Template
 from typing import Any, Dict, List, Optional, Union
 
 from colorama import Fore
 
 from autochain.agent.base_agent import BaseAgent
-from autochain.agent.message import ChatMessageHistory, UserMessage, SystemMessage
+from autochain.agent.message import ChatMessageHistory, SystemMessage
 from autochain.agent.openai_funtions_agent.output_parser import (
     OpenAIFunctionOutputParser,
 )

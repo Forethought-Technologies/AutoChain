@@ -63,6 +63,7 @@ def convert_message_to_dict(message: BaseMessage) -> dict:
 def convert_tool_to_dict(tool: Tool):
     """Convert tool into function parameter for openai"""
     inspection = inspect.getfullargspec(tool.func)
+    arg_description = tool.arg_description or {}
 
     def _type_to_string(t: type) -> str:
         prog = re.compile(r"<class '(\w+)'>")
@@ -79,17 +80,27 @@ def convert_tool_to_dict(tool: Tool):
 
         return str(t)
 
+    def _format_property(t: type, arg_desp: str):
+        p = {"type": _type_to_string(t)}
+        if arg_desp:
+            p["description"] = arg_desp
+
+        return p
+
     arg_annotations = inspection.annotations
     if arg_annotations:
         properties = {
-            arg: {"type": _type_to_string(t)} for arg, t in arg_annotations.items()
+            arg: _format_property(t, arg_description.get(arg))
+            for arg, t in arg_annotations.items()
         }
     else:
-        properties = {arg: {"type": "string"} for arg, t in inspection.args}
+        properties = {
+            arg: _format_property(str, arg_description.get(arg))
+            for arg in inspection.args
+        }
 
-    required_args = (
-        inspection.args[: len(inspection.defaults)] if inspection.defaults else []
-    )
+    default_args = inspection.defaults or []
+    required_args = inspection.args[: len(inspection.args) - len(default_args)]
 
     output = {
         "name": tool.name,
