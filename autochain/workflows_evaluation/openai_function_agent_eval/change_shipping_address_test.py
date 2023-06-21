@@ -41,7 +41,7 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
     }
 
 
-class TestChangeShippingAddress(BaseTest):
+class TestChangeShippingAddressWithFunctionCalling(BaseTest):
     policy = """You are an AI assistant for customer support for the company Figs which sells nurse and medical staff clothes.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
@@ -98,7 +98,7 @@ If the order has already shipped, inform them that it is not possible to change 
 
 if __name__ == "__main__":
     tester = WorkflowTester(
-        tests=[TestChangeShippingAddress()], output_dir="./test_results"
+        tests=[TestChangeShippingAddressWithFunctionCalling()], output_dir="./test_results"
     )
 
     args = get_test_args()

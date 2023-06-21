@@ -155,6 +155,7 @@ class SupportAgent(BaseAgent):
             AgentAction or AgentFinish
         """
         print_with_color("Planning", Fore.LIGHTYELLOW_EX)
+
         tool_names = ", ".join([tool.name for tool in self.tools])
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
@@ -177,7 +178,8 @@ class SupportAgent(BaseAgent):
         )
 
         print_with_color(
-            f"Full output: {json.loads(full_output.message.content)}", Fore.YELLOW
+            f"Full planning output: \n{json.loads(full_output.message.content)}",
+            Fore.YELLOW,
         )
         if isinstance(agent_output, AgentAction):
             print_with_color(

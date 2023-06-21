@@ -27,7 +27,7 @@ RESPONSE FORMAT:
       "arg_name": "arg value from conversation history or observation to run tool"
     }
   },
-  "response": "clarifying required args for that tool or response to user. this cannot be empty",
+  "response": "Response to user",
 }
 
 Ensure the response can be parsed by Python json.loads
