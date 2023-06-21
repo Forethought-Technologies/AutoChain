@@ -1,6 +1,10 @@
 import argparse
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
+
+from autochain.agent.structs import AgentOutputParser
+
+from autochain.agent.message import BaseMessage
 
 from autochain.agent.support_agent.support_agent import SupportAgent
 from autochain.chain.chain import Chain
@@ -54,3 +58,15 @@ def create_chain_from_test(
     memory = memory or BufferMemory()
     agent = agent_cls.from_llm_and_tools(llm=llm, tools=tools, **kwargs)
     return Chain(agent=agent, memory=memory)
+
+
+def parse_evaluation_response(message: BaseMessage) -> Dict[str, str]:
+    """
+    Parse the reason and rating from the call to determine if the conversation reaches the
+    expected outcome
+    """
+    response = AgentOutputParser.load_json_output(message)
+    return {
+        "rating": response.get("rating"),
+        "reason": response.get("reason"),
+    }

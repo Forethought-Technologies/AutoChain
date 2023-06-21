@@ -11,12 +11,7 @@ from autochain.utils import print_with_color
 
 class ConvoJSONOutputParser(AgentOutputParser):
     def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:
-        text = message.content
-        try:
-            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
-            response = json.loads(clean_text)
-        except Exception:
-            raise OutputParserException(f"Not a valid json: `{text}`")
+        response = self.load_json_output(message)
 
         action_name = response.get("tool", {}).get("name")
         action_args = response.get("tool", {}).get("args")
@@ -39,17 +34,10 @@ class ConvoJSONOutputParser(AgentOutputParser):
             model_response=response.get("response", ""),
         )
 
-    @staticmethod
     def parse_clarification(
-        message: BaseMessage, agent_action: AgentAction
+        self, message: BaseMessage, agent_action: AgentAction
     ) -> Union[AgentAction, AgentFinish]:
-        text = message.content
-        try:
-            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
-            response = json.loads(clean_text)
-            print_with_color(f"Full clarification output: {response}", Fore.YELLOW)
-        except Exception:
-            raise OutputParserException(f"Not a valid json: `{text}`")
+        response = self.load_json_output(message)
 
         has_arg_value = response.get("has_arg_value", "")
         clarifying_question = response.get("clarifying_question", "")

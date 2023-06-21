@@ -12,7 +12,7 @@ from autochain.agent.conversational_agent.prompt import (
     CLARIFYING_QUESTION_PROMPT,
     PLANNING_PROMPT,
 )
-from autochain.agent.message import BaseMessage
+from autochain.agent.message import BaseMessage, ChatMessageHistory
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.models.base import BaseLanguageModel, Generation
@@ -64,7 +64,7 @@ class ConversationalAgent(BaseAgent):
         )
 
     @staticmethod
-    def get_final_prompt(
+    def format_prompt(
         template: JSONPromptTemplate,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
@@ -105,7 +105,10 @@ class ConversationalAgent(BaseAgent):
         return JSONPromptTemplate(template=template, input_variables=input_variables)
 
     def plan(
-        self, intermediate_steps: List[AgentAction], **kwargs: Any
+        self,
+        history: ChatMessageHistory,
+        intermediate_steps: List[AgentAction],
+        **kwargs: Any
     ) -> Union[AgentAction, AgentFinish]:
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
@@ -121,8 +124,11 @@ class ConversationalAgent(BaseAgent):
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
         )
-        inputs = {"tool_names": tool_names, "tools": tool_strings, **kwargs}
-        final_prompt = self.get_final_prompt(
+        inputs = {"tool_names": tool_names,
+                  "tools": tool_strings,
+                  "history": history.format_message(),
+                  **kwargs}
+        final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
         logger.info(f"\nFull Input: {final_prompt[0].content} \n")
@@ -145,6 +151,7 @@ class ConversationalAgent(BaseAgent):
     def clarify_args_for_agent_action(
         self,
         agent_action: AgentAction,
+        history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ):
@@ -156,6 +163,7 @@ class ConversationalAgent(BaseAgent):
 
         Args:
             agent_action: agent action about to take
+            history: conversation history including the latest query
             intermediate_steps: list of agent action taken so far
             **kwargs:
 
@@ -169,6 +177,7 @@ class ConversationalAgent(BaseAgent):
             inputs = {
                 "tool_name": agent_action.tool,
                 "tool_desp": self.allowed_tools.get(agent_action.tool).description,
+                "history": history.format_message(),
                 **kwargs,
             }
 
@@ -176,7 +185,7 @@ class ConversationalAgent(BaseAgent):
                 prompt=CLARIFYING_QUESTION_PROMPT
             )
 
-            final_prompt = self.get_final_prompt(
+            final_prompt = self.format_prompt(
                 clarifying_template, intermediate_steps, **inputs
             )
             logger.info(f"\nClarification inputs: {final_prompt[0].content}")

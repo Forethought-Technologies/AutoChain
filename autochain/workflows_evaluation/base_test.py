@@ -13,6 +13,7 @@ from autochain.models.base import Generation
 from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
 from autochain.utils import print_with_color
+from autochain.workflows_evaluation.test_utils import parse_evaluation_response
 
 
 @dataclass
@@ -134,18 +135,17 @@ class WorkflowTester:
             UserMessage(
                 content=f"""The most recent reply from assistant
 assistant: "{last_utterance}"
-Is assistant asking a clarifying question or getting additional information from user? answer with 
-yes or no"""
+Has assistant finish assisting the user? Answer with yes or no"""
             ),
         ]
         output: Generation = self.llm.generate(messages=messages).generations[0]
 
         if "yes" in output.message.content.lower():
-            # this is a clarifying question
-            return False
-        else:
-            # conversation should end
+            # finish assisting; conversation should end
             return True
+        else:
+            # not yet finished; conversation should continue
+            return False
 
     def get_next_user_query(
         self, conversation_history: List[Tuple[str, str]], user_context: str
@@ -175,7 +175,7 @@ Previous conversation:
 
     def determine_if_agent_solved_problem(
         self, conversation_history: List[Tuple[str, str]], expected_outcome: str
-    ) -> (bool, str):
+    ) -> Dict[str, str]:
         messages = []
         conversation = ""
         for user_type, utterance in conversation_history:
@@ -183,20 +183,19 @@ Previous conversation:
 
         messages.append(
             UserMessage(
-                content=f"""Previous conversation:
+                content=f"""You are an admin for assistant and check if assistant meets the expected outcome based on previous conversation.
+ 
+Previous conversation:
 {conversation}
 
-Expected outcome is {expected_outcome}
-Does conversation reach the expected outcome for user? Answer with yes or no with explanation"""
+Expected outcome is "{expected_outcome}"
+Does conversation reach the expected outcome for user? answer in JSON format
+{{
+    "reason": "explain step by step if conversation reaches the expected outcome",
+    "rating": "rating from 1 to 5; 1 for not meeting the expected outcome at all, 5 for completely meeting the expected outcome",
+}}"""
             )
         )
 
-        output: Generation = self.llm.generate(
-            messages=messages, stop=["."]
-        ).generations[0]
-        if "yes" in output.message.content.lower():
-            # Agent solved the problem
-            return True, output.message.content
-        else:
-            # did not solve the problem
-            return False, output.message.content
+        output: Generation = self.llm.generate(messages=messages).generations[0]
+        return parse_evaluation_response(output.message)

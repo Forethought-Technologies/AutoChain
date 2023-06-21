@@ -1,10 +1,10 @@
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
 from autochain.chain.chain import Chain
 from autochain.memory.buffer_memory import BufferMemory
 from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
-from autochain.agent.conversational_agent.conversational_agent import (
-    ConversationalAgent,
-)
 
 llm = ChatOpenAI(temperature=0)
 tools = [
@@ -19,4 +19,6 @@ memory = BufferMemory()
 agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
 chain = Chain(agent=agent, memory=memory)
 
-print(chain.run("what is the weather today")["message"])
+print(f""">>> Assistant:
+{chain.run("what is the weather today")["message"]}
+""")
