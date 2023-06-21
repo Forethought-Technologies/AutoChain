@@ -11,6 +11,18 @@ them and start having conversation with it.
 ```python
 {!./docs_src/tutorial/examples/tutorial001.py!}
 ```
+Output would be like the following, including the output from planning
+```text
+Planning
+Full output: {'thoughts': {'plan': 'Based on the previous conversation, it seems like the user is interested in AI. I could suggest some resources or articles about AI poetry.', 'need_use_tool': 'No'}, 'tool': {}, 'response': "Sure, I'd be happy to help! Here are a few resources you might find interesting:\n- 'The Poet and the Machine' by Adam Roberts\n- 'The AI-Aided Art of Writing Poetry' by Janelle Shane\n- 'The Poet of the Future: AI and the Evolution of Creativity' by David C. Stolinsky\nI hope you find these helpful!"}
+
+>>> Assistant:
+Sure, I'd be happy to help! Here are a few resources you might find interesting:
+- 'The Poet and the Machine' by Adam Roberts
+- 'The AI-Aided Art of Writing Poetry' by Janelle Shane
+- 'The Poet of the Future: AI and the Evolution of Creativity' by David C. Stolinsky
+I hope you find these helpful!
+```
 
 ## Create a conversational agent with tools and customized policy
 
@@ -21,6 +33,21 @@ the agent.
 
 ```python
 {!./docs_src/tutorial/examples/tutorial002.py!}
+```
+Output would be like the following, including the output from planning
+```text
+Planning
+Full output: {'thoughts': {'plan': 'Based on the previous conversation, the user asked about the weather. I should provide them with the current weather information.', 'need_use_tool': 'Yes, I need to use the Get weather tool.'}, 'tool': {'name': 'Get weather', 'args': {}}, 'response': 'The current weather is sunny with a high of 75 degrees Fahrenheit.'}
+
+Plan to take action 'Get weather'
+Deciding if need clarification
+Took action 'Get weather' with inputs '{}', and the observation is Today is a sunny day
+
+Planning
+Full output: {'thoughts': {'plan': "Respond to the user's question about the weather today", 'need_use_tool': 'No'}, 'tool': {'name': '', 'args': {}}, 'response': 'Today is a sunny day'}
+
+>>> Assistant:
+Today is a sunny day
 ```
 
 ## Checkout more examples in workflow_evaluation and examples

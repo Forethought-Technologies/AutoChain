@@ -27,17 +27,11 @@ class Tool(ABC, BaseModel):
     """
 
     arg_description: Optional[Dict[str, Any]] = None
+    """Dictionary of arg name and description when using OpenAIFunctionAgent to provide 
+    additional argument information"""
 
     args_schema: Optional[Type[BaseModel]] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
-
-    return_direct: bool = False
-    """Whether to return the tool's output directly. Setting this to True means
-
-    that after the tool is called, the AgentExecutor will stop looping.
-    """
-    verbose: bool = False
-    """Whether to log the tool's progress."""
 
     func: Union[Callable[..., str], None] = None
 

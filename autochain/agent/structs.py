@@ -1,6 +1,8 @@
+import json
 from abc import abstractmethod
 from typing import Union, Any, Dict, List
 
+from autochain.errors import OutputParserException
 from pydantic import BaseModel
 
 from autochain.agent.message import BaseMessage
@@ -50,13 +52,24 @@ class AgentFinish(BaseModel):
 
 
 class AgentOutputParser(BaseModel):
+    @staticmethod
+    def load_json_output(message: BaseMessage) -> Dict[str, Any]:
+        """If the message contains a json response, try to parse it into dictionary"""
+        text = message.content
+        try:
+            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
+            response = json.loads(clean_text)
+        except Exception:
+            raise OutputParserException(f"Not a valid json: `{text}`")
+
+        return response
+
     @abstractmethod
     def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:
         """Parse text into agent action/finish."""
 
-    @staticmethod
     def parse_clarification(
-        message: BaseMessage, agent_action: AgentAction
+        self, message: BaseMessage, agent_action: AgentAction
     ) -> Union[AgentAction, AgentFinish]:
         """Parse clarification outputs"""
         return agent_action
