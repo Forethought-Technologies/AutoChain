@@ -1,19 +1,19 @@
 # AutoChain
 
 Large language models (LLMs) have shown huge success in different text generation tasks and
-enable developers to build autonomous agents based on natural language objectives.
+enable developers to build generative agents based on natural language objectives.
 
-However, most of the agents require heavy customization for a specific purpose, and adapting
-existing tools for different use cases is sometimes overwhelming. As a result, it is
+However, most of the generative agents require heavy customization for a specific purpose, and
+adapting existing tools for different use cases is sometimes overwhelming. As a result, it is
 still very challenging to customize on top of existing agents.
 
-In addition, evaluating such autonomous agents powered by LLMs by trying different use
+In addition, evaluating such agents powered by LLMs by trying different use
 cases under different potential user scenarios is a very manual and expensive task.
 
-AutoChain took inspiration from LangChain and AutoGPT and aims to solve
+AutoChain takes inspiration from LangChain and AutoGPT and aims to solve
 both problems by providing a lightweight and extensible framework
 for developers to build their own conversational agents using LLMs with custom tools and
-automatically evaluating different user scenarios with simulated conversations.
+[automatically evaluating](#workflow-evaluation) different user scenarios with simulated conversations.
 
 The goal is to enable user experimentation of generative agents quickly, knowing users would
 make more customizations as they are building their own agent.
@@ -26,8 +26,12 @@ make more customizations as they are building their own agent.
 - 🤖 automated agent evaluation with simulated conversations
 
 ## Setup
+Quick install
+```shell
+pip install autochain
+```
 
-After cloning the repo
+Or install from source after cloning the repo
 
 ```shell
 cd autochain
@@ -35,7 +39,10 @@ pyenv virtualenv 3.10.11 venv
 pyenv local venv
 
 pip install .
+```
 
+Set `PYTHONPATH` and `OPENAI_API_KEY`
+```shell
 export OPENAI_API_KEY=
 export PYTHONPATH=`pwd`
 ```
@@ -97,7 +104,7 @@ Check out [more examples](./docs/examples.md) under `autochain/examples` and wor
 cases which can
 also be run interactively.
 
-## Main difference with LangChain
+## Main differences with LangChain
 
 Although AutoChain is heavily inspired by [LangChain](https://github.com/hwchase17/langchain),
 we took some design choices to make it more suitable for experimentation and iterations by
@@ -176,7 +183,7 @@ through a large number of preset queries and evaluate the generated responses. H
 limited to single turn conversation, not specific to areas, and very expensive to evaluate.
 
 To effectively evaluate agents, we introduced the workflow evaluation
-which simulates the conversation between an autonomous agent and simulated users with an LLM under
+which simulates the conversation between an generative agent and simulated users with an LLM under
 different user contexts and desired outcomes of the conversation. This way, we could add test
 cases for different user scenarios and use LLMs to evaluate if a conversation reached the desired
 outcome.

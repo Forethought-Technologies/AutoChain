@@ -6,7 +6,7 @@ from langchain.chat_models import ChatOpenAI as LangchainModel
 from langchain.memory import ConversationBufferMemory as LCConversationBufferMemory
 from langchain.schema import BaseMemory as LCBaseMemory
 from langchain.tools import Tool as LCTool
-from autochain.chain.langchain_wapper_chain import LangChainWrapperChain
+from autochain.chain.langchain_wrapper_chain import LangChainWrapperChain
 
 
 def create_langchain_from_test(

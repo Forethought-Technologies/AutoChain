@@ -1,6 +1,6 @@
 # Workflow Evaluation
 
-It is notoriously hard to evaluate autonomous agent in LangChain or AutoGPT. Agent's behavior
+It is notoriously hard to evaluate generative agent in LangChain or AutoGPT. Agent's behavior
 is nondeterministic and susceptible to small change to the prompt. It can be really hard to
 know if your agent is behaving correctly. The current path for evaluation is running the agent
 through a large number of preset queries and evaluate the generated responses. However, this
@@ -22,16 +22,16 @@ We try to solve all three problems with automatically evaluates different user s
 **simulated conversations**.
 
 The idea is we could have two model actors to conversation with each other, one is the
-autonomous agent and another pretends to be an user with specific context and goal. Agent and 
+generative agent and another pretends to be an user with specific context and goal. Agent and 
 user will have multiple turns of conversation until agent or user decides to stop or max number 
 of iterations is reached.  
 At the end of the conversation, there will be another critic model with a different prompt to
 evaluate the quality of the responses based on the conversation history to measure if agent
 achieved the desired outcome.
 
-Simulated user will can have varied conversations with autonomous agent under different 
+Simulated user will can have varied conversations with generative agent under different 
 situations. Human or a LLM could inspect the conversation history and action taken by 
-agent at the end of the test to evaluate the quality of the autonomous agent.
+agent at the end of the test to evaluate the quality of the generative agent.
 There are a couple key concepts to build such test cases
 
 **tools** Since most of the agent would need to use tools, you could provide a list of
