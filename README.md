@@ -1,16 +1,16 @@
 # AutoChain
 
 Large language models (LLMs) have shown huge success in different text generation tasks and
-enable developers to build autonomous agents based on natural language objectives.
+enable developers to build agents based on natural language objectives.
 
 However, most of the agents require heavy customization for a specific purpose, and adapting
 existing tools for different use cases is sometimes overwhelming. As a result, it is
 still very challenging to customize on top of existing agents.
 
-In addition, evaluating such autonomous agents powered by LLMs by trying different use
+In addition, evaluating such agents powered by LLMs by trying different use
 cases under different potential user scenarios is a very manual and expensive task.
 
-AutoChain took inspiration from LangChain and AutoGPT and aims to solve
+AutoChain takes inspiration from LangChain and AutoGPT and aims to solve
 both problems by providing a lightweight and extensible framework
 for developers to build their own conversational agents using LLMs with custom tools and
 automatically evaluating different user scenarios with simulated conversations.
