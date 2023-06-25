@@ -2,11 +2,12 @@ import argparse
 import logging
 from typing import List, Optional, Dict
 
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
+
 from autochain.agent.structs import AgentOutputParser
-
 from autochain.agent.message import BaseMessage
-
-from autochain.agent.support_agent.support_agent import SupportAgent
 from autochain.chain.chain import Chain
 from autochain.memory.base import BaseMemory
 from autochain.memory.buffer_memory import BufferMemory
@@ -41,7 +42,7 @@ def create_chain_from_test(
     tools: List[Tool],
     memory: Optional[BaseMemory] = None,
     llm: Optional[BaseLanguageModel] = None,
-    agent_cls=SupportAgent,
+    agent_cls=ConversationalAgent,
     **kwargs
 ):
     """

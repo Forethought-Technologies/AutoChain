@@ -11,8 +11,9 @@ from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputPa
 from autochain.agent.conversational_agent.prompt import (
     CLARIFYING_QUESTION_PROMPT,
     PLANNING_PROMPT,
+    SHOULD_ANSWER_PROMPT,
 )
-from autochain.agent.message import BaseMessage, ChatMessageHistory
+from autochain.agent.message import BaseMessage, ChatMessageHistory, UserMessage
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.models.base import BaseLanguageModel, Generation
@@ -33,6 +34,9 @@ class ConversationalAgent(BaseAgent):
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
+
+    # Optionally you could set a goal for this conversational agent or directly update the prompt
+    goal: str = ""
 
     @classmethod
     def from_llm_and_tools(
@@ -62,6 +66,31 @@ class ConversationalAgent(BaseAgent):
             tools=tools,
             **kwargs,
         )
+
+    def should_answer(
+        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT, **kwargs
+    ) -> Optional[AgentFinish]:
+        """Determine if agent should continue to answer user questions based on the latest user
+        query"""
+        if "query" not in kwargs or "history" not in kwargs or not kwargs["history"]:
+            return None
+
+        def _parse_response(res: str):
+            if "yes" in res.lower():
+                return AgentFinish(
+                    message="Thank your for contacting",
+                    log="Thank your for contacting",
+                )
+            else:
+                return None
+
+        prompt = Template(should_answer_prompt_template).substitute(**kwargs)
+        response = (
+            self.llm.generate([UserMessage(content=prompt)])
+            .generations[0]
+            .message.content
+        )
+        return _parse_response(response)
 
     @staticmethod
     def format_prompt(
@@ -108,11 +137,12 @@ class ConversationalAgent(BaseAgent):
         self,
         history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
         Args:
+            history: entire chat history between user and agent including the latest conversation
             intermediate_steps: List of AgentAction that has been performed with outputs
             **kwargs: key value pairs from chain, which contains query and other stored memories
 
@@ -124,10 +154,13 @@ class ConversationalAgent(BaseAgent):
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
         )
-        inputs = {"tool_names": tool_names,
-                  "tools": tool_strings,
-                  "history": history.format_message(),
-                  **kwargs}
+        inputs = {
+            "tool_names": tool_names,
+            "tools": tool_strings,
+            "history": history.format_message(),
+            "goal": self.goal,
+            **kwargs,
+        }
         final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )

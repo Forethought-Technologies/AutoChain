@@ -73,12 +73,6 @@ It could also use tools if provided.
 While it does not use native OpenAI function calling, this agent showcases the interaction between
 memory and prompts. Also it supports using ChatGPT model before `0613`.
 
-### SupportAgent
-
-`SupportAgent` is an enhanced version of `ConversationalAgent` which has a policy in mind when
-having the conversation with user. It will try to follow the policy as much as possible and
-gracefully handoff when it is not sure.
-
 ### OpenAIFunctionAgent
 
 At Jun 13, OpenAI released [function calling](https://platform.openai.

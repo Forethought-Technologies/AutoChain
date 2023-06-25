@@ -46,12 +46,20 @@ class BaseAgent(BaseModel, ABC):
     @abstractmethod
     def plan(
         self,
-        query: str,
         history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
         **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
-        """Plan for the next step"""
+        """
+        Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
+        Args:
+            history: entire chat history between user and agent including the latest conversation
+            intermediate_steps: List of AgentAction that has been performed with outputs
+            **kwargs: key value pairs from chain, which contains query and other stored memories
+
+        Returns:
+            AgentAction or AgentFinish
+        """
 
     def clarify_args_for_agent_action(
         self,

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 PLANNING_PROMPT = """You are an assistant who tries to have helpful and polite conversation 
-with user based on previous conversation, observations from tools.
+with user based on previous conversation and observations from tools. 
+${goal}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
 conversation.
 
@@ -31,6 +32,15 @@ RESPONSE FORMAT:
 }
 
 Ensure the response can be parsed by Python json.loads
+"""
+
+SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
+Given the following conversation so far, has user acknowledged question is resolved, 
+such as thank you or that's all. 
+Answer with yes or no.
+
+Conversation:
+${history}
 """
 
 FIX_TOOL_INPUT_PROMPT_FORMAT = """Tool have the following spec and input provided
