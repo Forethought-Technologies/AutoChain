@@ -108,7 +108,7 @@ class ConversationalAgent(BaseAgent):
         self,
         history: ChatMessageHistory,
         intermediate_steps: List[AgentAction],
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
@@ -124,10 +124,12 @@ class ConversationalAgent(BaseAgent):
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
         )
-        inputs = {"tool_names": tool_names,
-                  "tools": tool_strings,
-                  "history": history.format_message(),
-                  **kwargs}
+        inputs = {
+            "tool_names": tool_names,
+            "tools": tool_strings,
+            "history": history.format_message(),
+            **kwargs,
+        }
         final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )

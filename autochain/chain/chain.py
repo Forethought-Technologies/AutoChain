@@ -109,11 +109,6 @@ class Chain(BaseChain):
                 observation = f"Tool {output.tool} if not supported"
 
             output.observation = observation
-            self.memory.save_conversation(
-                message=str(observation),
-                name=output.tool,
-                message_type=MessageType.FunctionMessage,
-            )
             return output
         else:
             raise ValueError(f"Unsupported action: {type(output)}")

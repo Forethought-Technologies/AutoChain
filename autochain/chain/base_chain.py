@@ -129,6 +129,15 @@ class BaseChain(BaseModel, ABC):
                 next_step_output.intermediate_steps = intermediate_steps
                 return next_step_output
 
+            # stores action output into the conversation as FunctionMessage, which can be used by
+            # OpenAIFunctionAgent
+            if isinstance(next_step_output, AgentAction):
+                self.memory.save_conversation(
+                    message=str(next_step_output.observation),
+                    name=next_step_output.tool,
+                    message_type=MessageType.FunctionMessage,
+                )
+
             intermediate_steps.append(next_step_output)
             # update inputs
             inputs[constants.INTERMEDIATE_STEPS] = intermediate_steps
