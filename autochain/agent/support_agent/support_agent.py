@@ -170,7 +170,7 @@ class SupportAgent(BaseAgent):
         final_messages = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
-        logger.info(f"\nFull Input: {[m.content for m in final_messages]} \n")
+        logger.info(f"\nFull Input: {final_messages[0].content} \n")
 
         full_output: Generation = self.llm.generate(final_messages).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
