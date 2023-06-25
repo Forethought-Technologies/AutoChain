@@ -98,7 +98,8 @@ If the order has already shipped, inform them that it is not possible to change 
 
 if __name__ == "__main__":
     tester = WorkflowTester(
-        tests=[TestChangeShippingAddressWithFunctionCalling()], output_dir="./test_results"
+        tests=[TestChangeShippingAddressWithFunctionCalling()],
+        output_dir="./test_results",
     )
 
     args = get_test_args()
