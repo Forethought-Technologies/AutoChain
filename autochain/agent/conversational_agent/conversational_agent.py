@@ -12,6 +12,7 @@ from autochain.agent.conversational_agent.prompt import (
     CLARIFYING_QUESTION_PROMPT,
     PLANNING_PROMPT,
     SHOULD_ANSWER_PROMPT,
+    FIX_TOOL_INPUT_PROMPT_FORMAT,
 )
 from autochain.agent.message import BaseMessage, ChatMessageHistory, UserMessage
 from autochain.agent.prompt_formatter import JSONPromptTemplate
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class ConversationalAgent(BaseAgent):
     """
-    Simple conversational agent who can use tools available to make a conversation by following
+    Conversational agent who can use tools available to make a conversation by following
     the conversational planning prompt
     """
 
@@ -226,3 +227,20 @@ class ConversationalAgent(BaseAgent):
             return self.output_parser.parse_clarification(
                 full_output.message, agent_action=agent_action
             )
+
+    def fix_action_input(
+        self, tool: Tool, action: AgentAction, error: str
+    ) -> AgentAction:
+        """If the tool failed due to error, what should be the fix for inputs"""
+        prompt = FIX_TOOL_INPUT_PROMPT_FORMAT.format(
+            tool_description=tool.description, inputs=action.tool_input, error=error
+        )
+
+        logger.info(f"\nFixing tool input prompt: {prompt}")
+        messages = UserMessage(content=prompt)
+        output = self.llm.generate([messages]).generations[0]
+        new_tool_inputs = self.output_parser.load_json_output(output.message)
+
+        logger.info(f"\nFixed tool output: {new_tool_inputs}")
+        new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs)
+        return new_action
