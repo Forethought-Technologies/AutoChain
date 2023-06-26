@@ -132,8 +132,10 @@ There are a few key concepts in AutoChain, which could be easily extended to bui
 
 ### Chain
 
-`Chain` is the overall orchestrator for agent interaction. It determines when to use tools or respond
-to users. All the interactions with memory are limited to the `Chain` level.
+`Chain` is the overall *stateful* orchestrator for agent interaction. It determines when to use
+tools or respond to users. `Chain` is the only stateful component, so all the interactions with
+memory happen at the `Chain` level. By Default, it saves all the chat conversation history and
+intermediate `AgentAction` with corresponding outputs at `prep_input` and `prep_output` steps.
 
 `Agent` provides ways of interaction, while `Chain` determines how to
 interact with agent.
@@ -146,7 +148,8 @@ This flow diagram describes the high level picture of the default chain interact
 
 ### Agent
 
-Agent is the component that decides how to respond to the user or whether an agent requires to use tools.
+Agent is the *stateless* component that decides how to respond to the user or whether an agent
+requires to use tools.
 It could contain different prompts for different functionalities an agent could have. The main goal
 for an agent is to plan for the next step, either respond to the user with `AgentFinish` or take an
 action with `AgentAction`.
@@ -169,10 +172,12 @@ interface exposes two ways to save memories. One is `save_conversation` which sa
 history between the agent and the user, and `save_memory` to save any additional information 
 for any specific business logics.
 
-Conversations are saved/updated in the beginning and updated in the end. By default, memory 
-saves conversation history, including the latest user query, and intermediate steps, which is a 
-list of `AgentAction` taken with corresponding outputs.  
+By default, memory are saved/updated in the beginning and updated in the end at `Chain` level.
+Memory saves conversation history, including the latest user query, and intermediate
+steps, which is a list of `AgentAction` taken with corresponding outputs.  
 All memorized contents are usually provided to Agent for planning the next step.
+
+Read more about [memory](./docs/memory.md)
 
 ## Workflow Evaluation
 
