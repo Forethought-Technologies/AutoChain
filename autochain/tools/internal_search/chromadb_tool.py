@@ -38,13 +38,7 @@ class ChromaDBSearch(Tool):
         self.collection = collection
 
         # Add docs to the collection. Can also update and delete. Row-based API coming soon!
-        self.collection.add(
-            documents=[d.doc for d in docs],
-            # we embed for you, or bring your own
-            metadatas=[d.metadata for d in docs],
-            # filter on arbitrary metadata!
-            ids=[d.id for d in docs],  # must be unique for each doc
-        )
+        self.add_docs(docs=docs)
 
     def _run(
         self,
@@ -67,3 +61,17 @@ class ChromaDBSearch(Tool):
             n_results=n_results,
         )
         return _format_output(result)
+
+    def add_docs(self, docs: List[ChromaDoc], **kwargs):
+        """Add a list of documents to collection"""
+        if docs:
+            self.collection.add(
+                documents=[d.doc for d in docs],
+                # we embed for you, or bring your own
+                metadatas=[d.metadata for d in docs],
+                # filter on arbitrary metadata!
+                ids=[d.id for d in docs],  # must be unique for each doc
+            )
+
+    def clear_index(self):
+        self.collection.delete()
