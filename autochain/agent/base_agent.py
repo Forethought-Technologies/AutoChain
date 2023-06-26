@@ -18,12 +18,6 @@ class BaseAgent(BaseModel, ABC):
     llm: BaseLanguageModel = None
     tools: Sequence[Tool] = []
 
-    class Config:
-        """Configuration for this pydantic object."""
-
-    extra = Extra.forbid
-    arbitrary_types_allowed = True
-
     @classmethod
     def from_llm_and_tools(
         cls,

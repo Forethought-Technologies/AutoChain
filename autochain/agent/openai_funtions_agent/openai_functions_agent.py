@@ -18,7 +18,7 @@ from autochain.utils import print_with_color
 logger = logging.getLogger(__name__)
 
 
-class OpenAIFunctionAgent(BaseAgent):
+class OpenAIFunctionsAgent(BaseAgent):
     """
     Agent supports function calling natively in OpenAI, which leverage function message to
     determine which tool should be used
@@ -39,7 +39,7 @@ class OpenAIFunctionAgent(BaseAgent):
         output_parser: Optional[OpenAIFunctionOutputParser] = None,
         prompt: str = None,
         **kwargs: Any,
-    ) -> OpenAIFunctionAgent:
+    ) -> OpenAIFunctionsAgent:
         tools = tools or []
 
         allowed_tools = {tool.name: tool for tool in tools}
