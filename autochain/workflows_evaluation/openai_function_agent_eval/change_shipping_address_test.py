@@ -1,5 +1,5 @@
 from autochain.agent.openai_funtions_agent.openai_functions_agent import (
-    OpenAIFunctionAgent,
+    OpenAIFunctionsAgent,
 )
 from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
@@ -92,7 +92,7 @@ If the order has already shipped, inform them that it is not possible to change 
 
     llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
     chain = create_chain_from_test(
-        tools=tools, agent_cls=OpenAIFunctionAgent, llm=llm, prompt=policy
+        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=policy
     )
 
 

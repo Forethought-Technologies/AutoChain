@@ -97,7 +97,7 @@ instruction, so user could follow the same `Tool` interface.
 
 ```python
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
-agent = OpenAIFunctionAgent.from_llm_and_tools(llm=llm, tools=tools)
+agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
 ```
 
 Check out [more examples](./docs/examples.md) under `autochain/examples` and workflow evaluation

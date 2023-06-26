@@ -2,7 +2,7 @@ import json
 import logging
 
 from autochain.agent.openai_funtions_agent.openai_functions_agent import (
-    OpenAIFunctionAgent,
+    OpenAIFunctionsAgent,
 )
 from autochain.chain.chain import Chain
 from autochain.memory.buffer_memory import BufferMemory
@@ -32,7 +32,7 @@ tools = [
 memory = BufferMemory()
 logging.basicConfig(level=logging.INFO)
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
-agent = OpenAIFunctionAgent.from_llm_and_tools(llm=llm, tools=tools)
+agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
 chain = Chain(agent=agent, memory=memory)
 
 # example

@@ -1,12 +1,8 @@
 import json
 from typing import Union
 
-from colorama import Fore
-
-from autochain.agent.message import BaseMessage, AIMessage
+from autochain.agent.message import AIMessage
 from autochain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
-from autochain.errors import OutputParserException
-from autochain.utils import print_with_color
 
 
 class OpenAIFunctionOutputParser(AgentOutputParser):
