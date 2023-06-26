@@ -30,12 +30,6 @@ class PineconeSearch(Tool):
     encoder: BaseLanguageModel = None  # such as OpenAIAdaEncoder
     id2doc: Dict[str, str] = {}
 
-    class Config:
-        """Configuration for this pydantic object."""
-
-    extra = Extra.forbid
-    arbitrary_types_allowed = True
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         pinecone.create_index(

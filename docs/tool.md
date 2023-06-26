@@ -11,7 +11,7 @@ needs to use the tool. As the result, the interface for `Tool` is below:
 
 - **func**  
 Function callable will be called at the `run` function. It will automatically generate the
-typing information when using `OpenAIFunctionAgent`.
+typing information when using `OpenAIFunctionsAgent`.
 
 - **description**  
 To make it easy and descriptive for LLM model to understand when it should use this tool, it
@@ -27,4 +27,4 @@ the function name is not very obvious.
 - **arg_description**  
 Function calling feature of OpenAI supports adding description for each argument. User could
 pass a dictionary of arg name and description using `arg_description` parameter. They will be
-formatted into the prompt when using `OpenAIFunctionAgent`. 
+formatted into the prompt when using `OpenAIFunctionsAgent`. 

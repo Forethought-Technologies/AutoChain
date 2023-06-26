@@ -77,7 +77,7 @@ class SupportAgent(BaseAgent):
     ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""
-        if "query" not in kwargs or "history" not in kwargs or not kwargs["history"]:
+        if "history" not in kwargs or not kwargs["history"]:
             return None
 
         def _parse_response(res: str):
