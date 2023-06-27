@@ -1,5 +1,5 @@
 from autochain.agent.openai_funtions_agent.openai_functions_agent import (
-    OpenAIFunctionAgent,
+    OpenAIFunctionsAgent,
 )
 
 from autochain.models.chat_openai import ChatOpenAI
@@ -36,14 +36,14 @@ def check_user_status(email: str):
 
 class TestExchangeOrReturnTest(BaseTest):
     policy = """"Assist customers with returns and exchanges.
-    1. Verify the customer's order number and check if the items have been worn, washed, or if the tags are attached.
-    2. If the items are eligible for return or exchange, guide the customer through the return process by providing a link to the return form.
-    3. Offer the option of using a Happy Returns QR code or a prepaid FedEx return label for returning the items.
-    4. If the customer needs to cancel or modify a return form, assist them in doing so and provide guidance on how to redo the process correctly.
-    5. For international customers, inform them that direct exchanges are not available and suggest setting up a return for a refund and creating a new order for the desired items.
-    6. In case of final sale items, evaluate the situation and consider making a one-time exception for an exchange or return if necessary.
-    7. Ensure the customer is aware of any discounts or shipping fees associated with their new order and provide an invoice if needed."
-    """
+1. Verify the customer's order number and check if the items have been worn, washed, or if the tags are attached.
+2. If the items are eligible for return or exchange, guide the customer through the return process by providing a link to the return form.
+3. Offer the option of using a Happy Returns QR code or a prepaid FedEx return label for returning the items.
+4. If the customer needs to cancel or modify a return form, assist them in doing so and provide guidance on how to redo the process correctly.
+5. For international customers, inform them that direct exchanges are not available and suggest setting up a return for a refund and creating a new order for the desired items.
+6. In case of final sale items, evaluate the situation and consider making a one-time exception for an exchange or return if necessary.
+7. Ensure the customer is aware of any discounts or shipping fees associated with their new order and provide an invoice if needed."
+"""
 
     tools = [
         Tool(
@@ -78,7 +78,7 @@ Output values: status_code: int, user_location: str, order_number: str""",
 
     llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
     chain = create_chain_from_test(
-        tools=tools, agent_cls=OpenAIFunctionAgent, llm=llm, prompt=policy
+        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=policy
     )
 
 

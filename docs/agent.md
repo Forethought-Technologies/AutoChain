@@ -78,4 +78,4 @@ memory and prompts. Also it supports using ChatGPT model before `0613`.
 At Jun 13, OpenAI released [function calling](https://platform.openai.
 com/docs/guides/gpt/chat-completions-api)
 , which is a new way for model to use tools natively with function calling.
-We introduced `OpenAIFunctionAgent` to support native function calling when tools are provided.
+We introduced `OpenAIFunctionsAgent` to support native function calling when tools are provided.

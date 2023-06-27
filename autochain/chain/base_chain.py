@@ -130,7 +130,7 @@ class BaseChain(BaseModel, ABC):
                 return next_step_output
 
             # stores action output into the conversation as FunctionMessage, which can be used by
-            # OpenAIFunctionAgent
+            # OpenAIFunctionsAgent
             if isinstance(next_step_output, AgentAction):
                 self.memory.save_conversation(
                     message=str(next_step_output.observation),

@@ -27,7 +27,7 @@ class Tool(ABC, BaseModel):
     """
 
     arg_description: Optional[Dict[str, Any]] = None
-    """Dictionary of arg name and description when using OpenAIFunctionAgent to provide 
+    """Dictionary of arg name and description when using OpenAIFunctionsAgent to provide 
     additional argument information"""
 
     args_schema: Optional[Type[BaseModel]] = None
