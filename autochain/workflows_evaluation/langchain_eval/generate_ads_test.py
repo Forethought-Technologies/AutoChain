@@ -67,16 +67,16 @@ Output values: image path: str""",
     test_cases = [
         TestCase(
             test_name="ads for toy bear",
-            user_query="Can you write me an advertisement for toy bear?",
-            user_context="item name is toy bear. it is cute and made in USA, they should be "
+            user_context="Write me an advertisement for toy bear; item name is 'toy bear'. it is "
+            "cute and made in USA, they should be "
             "included in the ads. Ads should include image",
             expected_outcome="generate an advertisement for toy bear and mentions it is cute. "
             "Also ads should include an image path",
         ),
         TestCase(
             test_name="printer ads",
-            user_query="Can you write me an advertisement for printer?",
-            user_context="item name is wireless printer. printer is used and in good condition. "
+            user_context="write me an advertisement for printer; item name is 'good printer'. "
+            "printer is used and in good condition. "
             "Ads should include image",
             expected_outcome="generate an advertisement for wireless printer and mentions it is "
             "wireless, can be used as scanner and is used. Also ads should "

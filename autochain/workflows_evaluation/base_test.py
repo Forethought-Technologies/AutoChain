@@ -21,7 +21,6 @@ class TestCase:
     """Standardized data class for each test case for BastTest"""
 
     test_name: str = ""
-    user_query: str = ""
     user_context: str = ""
     expected_outcome: str = ""
 
@@ -53,14 +52,19 @@ class WorkflowTester:
     def test_each_case(self, test_case: TestCase):
         self.chain.memory.clear()
 
-        user_query = test_case.user_query
-        conversation_history = [("user", user_query)]
-        print_with_color(f">> User: {test_case.user_query}", Fore.GREEN)
-
+        conversation_history = []
+        user_query = ""
         conversation_end = False
         max_turn = 8
         response = {}
         while not conversation_end and len(conversation_history) < max_turn:
+            if not conversation_end:
+                user_query = self.get_next_user_query(
+                    conversation_history, test_case.user_context
+                )
+                conversation_history.append(("user", user_query))
+                print_with_color(f">> User: {user_query}", Fore.GREEN)
+
             response: Dict[str, Any] = self.chain.run(user_query)
 
             agent_message = response["message"]
@@ -68,12 +72,6 @@ class WorkflowTester:
             print_with_color(f">> Assistant: {agent_message}", Fore.GREEN)
 
             conversation_end = self.determine_if_conversation_ends(agent_message)
-            if not conversation_end:
-                user_query = self.get_next_user_query(
-                    conversation_history, test_case.user_context
-                )
-                conversation_history.append(("user", user_query))
-                print_with_color(f">> User: {user_query}", Fore.GREEN)
 
         is_agent_helpful = self.determine_if_agent_solved_problem(
             conversation_history, test_case.expected_outcome
@@ -152,13 +150,16 @@ Has assistant finish assisting the user? Answer with yes or no"""
     ) -> str:
         messages = []
         conversation = ""
+
         for user_type, utterance in conversation_history:
             conversation += f"{user_type}: {utterance}\n"
+
+        conversation += "user: "
 
         messages.append(
             UserMessage(
                 content=f"""You are a customer with access to the following context information about yourself. 
-Please respond to assistant question and try to resolve your problems in english sentence. 
+Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
 "{user_context}"
@@ -169,7 +170,7 @@ Previous conversation:
         )
 
         output: Generation = self.llm.generate(
-            messages=messages, stop=["."]
+            messages=messages, stop=[".", "?"]
         ).generations[0]
         return output.message.content
 
