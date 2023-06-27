@@ -38,33 +38,8 @@ could add another step that explicitly ask user for clarifying questions if any 
 missing for a given tool to be used. This function will either outputs an `AgentFinish`, which
 asks the clarifying question or `AgentAction` that is same as action just checked, which means
 no more clarifying question is needed.  
-We skipped implementing this for OpenAI agent with function calling and rely on its native 
+We skipped implementing this for OpenAI agent with function calling and rely on its native
 response for clarifying question.
-
-## Differences with LangChain
-
-As we design the agent, we aim to make it easier to understand and troubleshoot as we believe
-AutoChain is a framework for experimentation. So we took some design choices to remove layers
-of abstractions/concepts. Some notable differences are
-
-1. Different way to create and update prompt. In LangChain, prompts are broken into prefix,
-   tools string, suffix and other pieces. While that is efficient for reuse, it can also be hard
-   to understand what prompt is used and how to update it. So in AutoChain, there is just one
-   prompt with placeholders that can be substituted with variables from inputs.
-2. Fewer layers of abstraction. Although inheritance is commonly used, we opt to have just 2
-   layers of abstractions, `BaseAgent` and the actual agent implementation for example. However,
-   this comes with a cost of not able to share as much code across agents. This is not very
-   concerning to us because AutoChain aims to just enable quick experimentation.
-3. Allows agent to follow different prompts at each step. We also revisit the prompt used in
-   LangChain and optimize them to allow agent to have smoother conversations.
-
-From our workflow evaluation examples, we have observed that agent follow `AutoChain` framework
-performs better than LangChain zero shot agents in term of quality of response and ability to
-use tools.
-
-## Supported Agent Types
-
-We have added several different types of agent to showcase how to add new agents to AutoChain.
 
 ### ConversationalAgent
 
