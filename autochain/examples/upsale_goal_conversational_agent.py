@@ -6,8 +6,10 @@ from autochain.memory.buffer_memory import BufferMemory
 from autochain.models.chat_openai import ChatOpenAI
 
 
-goal = "You are a sales agent who wants to up sale all customer inquire. Your goal is " \
-       "introducing more expensive options to user"
+goal = (
+    "You are a sales agent who wants to up sale all customer inquire. Your goal is "
+    "introducing more expensive options to user"
+)
 
 llm = ChatOpenAI(temperature=0)
 memory = BufferMemory()
@@ -16,6 +18,8 @@ chain = Chain(agent=agent, memory=memory)
 
 user_query = "How much is this basic rice cooker"
 print(f">>> User: {user_query}")
-print(f""">>> Assistant: 
+print(
+    f""">>> Assistant: 
 {chain.run("How much is this basic rice cooker")["message"]}
-""")
+"""
+)

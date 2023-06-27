@@ -65,22 +65,21 @@ Output values: status_code: int, order_id: str, shipping_address: str""",
     test_cases = [
         TestCase(
             test_name="change shipping address",
-            user_query="can i change my shipping address?",
-            user_context="order id is 456. the new address is 234 spear st, "
+            user_context="want to change shipping address; order id is 456. the new address is "
+            "234 spear st, "
             "san francisco",
             expected_outcome="found order status and changed shipping address",
         ),
         TestCase(
             test_name="failed changing shipping address, no order id",
-            user_query="can i change my shipping address?",
-            user_context="don't know about order id. the new address is 234 spear st, san francisco",
+            user_context="want to change shipping address; don't know about order id. the new "
+            "address is 234 spear st, san francisco",
             expected_outcome="cannot find the order status, failed to change shipping "
             "address",
         ),
         TestCase(
             test_name="failed changing shipping address, shipped item",
-            user_query="can i change my shipping address?",
-            user_context="order id is 123. the new address is 234 spear st, "
+            user_context="want to change shipping address; order id is 123. the new address is 234 spear st, "
             "san francisco",
             expected_outcome="inform user cannot change shipping address and hand off to "
             "agent",

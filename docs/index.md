@@ -107,7 +107,7 @@ llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
 agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
 ```
 
-Check out [more examples](./docs/examples.md) under `autochain/examples` and [workflow
+Check out [more examples](./examples.md) under `autochain/examples` and [workflow
 evaluation](./workflow-evaluation.md) test cases which can also be run interactively.
 
 ## How does AutoChain simplify building agents?
@@ -115,13 +115,13 @@ evaluation](./workflow-evaluation.md) test cases which can also be run interacti
 AutoChain aims to provide a lightweight framework and simplifies the building process a few
 ways comparing with other existing frameworks
 
-1. Visible prompt used
+1. Visible prompt used  
    Prompt engineering and iterations is one of the most important part of building generative
    agent. AutoChain makes is very obvious and easy to update prompts.
-2. Up to 2 layers of abstraction
+2. Up to 2 layers of abstraction  
    Since this goal of AutoChain is enabling quick iterations, it chooses to remove most of the
    abstraction layers from alternative framework and make it easy to follow
-3. Automated multi-turn evaluation
+3. Automated multi-turn evaluation  
    The most painful and uncertain part of building generative agent is how to evaluate its
    performance. Any change could cause regression in other use cases. AutoChain provides an
    easy test framework to automatically evaluate agent's ability under different user scenarios.
@@ -148,7 +148,7 @@ Read more about our [evaluation strategy](./workflow-evaluation.md).
 
 There are two modes for running workflow tests. Interactively or running all test cases.
 For example in `autochain/workflows_evaluation/conversational_agent_eval
-/change_shipping_address_test.py`, it has already defined a few test cases.
+/change_shipping_address_test.py`, there are already a few example test cases.
 
 Running all the test cases defined in the test:
 

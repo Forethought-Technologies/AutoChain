@@ -62,11 +62,10 @@ Define different user scenarios. Each test case would have 4 different component
 
 1. test_name: this is a descriptive name for later human evaluation to quickly know which test
    agent struggled with
-2. user_query: this is the starting question user would ask the agent for
-3. user_context: different user might have different context information, which causes them to
+2. user_context: different user might have different context information, which causes them to
    respond differently for the same question. simulated user will try to respond to user
    question using the context it has here
-4. expected_outcome: describe the expected outcome of this conversation between user and agent.
+3. expected_outcome: describe the expected outcome of this conversation between user and agent.
    LLM in the end would determine if the conversation reached the desired outcome for simpler
    inspection.
 
