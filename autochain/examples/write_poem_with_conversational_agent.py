@@ -10,6 +10,8 @@ memory = BufferMemory()
 agent = ConversationalAgent.from_llm_and_tools(llm=llm)
 chain = Chain(agent=agent, memory=memory)
 
+user_query = "Write me a poem about AI"
+print(f">> User: {user_query}")
 print(f""">>> Assistant: 
-{chain.run("Write me a poem about AI")["message"]}
+{chain.run(user_query)["message"]}
 """)

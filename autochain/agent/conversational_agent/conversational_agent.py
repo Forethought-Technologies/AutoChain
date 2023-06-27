@@ -47,6 +47,7 @@ class ConversationalAgent(BaseAgent):
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prompt: str = PLANNING_PROMPT,
         input_variables: Optional[List[str]] = None,
+        goal: str = "",
         **kwargs: Any,
     ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
@@ -65,6 +66,7 @@ class ConversationalAgent(BaseAgent):
             output_parser=_output_parser,
             prompt_template=prompt_template,
             tools=tools,
+            goal=goal,
             **kwargs,
         )
 
