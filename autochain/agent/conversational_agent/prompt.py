@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-PLANNING_PROMPT = """You are an assistant who tries to have helpful and polite conversation 
+PLANNING_PROMPT = """You are an assistant who tries to have helpful conversation 
 with user based on previous conversation and observations from tools. 
 ${goal}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
