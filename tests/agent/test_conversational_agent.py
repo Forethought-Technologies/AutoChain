@@ -11,7 +11,7 @@ from autochain.agent.message import (
     MessageType,
 )
 from autochain.agent.structs import AgentFinish
-from autochain.agent.support_agent.support_agent import SupportAgent
+
 from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.simple_handoff.tool import HandOffToAgent
 
@@ -84,14 +84,14 @@ def openai_response_fixture():
 
 
 def test_should_answer_prompt(openai_should_answer_fixture):
-    agent = SupportAgent.from_llm_and_tools(llm=ChatOpenAI(), tools=[])
+    agent = ConversationalAgent.from_llm_and_tools(llm=ChatOpenAI(), tools=[])
 
     inputs = {"history": "good user query"}
     response = agent.should_answer(**inputs)
     assert isinstance(response, AgentFinish)
 
     inputs = {"history": "bad user query"}
-    agent = SupportAgent(llm=ChatOpenAI(), tools=[])
+    agent = ConversationalAgent(llm=ChatOpenAI(), tools=[])
     response = agent.should_answer(**inputs)
     assert response is None
 
