@@ -14,6 +14,7 @@ def create_langchain_from_test(
     agent_type: AgentType,
     memory: Optional[LCBaseMemory] = None,
     llm: Optional[LCBaseLanguageModel] = None,
+    **kwargs,
 ):
     """
     Create LangChainWrapperChain by instantiating LangChain agent
@@ -30,7 +31,7 @@ def create_langchain_from_test(
     memory = memory or LCConversationBufferMemory(memory_key="chat_history")
 
     langchain = initialize_agent(
-        tools, llm, agent=agent_type, verbose=True, memory=memory
+        tools, llm, agent=agent_type, verbose=True, memory=memory, agent_kwargs=kwargs
     )
 
     return LangChainWrapperChain(langchain=langchain)

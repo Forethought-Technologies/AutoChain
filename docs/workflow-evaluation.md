@@ -56,7 +56,7 @@ as ConversationalAgent, but also agents built on other frameworks, such as LangC
 easy to evaluate agents built with different frameworks with simple wrapper.  
 
 Three types of agent we have setup evaluation for
-1. Native AutoChain agent, such as SupportAgent and ConversationalAgent under `autochain/workflows_evaluation/support_agent_eval`
+1. Native AutoChain agent, such as ConversationalAgent under`autochain/workflows_evaluation/conversational_agent_eval`
 2. LangChain agent under `autochain/workflows_evaluation/langchain_eval`
 3. OpenAI agent using function calling under `autochain/workflows_evaluation/openai_function_agent_eval`
 
