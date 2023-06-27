@@ -1,7 +1,3 @@
-from autochain.agent.openai_funtions_agent.openai_functions_agent import (
-    OpenAIFunctionsAgent,
-)
-from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import (
@@ -41,9 +37,9 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
     }
 
 
-class TestChangeShippingAddressWithFunctionCalling(BaseTest):
-    goal = """You are an AI assistant for customer support for the company Figs which sells nurse 
-    and medical staff clothes.
+class TestChangeShippingAddress(BaseTest):
+    goal = """You are an AI assistant for customer support who tries to help with shipping 
+address questions.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
 If the order has already shipped, inform them that it is not possible to change the shipping address at this stage and provide assistance on how to proceed with exchanges, by following instructions at example.com/returns.
@@ -53,16 +49,16 @@ If the order has already shipped, inform them that it is not possible to change 
         Tool(
             func=check_order_status,
             description="""This function checks the order status based on order_id
-    Input args: order_id: non-empty str
-    Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-    tracking_url: str, message: str""",
+Input args: order_id: non-empty str
+Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
+tracking_url: str, message: str""",
         ),
         Tool(
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
-    order_id and new_address 
-    Input args: order_id: non-empty str, new_address: non-empty str
-    Output values: status_code: int, order_id: str, shipping_address: str""",
+order_id and new_address 
+Input args: order_id: non-empty str, new_address: non-empty str
+Output values: status_code: int, order_id: str, shipping_address: str""",
         ),
     ]
 
@@ -91,16 +87,12 @@ If the order has already shipped, inform them that it is not possible to change 
         ),
     ]
 
-    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
-    chain = create_chain_from_test(
-        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=goal
-    )
+    chain = create_chain_from_test(tools=tools, goal=goal)
 
 
 if __name__ == "__main__":
     tester = WorkflowTester(
-        tests=[TestChangeShippingAddressWithFunctionCalling()],
-        output_dir="./test_results",
+        tests=[TestChangeShippingAddress()], output_dir="./test_results"
     )
 
     args = get_test_args()

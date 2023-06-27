@@ -11,8 +11,10 @@ from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputPa
 from autochain.agent.conversational_agent.prompt import (
     CLARIFYING_QUESTION_PROMPT,
     PLANNING_PROMPT,
+    SHOULD_ANSWER_PROMPT,
+    FIX_TOOL_INPUT_PROMPT_FORMAT,
 )
-from autochain.agent.message import BaseMessage, ChatMessageHistory
+from autochain.agent.message import BaseMessage, ChatMessageHistory, UserMessage
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.models.base import BaseLanguageModel, Generation
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class ConversationalAgent(BaseAgent):
     """
-    Simple conversational agent who can use tools available to make a conversation by following
+    Conversational agent who can use tools available to make a conversation by following
     the conversational planning prompt
     """
 
@@ -33,6 +35,9 @@ class ConversationalAgent(BaseAgent):
     prompt_template: JSONPromptTemplate = None
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
+
+    # Optionally you could set a goal for this conversational agent or directly update the prompt
+    goal: str = ""
 
     @classmethod
     def from_llm_and_tools(
@@ -62,6 +67,31 @@ class ConversationalAgent(BaseAgent):
             tools=tools,
             **kwargs,
         )
+
+    def should_answer(
+        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT, **kwargs
+    ) -> Optional[AgentFinish]:
+        """Determine if agent should continue to answer user questions based on the latest user
+        query"""
+        if "query" not in kwargs or "history" not in kwargs or not kwargs["history"]:
+            return None
+
+        def _parse_response(res: str):
+            if "yes" in res.lower():
+                return AgentFinish(
+                    message="Thank your for contacting",
+                    log="Thank your for contacting",
+                )
+            else:
+                return None
+
+        prompt = Template(should_answer_prompt_template).substitute(**kwargs)
+        response = (
+            self.llm.generate([UserMessage(content=prompt)])
+            .generations[0]
+            .message.content
+        )
+        return _parse_response(response)
 
     @staticmethod
     def format_prompt(
@@ -113,6 +143,7 @@ class ConversationalAgent(BaseAgent):
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
         Args:
+            history: entire chat history between user and agent including the latest conversation
             intermediate_steps: List of AgentAction that has been performed with outputs
             **kwargs: key value pairs from chain, which contains query and other stored memories
 
@@ -128,6 +159,7 @@ class ConversationalAgent(BaseAgent):
             "tool_names": tool_names,
             "tools": tool_strings,
             "history": history.format_message(),
+            "goal": self.goal,
             **kwargs,
         }
         final_prompt = self.format_prompt(
@@ -195,3 +227,20 @@ class ConversationalAgent(BaseAgent):
             return self.output_parser.parse_clarification(
                 full_output.message, agent_action=agent_action
             )
+
+    def fix_action_input(
+        self, tool: Tool, action: AgentAction, error: str
+    ) -> AgentAction:
+        """If the tool failed due to error, what should be the fix for inputs"""
+        prompt = FIX_TOOL_INPUT_PROMPT_FORMAT.format(
+            tool_description=tool.description, inputs=action.tool_input, error=error
+        )
+
+        logger.info(f"\nFixing tool input prompt: {prompt}")
+        messages = UserMessage(content=prompt)
+        output = self.llm.generate([messages]).generations[0]
+        new_tool_inputs = self.output_parser.load_json_output(output.message)
+
+        logger.info(f"\nFixed tool output: {new_tool_inputs}")
+        new_action = AgentAction(tool=action.tool, tool_input=new_tool_inputs)
+        return new_action

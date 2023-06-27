@@ -1,8 +1,10 @@
-from autochain.tools.base import Tool
+from langchain.agents import AgentType
+from langchain.tools import Tool as LCTool
+
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from autochain.workflows_evaluation.test_utils import (
-    get_test_args,
-    create_chain_from_test,
+from autochain.workflows_evaluation.test_utils import get_test_args
+from autochain.workflows_evaluation.langchain_eval.langchain_test_utils import (
+    create_langchain_from_test,
 )
 
 
@@ -28,7 +30,7 @@ def check_order_status(order_id: str, **kwargs):
         return {"status_code": 400, "message": "order not found"}
 
 
-def change_shipping_address(order_id: str, new_address: str, **kwargs):
+def change_shipping_address(order_id: str, new_address: str = "", **kwargs):
     """Changes the shipping address for unshipped orders. Requires the order_id and the new_address inputs"""
     return {
         "status_code": 200,
@@ -37,22 +39,30 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
     }
 
 
-class TestChangeShippingAddress(BaseTest):
-    policy = """You are an AI assistant for customer support for the company Figs which sells nurse and medical staff clothes.
+class TestChangeShippingAddressWithLC(BaseTest):
+    goal = """You are an AI assistant for customer support who tries to help with shipping 
+address questions.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
 If the order has already shipped, inform them that it is not possible to change the shipping address at this stage and provide assistance on how to proceed with exchanges, by following instructions at example.com/returns.
+
+TOOLS:
+------
+
+Assistant has access to the following tools:
 """
 
     tools = [
-        Tool(
+        LCTool(
+            name="check order status",
             func=check_order_status,
             description="""This function checks the order status based on order_id
 Input args: order_id: non-empty str
 Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
 tracking_url: str, message: str""",
         ),
-        Tool(
+        LCTool(
+            name="change shipping address",
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
 order_id and new_address 
@@ -64,38 +74,27 @@ Output values: status_code: int, order_id: str, shipping_address: str""",
     test_cases = [
         TestCase(
             test_name="change shipping address",
-            user_query="can i change my shipping address?",
+            user_query="i want to change my shipping address?",
             user_context="order id is 456. the new address is 234 spear st, "
             "san francisco",
             expected_outcome="found order status and changed shipping address",
         ),
-        TestCase(
-            test_name="failed changing shipping address, no order id",
-            user_query="can i change my shipping address?",
-            user_context="don't know about order id. the new address is 234 spear st, san francisco",
-            expected_outcome="cannot find the order status, failed to change shipping "
-            "address",
-        ),
-        TestCase(
-            test_name="failed changing shipping address, shipped item",
-            user_query="can i change my shipping address?",
-            user_context="order id is 123. the new address is 234 spear st, "
-            "san francisco",
-            expected_outcome="inform user cannot change shipping address and hand off to "
-            "agent",
-        ),
     ]
 
-    chain = create_chain_from_test(tools=tools, policy=policy)
+    chain = create_langchain_from_test(
+        tools=tools,
+        agent_type=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
+        prefix=goal,
+    )
 
 
 if __name__ == "__main__":
-    tester = WorkflowTester(
-        tests=[TestChangeShippingAddress()], output_dir="./test_results"
+    tests = WorkflowTester(
+        tests=[TestChangeShippingAddressWithLC()], output_dir="./test_results"
     )
 
     args = get_test_args()
     if args.interact:
-        tester.run_interactive()
+        tests.run_interactive()
     else:
-        tester.run_all_tests()
+        tests.run_all_tests()

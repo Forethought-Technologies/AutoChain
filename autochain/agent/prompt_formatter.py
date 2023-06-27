@@ -7,6 +7,10 @@ from autochain.agent.message import BaseMessage, UserMessage
 
 
 class JSONPromptTemplate(BaseModel):
+    """
+    Format prompt with string Template and dictionary of variables
+    """
+
     template: Template
     """The prompt template."""
 

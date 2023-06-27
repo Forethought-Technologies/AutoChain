@@ -2,12 +2,11 @@ import json
 from abc import abstractmethod
 from typing import Union, Any, Dict, List
 
-from autochain.errors import OutputParserException
 from pydantic import BaseModel
 
 from autochain.agent.message import BaseMessage
 from autochain.chain import constants
-from autochain.models.base import Generation
+from autochain.errors import OutputParserException
 
 
 class AgentAction(BaseModel):
