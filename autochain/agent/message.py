@@ -77,7 +77,7 @@ class ChatMessageHistory(BaseModel):
             self.messages.append(UserMessage(content=message))
         elif message_type == MessageType.FunctionMessage:
             self.messages.append(FunctionMessage(content=message, name=kwargs["name"]))
-        elif message_type == SystemMessage:
+        elif message_type == MessageType.SystemMessage:
             self.messages.append(SystemMessage(content=message))
 
     def format_message(self):
