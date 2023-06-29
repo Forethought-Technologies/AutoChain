@@ -156,11 +156,10 @@ Running all the test cases defined in the test:
 python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
 ```
 
-You can also interactively having a conversation with that agent by passing the interactive
-flag `-i`:
+You can also have an interactive conversation with agent by passing the interactive flag `-i`:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py-i
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
 ```
 
 More explanations for how AutoChain works? checkout [components overview](./components_overview.md)

@@ -99,47 +99,77 @@ Each test case results would look like the following
 
 ```json
 {
-  "test_name": "change shipping address",
-  "conversation_history": [
-    "user: can i change my shipping address?",
-    "assistant: May I have your order ID to check the status of your order?",
-    "user: My order ID is 456 and I would like to change my shipping address to 234 Spear St, San Francisco",
-    "assistant: Your order is currently not shipped. We can update the shipping address to 234 Spear St, San Francisco. Would you like me to proceed with the update?",
-    "user: Yes, please proceed with the update",
-    "assistant: Your shipping address has been updated to 234 Spear St, San Francisco. Thank you for choosing Figs!"
-  ],
-  "is_agent_helpful": {
-    "rating": 5,
-    "reason": "Yes, the conversation reached the expected outcome. The assistant successfully found the order status and changed the shipping address as requested by the user."
-  },
-  "actions_took": [
-    {
-      "tool": "check_order_status",
-      "tool_input": {
-        "order_id": "456"
+   "test_name": "change shipping address",
+   "conversation_history":
+   [
+      "user: I want to change the shipping address for my order",
+      "assistant: Can you please provide the order ID?",
+      "user: The order ID is 456",
+      "assistant: The order with ID 456 has not yet shipped. I can update the shipping address for you. Please provide the new shipping address.",
+      "user: The new shipping address is 234 Spear St, San Francisco",
+      "assistant: The shipping address for your order with ID 456 has been successfully updated to 234 Spear St, San Francisco.",
+      "user: Thank you for updating the shipping address for my order",
+      "assistant: Thank your for contacting"
+   ],
+   "is_agent_helpful":
+   {
+      "rating": 5,
+      "reason": "The conversation reaches the expected outcome. The user successfully provides the order ID and the new shipping address, and the assistant updates the shipping address for the order with ID 456. The assistant confirms the successful update and thanks the user for contacting."
+   },
+   "actions_took":
+   [
+      {
+         "tool": "check_order_status",
+         "tool_input":
+         {
+            "order_id": "456"
+         },
+         "tool_output":
+         {
+            "status_code": 200,
+            "order_id": "456",
+            "order_status": "not_shipped",
+            "tracking_url": "example.com/456",
+            "shipping_address": "301 ivy street san francisco ca"
+         }
       },
-      "observation": {
-        "status_code": 200,
-        "order_id": "456",
-        "order_status": "not_shipped",
-        "tracking_url": "example.com/456",
-        "shipping_address": "301 ivy street san francisco ca"
+      {
+         "tool": "change_shipping_address",
+         "tool_input":
+         {
+            "order_id": "456",
+            "new_address": "234 Spear St, San Francisco"
+         },
+         "tool_output":
+         {
+            "status_code": 200,
+            "order_id": "456",
+            "shipping_address": "234 Spear St, San Francisco"
+         }
       }
-    },
-    {
-      "tool": "change_shipping_address",
-      "tool_input": {
-        "order_id": "456",
-        "new_address": "234 Spear St, San Francisco"
-      },
-      "observation": {
-        "status_code": 200,
-        "order_id": "456",
-        "shipping_address": "234 Spear St, San Francisco"
-      }
-    }
-  ],
-  "num_turns": 6,
-  "expected_outcome": "found order status and changed shipping address"
+   ],
+   "num_turns": 8,
+   "expected_outcome": "found order status and changed shipping address"
 }
+
 ```
+
+## Possible failures
+Although generative agents have achieved impressive performance and we are observing the "spark 
+of artificial general intelligence", it is not uncommon to observe failures from them. Here are 
+some possible failure cases users might run into
+1. Repeated clarifying question    
+   Although agent has access the past conversation history and tools outputs, it might still ask 
+   for the same clarifying question again or not directly responding to the user when it has 
+   sufficient information to do so. For example, user has already provided the order id, agent 
+   might ask for order id again in some rare cases, or responds "Let me look it up for you" 
+   instead of taking the action and respond with the answer. Usually, agent would have better 
+   performance if prompt is more explicit.    
+2. Use the same tool again  
+   It is not very uncommon to see agent tries to use the same tool again with same inputs. 
+   AutoChain framework prevents user from doing exactly the same action again and forces agent 
+   to respond to user in that case. 
+3. Invalid JSON output  
+   JSON can be a finicky format to deal with. `AgentOutputParser` will try to correct the JSON 
+   output if it failed to load. However, JSON or similar structured format is still better to 
+   parse and understand than free formed responses.

@@ -133,7 +133,7 @@ class BaseChain(BaseModel, ABC):
             # OpenAIFunctionsAgent
             if isinstance(next_step_output, AgentAction):
                 self.memory.save_conversation(
-                    message=str(next_step_output.observation),
+                    message=str(next_step_output.tool_output),
                     name=next_step_output.tool,
                     message_type=MessageType.FunctionMessage,
                 )

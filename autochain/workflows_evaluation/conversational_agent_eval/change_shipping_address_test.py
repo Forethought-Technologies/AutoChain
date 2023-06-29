@@ -49,16 +49,13 @@ If the order has already shipped, inform them that it is not possible to change 
         Tool(
             func=check_order_status,
             description="""This function checks the order status based on order_id
-Input args: order_id: non-empty str
-Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-tracking_url: str, message: str""",
+Input args: order_id: non-empty str""",
         ),
         Tool(
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
 order_id and new_address 
-Input args: order_id: non-empty str, new_address: non-empty str
-Output values: status_code: int, order_id: str, shipping_address: str""",
+Input args: order_id: non-empty str, new_address: non-empty str""",
         ),
     ]
 

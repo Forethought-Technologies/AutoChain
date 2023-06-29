@@ -1,10 +1,14 @@
 import json
+import re
 from abc import abstractmethod
 from typing import Union, Any, Dict, List
 
+from autochain.models.base import Generation
+
+from autochain.models.chat_openai import ChatOpenAI
 from pydantic import BaseModel
 
-from autochain.agent.message import BaseMessage
+from autochain.agent.message import BaseMessage, UserMessage
 from autochain.chain import constants
 from autochain.errors import OutputParserException
 
@@ -15,7 +19,7 @@ class AgentAction(BaseModel):
     tool: str
     tool_input: Union[str, dict]
     """tool outputs"""
-    observation: str = ""
+    tool_output: str = ""
 
     """log message for debugging"""
     log: str = ""
@@ -26,12 +30,12 @@ class AgentAction(BaseModel):
     @property
     def response(self):
         """message to be stored in memory and shared with next prompt"""
-        if self.model_response and not self.observation:
+        if self.model_response and not self.tool_output:
             # share the model response or log message as output if tool fails to call
             return self.model_response
         return (
-            f"Observation from using tool '{self.tool}' for inputs {self.tool_input} "
-            f"is '{self.observation}'\n"
+            f"Outputs from using tool '{self.tool}' for inputs {self.tool_input} "
+            f"is '{self.tool_output}'\n"
         )
 
 
@@ -51,15 +55,25 @@ class AgentFinish(BaseModel):
 
 
 class AgentOutputParser(BaseModel):
+
     @staticmethod
     def load_json_output(message: BaseMessage) -> Dict[str, Any]:
         """If the message contains a json response, try to parse it into dictionary"""
         text = message.content
+        clean_text = ""
+
         try:
-            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
+            clean_text = text[text.index("{"): text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
         except Exception:
-            raise OutputParserException(f"Not a valid json: `{text}`")
+            llm = ChatOpenAI(temperature=0)
+            message = [UserMessage(content=f"""Fix the following json into correct format
+```json
+{clean_text}
+```
+""")]
+            full_output: Generation = llm.generate(message).generations[0]
+            response = json.loads(full_output.message.content)
 
         return response
 

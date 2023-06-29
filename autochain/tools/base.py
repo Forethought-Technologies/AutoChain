@@ -96,15 +96,15 @@ class Tool(ABC, BaseModel):
         try:
             parsed_input = self._parse_input(tool_input)
         except ValueError as e:
-            # return exception as observation
+            # return exception as tool output
             raise ToolRunningError(message=f"Tool input args value Error: {e}") from e
 
         try:
             tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
-            observation = self._run(*tool_args, **tool_kwargs)
+            tool_output = self._run(*tool_args, **tool_kwargs)
         except (Exception, KeyboardInterrupt) as e:
             raise ToolRunningError(
                 message=f"Failed to run tool {self.name} due to {e}"
             ) from e
 
-        return observation
+        return tool_output

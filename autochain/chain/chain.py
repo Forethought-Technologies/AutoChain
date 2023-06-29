@@ -50,7 +50,7 @@ class Chain(BaseChain):
         Args:
             name_to_tool_map: map of tool name to the actual tool object
             inputs: a dictionary of all inputs, such as user query, past conversation and
-                observations
+                tools outputs
 
         Returns:
             Either AgentFinish to respond to user or AgentAction to take the next action
@@ -64,9 +64,9 @@ class Chain(BaseChain):
         except Exception as e:
             if not self.handle_parsing_errors:
                 raise e
-            observation = f"Invalid or incomplete response due to {e}"
-            print(observation)
-            output = AgentFinish(message=self.graceful_exit_tool.run(), log=observation)
+            tool_output = f"Invalid or incomplete response due to {e}"
+            print(tool_output)
+            output = AgentFinish(message=self.graceful_exit_tool.run(), log=tool_output)
             return output
 
         if isinstance(output, AgentAction):
@@ -78,7 +78,7 @@ class Chain(BaseChain):
             return output
 
         if isinstance(output, AgentAction):
-            observation = ""
+            tool_output = ""
             # Check if tool is supported
             if output.tool in name_to_tool_map:
                 tool = name_to_tool_map[output.tool]
@@ -88,9 +88,9 @@ class Chain(BaseChain):
                     return self.handle_repeated_action(output)
 
                 self.memory.save_memory(tool.name, output.tool_input)
-                # We then call the tool on the tool input to get an observation
+                # We then call the tool on the tool input to get an tool_output
                 try:
-                    observation = tool.run(output.tool_input)
+                    tool_output = tool.run(output.tool_input)
                 except ToolRunningError as e:
                     new_agent_action = self.agent.fix_action_input(
                         tool, output, error=str(e)
@@ -99,16 +99,16 @@ class Chain(BaseChain):
                         new_agent_action
                         and new_agent_action.tool_input != output.tool_input
                     ):
-                        observation = tool.run(output.tool_input)
+                        tool_output = tool.run(output.tool_input)
 
                 print(
                     f"Took action '{tool.name}' with inputs '{output.tool_input}', "
-                    f"and the observation is {observation}"
+                    f"and the tool_output is {tool_output}"
                 )
             else:
-                observation = f"Tool {output.tool} if not supported"
+                tool_output = f"Tool {output.tool} if not supported"
 
-            output.observation = observation
+            output.tool_output = tool_output
             return output
         else:
             raise ValueError(f"Unsupported action: {type(output)}")

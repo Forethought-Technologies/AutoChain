@@ -97,7 +97,7 @@ class WorkflowTester:
                         {
                             "tool": action.tool,
                             "tool_input": action.tool_input,
-                            "observation": action.observation,
+                            "tool_output": action.tool_output,
                         }
                         for action in last_response[constants.INTERMEDIATE_STEPS]
                     ],

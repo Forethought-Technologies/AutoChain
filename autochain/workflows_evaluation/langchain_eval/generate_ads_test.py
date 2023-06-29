@@ -52,15 +52,13 @@ Assistant has access to the following tools:
             name="get item spec",
             func=get_item_spec,
             description="""This function get item spec by searching for item name
-Input args: item_name: non-empty str
-Output values: a dictionary of item specifications """,
+Input args: item_name: non-empty str""",
         ),
         LCTool(
             name="search image path for item",
             func=search_image_path_for_item,
             description="""This function retrieves relevant image path for a given search query
-Input args: item_name: str
-Output values: image path: str""",
+Input args: item_name: str""",
         ),
     ]
 

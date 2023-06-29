@@ -66,8 +66,8 @@ def openai_response_fixture():
                         "content": json.dumps(
                             {
                                 "thoughts": {
-                                    "plan": "Given workflow policy and previous observations",
-                                    "need_use_tool": "Yes if needs to use another tool not used in previous observations else No",
+                                    "plan": "Given workflow policy and previous tools outputs",
+                                    "need_use_tool": "Yes if needs to use another tool not used in previous tools outputs else No",
                                 },
                                 "tool": {"name": "", "args": {"arg_name": ""}},
                                 "response": "response to suer",

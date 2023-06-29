@@ -109,7 +109,7 @@ class ConversationalAgent(BaseAgent):
                 scratchpad += action.response
             return scratchpad
 
-        """Create the full inputs for the LLMChain from intermediate steps."""
+        """Create the planning inputs for the LLMChain from intermediate steps."""
         thoughts = _construct_scratchpad(intermediate_steps)
         new_inputs = {"agent_scratchpad": thoughts}
         full_inputs = {**kwargs, **new_inputs}
@@ -167,15 +167,15 @@ class ConversationalAgent(BaseAgent):
         final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
-        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
+        logger.info(f"\nPlanning Input: {final_prompt[0].content} \n")
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message
         )
 
-        print_with_color(
-            f"Full output: {json.loads(full_output.message.content)}", Fore.YELLOW
+        print(
+            f"Planning output: \n{repr(full_output.message.content)}", Fore.YELLOW
         )
         if isinstance(agent_output, AgentAction):
             print_with_color(
@@ -226,6 +226,7 @@ class ConversationalAgent(BaseAgent):
             )
             logger.info(f"\nClarification inputs: {final_prompt[0].content}")
             full_output: Generation = self.llm.generate(final_prompt).generations[0]
+            print(f"Clarification outputs: {repr(full_output.message.content)}")
             return self.output_parser.parse_clarification(
                 full_output.message, agent_action=agent_action
             )
