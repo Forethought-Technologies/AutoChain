@@ -65,11 +65,11 @@ Input args: item_name: str""",
         TestCase(
             test_name="printer ads",
             user_context="write me an advertisement for printer; item name is 'good printer'. "
-                         "printer is used and in good condition. "
-                         "Ads should include image",
+            "printer is used and in good condition. "
+            "Ads should include image",
             expected_outcome="generate an advertisement for wireless printer and mentions it is "
-                             "wireless, can be used as scanner and is used. Also ads should "
-                             "include an image path",
+            "wireless, can be used as scanner and is used. Also ads should "
+            "include an image path",
         ),
     ]
 

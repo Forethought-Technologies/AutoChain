@@ -174,9 +174,7 @@ class ConversationalAgent(BaseAgent):
             full_output.message
         )
 
-        print(
-            f"Planning output: \n{repr(full_output.message.content)}", Fore.YELLOW
-        )
+        print(f"Planning output: \n{repr(full_output.message.content)}", Fore.YELLOW)
         if isinstance(agent_output, AgentAction):
             print_with_color(
                 f"Plan to take action '{agent_output.tool}'", Fore.LIGHTYELLOW_EX

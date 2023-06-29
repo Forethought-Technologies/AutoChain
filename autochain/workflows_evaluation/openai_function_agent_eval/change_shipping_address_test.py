@@ -67,21 +67,21 @@ If the order has already shipped, inform them that it is not possible to change 
         TestCase(
             test_name="change shipping address",
             user_context="order id is 456. the new address is 234 spear st, "
-                         "san francisco",
+            "san francisco",
             expected_outcome="found order status and changed shipping address",
         ),
         TestCase(
             test_name="failed changing shipping address, no order id",
             user_context="don't know about order id. the new address is 234 spear st, san francisco",
             expected_outcome="cannot find the order status, failed to change shipping "
-                             "address",
+            "address",
         ),
         TestCase(
             test_name="failed changing shipping address, shipped item",
             user_context="order id is 123. the new address is 234 spear st, "
-                         "san francisco",
+            "san francisco",
             expected_outcome="inform user cannot change shipping address and hand off to "
-                             "agent",
+            "agent",
         ),
     ]
 

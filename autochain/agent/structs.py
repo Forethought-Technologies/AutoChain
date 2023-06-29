@@ -55,7 +55,6 @@ class AgentFinish(BaseModel):
 
 
 class AgentOutputParser(BaseModel):
-
     @staticmethod
     def load_json_output(message: BaseMessage) -> Dict[str, Any]:
         """If the message contains a json response, try to parse it into dictionary"""
@@ -63,15 +62,19 @@ class AgentOutputParser(BaseModel):
         clean_text = ""
 
         try:
-            clean_text = text[text.index("{"): text.rindex("}") + 1].strip()
+            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
         except Exception:
             llm = ChatOpenAI(temperature=0)
-            message = [UserMessage(content=f"""Fix the following json into correct format
+            message = [
+                UserMessage(
+                    content=f"""Fix the following json into correct format
 ```json
 {clean_text}
 ```
-""")]
+"""
+                )
+            ]
             full_output: Generation = llm.generate(message).generations[0]
             response = json.loads(full_output.message.content)
 
