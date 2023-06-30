@@ -9,16 +9,19 @@ action with `AgentAction`.
 
 There are a few typical interactions an agent should support:
 
-**prompt** Depending on agents you are building, you might want to write different agent's
+**prompt**  
+Depending on agents you are building, you might want to write different agent's
 planning prompts. Policy controls the steps agent should take for different situations.
 Those prompts could be string templates so that later agent could substitute
 different values into the prompt for different use cases
 
-**should_answer**: not all the questions should be answered by agent. If agent decided that this
+**should_answer**  
+Not all the questions should be answered by agent. If agent decided that this
 is not a query that should be handled by this agent, it could gracefully exit as early as
 possible.
 
-**plan**: This is the core of the agent which takes in all the stored memory, including past
+**plan**  
+This is the core of the agent which takes in all the stored memory, including past
 conversation history and tool outputs, which are saved to previous `AgentAction`, and prompt the
 model to output either `AgentFinish` or`AgentAction` for the next step.  
 `AgentFinish` means agent decides to respond back to user with a
@@ -29,7 +32,7 @@ to user. Once chain observes agent would like to perform an action, it will call
 corresponding tool and store tool outputs, into the chain's memory for the next iteration of
 planning.
 
-**clarify_args_for_agent_action**
+**clarify_args_for_agent_action**  
 When agent wants to take an action with tools, it is usually required to have some input arguments,
 which may or may not exists in the past conversation history or action outputs. While the
 smartest agent would output `AgentFinish` with response that asks user for missing information.

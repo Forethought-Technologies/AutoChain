@@ -56,7 +56,7 @@ export PYTHONPATH=`pwd`
 Run your first conversation with agent interactively
 
 ```shell
-python autochain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
 ```
 
 ## Example usage

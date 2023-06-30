@@ -31,7 +31,7 @@ class LangChainWrapperChain(BaseChain):
         agent_finish = AgentFinish(message=response_msg, log="")
         return agent_finish.format_output()
 
-    def _take_next_step(
+    def take_next_step(
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],

@@ -9,7 +9,26 @@ We have default `Chain` and `ConversationalAgent` implemented, so you could simp
 them and start having conversation with it.
 
 ```python
-{!./autochain/examples/write_poem_with_conversational_agent.py!}
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+
+llm = ChatOpenAI(temperature=0)
+memory = BufferMemory()
+agent = ConversationalAgent.from_llm_and_tools(llm=llm)
+chain = Chain(agent=agent, memory=memory)
+
+user_query = "Write me a poem about AI"
+print(f">> User: {user_query}")
+print(
+    f""">>> Assistant: 
+{chain.run(user_query)["message"]}
+"""
+)
+
 ```
 Output would be like the following, including the output from planning
 ```text
@@ -40,15 +59,37 @@ So let us embrace, this gift of technology,
 And use it to build, a better society
 ```
 
-## Create a conversational agent with tools and customized policy
+## Create a conversational agent with tools
 
-Adding tools to the agent is also similar to LangChain. In the default ConversationalAgent's
-prompt. There is a placeholder for injecting customized policy that describes what agent should
-do. All of the variables in the agent's prompt could be substituted with kwargs when creating
-the agent.
+Adding tools to the agent is also similar to LangChain. User would need to provide a list of 
+`Tool`s when creating the agent from chain, so that agent is aware of its access to tools.  
 
 ```python
-{!./autochain/examples/get_weather_with_conversational_agent.py!}
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+from autochain.tools.base import Tool
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
+
+llm = ChatOpenAI(temperature=0)
+tools = [
+    Tool(
+        name="Get weather",
+        func=lambda *args, **kwargs: "Today is a sunny day",
+        description="""This function returns the weather information""",
+    )
+]
+
+memory = BufferMemory()
+agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
+chain = Chain(agent=agent, memory=memory)
+
+user_query = "what is the weather today"
+print(f">> User: {user_query}")
+print(f">> Assistant: {chain.run(user_query)['message']}")
+
 ```
 Output would be like the following, including the output from planning
 ```text
@@ -73,10 +114,37 @@ Like AutoGPT and other agents, user might want to provide customized goal or obj
 agent to assist user with. User could reuse the conversational agent prompt by injecting `goal` 
 to current planning prompt or update the entire prompt. [Default prompt](./autochain/agent/conversational_agent/prompt.py) for 
 `ConversationalAgent` has a placeholder for injecting `goal`. So user would provide it when 
-constructing the agent
+constructing the agent. For different use cases, user could use different prompts with new 
+string placeholder variables to provide various information into the final prompt.  
 
 ```python
-{!./autochain/examples/upsale_goal_conversational_agent.py!}
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+
+
+goal = (
+    "You are a sales agent who wants to up sale all customer inquire. Your goal is "
+    "introducing more expensive options to user"
+)
+
+llm = ChatOpenAI(temperature=0)
+memory = BufferMemory()
+agent = ConversationalAgent.from_llm_and_tools(llm=llm, goal=goal)
+chain = Chain(agent=agent, memory=memory)
+
+user_query = "How much is this basic rice cooker"
+print(f">>> User: {user_query}")
+print(
+    f""">>> Assistant: 
+{chain.run("How much is this basic rice cooker")["message"]}
+"""
+)
+
+
 ```
 
 Output would be like the following
@@ -96,7 +164,50 @@ Our basic rice cooker is priced at $30. However, we also have a premium rice coo
 example of it to get weather information. 
 
 ```python
-{!./autochain/examples/get_weather_with_openai_function_agent.py!}
+import json
+import logging
+
+from autochain.agent.openai_funtions_agent.openai_functions_agent import (
+    OpenAIFunctionsAgent,
+)
+from autochain.chain.chain import Chain
+from autochain.memory.buffer_memory import BufferMemory
+from autochain.models.chat_openai import ChatOpenAI
+from autochain.tools.base import Tool
+
+
+def get_current_weather(location: str, unit: str = "fahrenheit"):
+    """Get the current weather in a given location"""
+    weather_info = {
+        "location": location,
+        "temperature": "72",
+        "unit": unit,
+        "forecast": ["sunny", "windy"],
+    }
+    return json.dumps(weather_info)
+
+
+tools = [
+    Tool(
+        name="get_current_weather",
+        func=get_current_weather,
+        description="""Get the current weather in a given location""",
+    )
+]
+
+memory = BufferMemory()
+logging.basicConfig(level=logging.INFO)
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
+chain = Chain(agent=agent, memory=memory)
+
+# example
+user_query = "What's the weather today?"
+print(f">> User: {user_query}")
+print(f">> Assistant: {chain.run(user_query)['message']}")
+next_user_query = "Boston"
+print(f">> User: {next_user_query}")
+print(f">> Assistant: {chain.run(next_user_query)['message']}")
 ```
 
 Output would be like the following

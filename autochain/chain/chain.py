@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class Chain(BaseChain):
     """
-    Default chain with _take_next_step implemented
+    Default chain with take_next_step implemented
     It handles a few common error cases with agent, such as taking repeated action with same
     inputs and whether agent should continue the conversation
     """
@@ -40,7 +40,7 @@ class Chain(BaseChain):
                 log=f"Gracefully exit due to repeated action",
             )
 
-    def _take_next_step(
+    def take_next_step(
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],

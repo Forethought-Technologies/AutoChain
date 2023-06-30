@@ -9,10 +9,10 @@ from colorama import Fore
 from autochain.agent.base_agent import BaseAgent
 from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
 from autochain.agent.conversational_agent.prompt import (
-    CLARIFYING_QUESTION_PROMPT,
-    PLANNING_PROMPT,
-    SHOULD_ANSWER_PROMPT,
-    FIX_TOOL_INPUT_PROMPT_FORMAT,
+    CLARIFYING_QUESTION_PROMPT_TEMPLATE,
+    PLANNING_PROMPT_TEMPLATE,
+    SHOULD_ANSWER_PROMPT_TEMPLATE,
+    FIX_TOOL_INPUT_PROMPT_TEMPLATE,
 )
 from autochain.agent.message import BaseMessage, ChatMessageHistory, UserMessage
 from autochain.agent.prompt_formatter import JSONPromptTemplate
@@ -45,7 +45,7 @@ class ConversationalAgent(BaseAgent):
         llm: BaseLanguageModel,
         tools: Optional[List[Tool]] = None,
         output_parser: Optional[ConvoJSONOutputParser] = None,
-        prompt: str = PLANNING_PROMPT,
+        prompt_template: str = PLANNING_PROMPT_TEMPLATE,
         input_variables: Optional[List[str]] = None,
         goal: str = "",
         **kwargs: Any,
@@ -53,8 +53,8 @@ class ConversationalAgent(BaseAgent):
         """Construct an agent from an LLM and tools."""
         tools = tools or []
 
-        prompt_template = cls.get_prompt_template(
-            prompt=prompt,
+        template = cls.get_prompt_template(
+            template=prompt_template,
             input_variables=input_variables,
         )
 
@@ -64,14 +64,14 @@ class ConversationalAgent(BaseAgent):
             llm=llm,
             allowed_tools=allowed_tools,
             output_parser=_output_parser,
-            prompt_template=prompt_template,
+            prompt_template=template,
             tools=tools,
             goal=goal,
             **kwargs,
         )
 
     def should_answer(
-        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT, **kwargs
+        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT_TEMPLATE, **kwargs
     ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""
@@ -118,19 +118,19 @@ class ConversationalAgent(BaseAgent):
 
     @staticmethod
     def get_prompt_template(
-        prompt: str = "",
+        template: str = "",
         input_variables: Optional[List[str]] = None,
     ) -> JSONPromptTemplate:
         """Create prompt in the style of the zero shot agent.
 
         Args:
-            prompt: message to be injected between prefix and suffix.
+            template: message to be injected between prefix and suffix.
             input_variables: List of input variables the final prompt will expect.
 
         Returns:
             A PromptTemplate with the template assembled from the pieces here.
         """
-        template = Template(prompt)
+        template = Template(template)
 
         if input_variables is None:
             input_variables = ["input", "agent_scratchpad"]
@@ -216,7 +216,7 @@ class ConversationalAgent(BaseAgent):
             }
 
             clarifying_template = self.get_prompt_template(
-                prompt=CLARIFYING_QUESTION_PROMPT
+                template=CLARIFYING_QUESTION_PROMPT_TEMPLATE
             )
 
             final_prompt = self.format_prompt(
@@ -233,7 +233,7 @@ class ConversationalAgent(BaseAgent):
         self, tool: Tool, action: AgentAction, error: str
     ) -> AgentAction:
         """If the tool failed due to error, what should be the fix for inputs"""
-        prompt = FIX_TOOL_INPUT_PROMPT_FORMAT.format(
+        prompt = FIX_TOOL_INPUT_PROMPT_TEMPLATE.format(
             tool_description=tool.description, inputs=action.tool_input, error=error
         )
 

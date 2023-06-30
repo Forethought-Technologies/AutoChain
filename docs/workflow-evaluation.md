@@ -35,9 +35,9 @@ Currently `AutoChain` support evaluating not only chain and agent built using Au
 as ConversationalAgent, but also agents built on other frameworks, such as LangChain. It is
 easy to evaluate agents built with different frameworks with simple wrapper.
 
-Three types of agent we have setup evaluation for
+Three types of agent on AutoChain framework we have setup evaluation for
 
-1. Native AutoChain agent, such as ConversationalAgent
+1. Default AutoChain agent, such as ConversationalAgent
    under`autochain/workflows_evaluation/conversational_agent_eval`
 2. LangChain agent under `autochain/workflows_evaluation/langchain_eval`
 3. OpenAI agent using function calling
@@ -58,7 +58,7 @@ required tools with their name, function callable, and tool description. The bet
 name and description are, higher the chain agent would use the right tool with right arguments.
 
 **test_cases**  
-Define different user scenarios. Each test case would have 4 different components.
+Define different user scenarios. Each test case would have 3 different components.
 
 1. test_name: this is a descriptive name for later human evaluation to quickly know which test
    agent struggled with
@@ -78,20 +78,20 @@ a few test cases.
 Running all the test cases defined in the test
 
 ```shell
-python autochain/workflows_evaluation/order_status_request_test.py
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
 ```
 
 You can also interactively having a conversation with that agent by passing the interactive
 flag `-i`
 
 ```shell
-python autochain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
 ```
 
 Also, you could get the actual prompt used and intermediate steps by passing the `-v` flag
 
 ```shell
-python autochain/workflows_evaluation/order_status_request_test.py -i -v
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i -v
 ```
 
 All of the test results will be saved to `./test_results` directory by default in jsonl format.

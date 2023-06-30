@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-PLANNING_PROMPT = """You are an assistant who tries to have helpful conversation 
+PLANNING_PROMPT_TEMPLATE = """You are an assistant who tries to have helpful conversation 
 with user based on previous conversation and previous tools outputs from tools. 
 ${goal}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
@@ -34,7 +34,7 @@ RESPONSE FORMAT:
 Ensure the response can be parsed by Python json.loads
 """
 
-SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
+SHOULD_ANSWER_PROMPT_TEMPLATE = """You are a customer support agent. 
 Given the following conversation so far, has user acknowledged question is resolved, 
 such as thank you or that's all. 
 Answer with yes or no.
@@ -43,7 +43,7 @@ Conversation:
 ${history}
 """
 
-FIX_TOOL_INPUT_PROMPT_FORMAT = """Tool have the following spec and input provided
+FIX_TOOL_INPUT_PROMPT_TEMPLATE = """Tool have the following spec and input provided
 Spec: "{tool_description}"
 Inputs: "{inputs}"
 Running this tool failed with the following error: "{error}"
@@ -51,7 +51,7 @@ What is the correct input in JSON format for this tool?
 """
 
 
-CLARIFYING_QUESTION_PROMPT = """You are a customer support agent who is going to use '${tool_name}' tool.
+CLARIFYING_QUESTION_PROMPT_TEMPLATE = """You are a customer support agent who is going to use '${tool_name}' tool.
 Check if you have enough information from the previous conversation and tools outputs to use tool based on the spec below.
 "${tool_desp}"
 

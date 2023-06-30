@@ -23,7 +23,7 @@ The main difference is we simply the flow and removed as many internal concepts 
 
 This is the most generic interface for implementing any chain in AutoChain. It contains a few
 features user could override. `BaseChain` is the generic interface where `Chain` is the default
-chain implementation by implementing the only abstract method `_take_next_step`
+chain implementation by implementing the only abstract method `take_next_step`
 
 ### run
 
@@ -38,18 +38,18 @@ This provide the standard way to manage memories and determines when the agent s
 answering user query. Most of the time, user could reuse how
 we manage memory and just need to change what is the next step agent should do given inputs
 including `user_query` and memories. In that case, user would need to implement the
-`_take_next_step` function.
+`take_next_step` function.
 
-### _take_next_step
+### take_next_step
 
 This is an abstract method implements the way you would like to interact with agent and asking
 agent to come up with the next step. The default implementation is in `Chain`, where it asks
 the `agent` to plan for next step and execute `tools` selected by `agent`
 
-### _should_answer
+### should_answer
 
 It is often unclear when agent should stop responding to user query. Sometimes user would just
 say "Thank you" in the end but agent might not understand this as end of the conversation, so
 it could still try to respond with more contents, even clarifying questions in some cases. By
 default, agent will always respond to user until user stops. In the case that is not desired, we
-introduce the `_should_answer` step in `BaseChain` to stop agent from further interaction.
+introduce the `should_answer` step in `BaseChain` to stop agent from further interaction.
