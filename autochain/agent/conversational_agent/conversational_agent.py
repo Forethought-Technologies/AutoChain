@@ -71,7 +71,9 @@ class ConversationalAgent(BaseAgent):
         )
 
     def should_answer(
-        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT_TEMPLATE, **kwargs
+        self,
+        should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT_TEMPLATE,
+        **kwargs,
     ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""

@@ -85,7 +85,7 @@ If the order has already shipped, inform them that it is not possible to change 
         ),
     ]
 
-    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+    llm = ChatOpenAI(temperature=0)
     chain = create_chain_from_test(
         tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=goal
     )

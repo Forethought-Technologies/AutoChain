@@ -13,8 +13,8 @@ There are two parts of the memory, chat history and key-value memory
 ## Chat history
 
 Memory uses `ChatMessageHistory` to store all the chat history between agent and user
-as instances of `BaseMessage`, including `FunctionMessage`, which is tool used and 
-corresponding output. This make tracking all interactions easy and fit the same 
+as instances of `BaseMessage`, including `FunctionMessage`, which is tool used and
+corresponding output. This make tracking all interactions easy and fit the same
 interface OpenAI API requires.
 
 ## Key-value memory
@@ -26,3 +26,20 @@ storage. One way is using this as long term memory powered by internal search to
 implementation of it is under `autochain/memory/long_term_memory.py`. In that example, if the
 value is an instance of document, it would be saved to `long_term_memory` and can be retrieved
 using key as query.
+
+## Types of memory supported
+
+AutoChain supports different types of memory for different use cases.
+
+### BufferMemory
+
+This is the simplest implementation of memory. Everything stored in RAM with python dictionary
+as key-value store. This is best suited for experimentation and iterating prompts, which is the
+default type of memory AutoChain uses in examples and evaluation.
+
+### LongTermMemory
+
+In the case there are a lot of information need to be stored and only a small part of it is
+needed during the planning step, `LongTermMemory` enables agents to retrieve partial memory
+with internal search tool, such as `ChromaDBSearch`. Search query is the key of the store, and
+it still follow the same interface as other memory implementations.  

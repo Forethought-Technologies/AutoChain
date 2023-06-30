@@ -49,7 +49,7 @@ response for clarifying question.
 This is the a basic agent with a simple and fixed prompt to have nice conversation with user.
 It could also use tools if provided.    
 While it does not use native OpenAI function calling, this agent showcases the interaction between
-memory and prompts. Also it supports using ChatGPT model before `0613`.
+memory and prompts. 
 
 ### OpenAIFunctionAgent
 
