@@ -141,6 +141,7 @@ class BaseChain(BaseModel, ABC):
             intermediate_steps.append(next_step_output)
             # update inputs
             inputs[constants.INTERMEDIATE_STEPS] = intermediate_steps
+            inputs[constants.CONVERSATION_HISTORY] = self.memory.load_conversation()
 
             iterations += 1
             time_elapsed = time.time() - start_time
