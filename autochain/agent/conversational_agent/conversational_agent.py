@@ -147,7 +147,7 @@ class ConversationalAgent(BaseAgent):
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
         Args:
-            history: entire chat history between user and agent including the latest conversation
+            history: entire chat conversation between user and agent including the latest query
             intermediate_steps: List of AgentAction that has been performed with outputs
             **kwargs: key value pairs from chain, which contains query and other stored memories
 

@@ -7,7 +7,7 @@ from autochain.memory.base import BaseMemory
 class BufferMemory(BaseMemory):
     """Buffer for storing conversation memory and an in-memory kv store."""
 
-    chat_history = ChatMessageHistory()
+    conversation_history = ChatMessageHistory()
     kv_memory = {}
 
     def load_memory(
@@ -21,7 +21,7 @@ class BufferMemory(BaseMemory):
 
     def load_conversation(self, **kwargs) -> ChatMessageHistory:
         """Return history buffer and format it into a conversational string format."""
-        return self.chat_history
+        return self.conversation_history
 
     def save_memory(self, key: str, value: Any) -> None:
         self.kv_memory[key] = value
@@ -30,11 +30,11 @@ class BufferMemory(BaseMemory):
         self, message: str, message_type: MessageType, **kwargs
     ) -> None:
         """Save context from this conversation to buffer."""
-        self.chat_history.save_message(
+        self.conversation_history.save_message(
             message=message, message_type=message_type, **kwargs
         )
 
     def clear(self) -> None:
         """Clear memory contents."""
-        self.chat_history.clear()
+        self.conversation_history.clear()
         self.kv_memory = {}
