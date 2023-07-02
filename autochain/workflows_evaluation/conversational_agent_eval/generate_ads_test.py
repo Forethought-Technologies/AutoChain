@@ -54,14 +54,14 @@ Input args: item_name: str""",
     ]
 
     test_cases = [
-        # TestCase(
-        #     test_name="ads for toy bear",
-        #     user_context="Write me an advertisement for toy bear; item name is 'toy bear'. it is "
-        #                  "cute and made in USA, they should be "
-        #                  "included in the ads. Ads should include image",
-        #     expected_outcome="generate an advertisement for toy bear and mentions it is cute. "
-        #                      "Also ads should include an image path",
-        # ),
+        TestCase(
+            test_name="ads for toy bear",
+            user_context="Write me an advertisement for toy bear; item name is 'toy bear'. it is "
+                         "cute and made in USA, they should be "
+                         "included in the ads. Ads should include image",
+            expected_outcome="generate an advertisement for toy bear and mentions it is cute. "
+                             "Also ads should include an image path",
+        ),
         TestCase(
             test_name="printer ads",
             user_context="write me an advertisement for printer; item name is 'good printer'. "
