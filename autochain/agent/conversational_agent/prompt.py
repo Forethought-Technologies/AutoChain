@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-PLANNING_PROMPT = """You are an assistant who tries to have helpful conversation 
-with user based on previous conversation and observations from tools. 
-${goal}
+PLANNING_PROMPT_TEMPLATE = """You are an assistant who tries to have helpful conversation 
+with user based on previous conversation and previous tools outputs from tools. 
+${prompt}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
 conversation.
 
@@ -12,29 +12,29 @@ ${tools}
 Previous conversation so far:
 ${history}
 
-Previous observations:
+Previous tools outputs:
 ${agent_scratchpad}
 
 Please respond user question in JSON format as described below
 RESPONSE FORMAT:
 {
   "thoughts": {
-    "plan": "Given previous observations, what is the next step after the previous conversation",
-    "need_use_tool": "Yes if needs to use another tool not used in previous observations else No"
+    "plan": "Given workflow policy and previous tools outputs, what is the next step after the previous conversation",
+    "need_use_tool": "answer with 'Yes' if needs to use another tool not previously used else 'No'"
   },
   "tool": {
     "name": "tool name, should be one of [${tool_names}] or empty if tool is not needed",
     "args": {
-      "arg_name": "arg value from conversation history or observation to run tool"
+      "arg_name": "arg value from conversation history or tools outputs to run tool"
     }
   },
-  "response": "Response to user",
+  "response": "clarifying required args for that tool or response to user.",
 }
 
 Ensure the response can be parsed by Python json.loads
 """
 
-SHOULD_ANSWER_PROMPT = """You are a customer support agent. 
+SHOULD_ANSWER_PROMPT_TEMPLATE = """You are a customer support agent. 
 Given the following conversation so far, has user acknowledged question is resolved, 
 such as thank you or that's all. 
 Answer with yes or no.
@@ -43,7 +43,7 @@ Conversation:
 ${history}
 """
 
-FIX_TOOL_INPUT_PROMPT_FORMAT = """Tool have the following spec and input provided
+FIX_TOOL_INPUT_PROMPT_TEMPLATE = """Tool have the following spec and input provided
 Spec: "{tool_description}"
 Inputs: "{inputs}"
 Running this tool failed with the following error: "{error}"
@@ -51,14 +51,14 @@ What is the correct input in JSON format for this tool?
 """
 
 
-CLARIFYING_QUESTION_PROMPT = """You are a customer support agent who is going to use '${tool_name}' tool.
-Check if you have enough information from the previous conversation and observations to use tool based on the spec below.
+CLARIFYING_QUESTION_PROMPT_TEMPLATE = """You are a customer support agent who is going to use '${tool_name}' tool.
+Check if you have enough information from the previous conversation and tools outputs to use tool based on the spec below.
 "${tool_desp}"
 
 Previous conversation so far:
 ${history}
 
-Previous observations:
+Previous tools outputs:
 ${agent_scratchpad}
 
 Please respond user question in JSON format as described below

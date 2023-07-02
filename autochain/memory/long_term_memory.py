@@ -1,7 +1,7 @@
 """
 This is an example implementation of long term memory and retrieve using query
 It contains three memory stores.
-chat_history stores all the messages including FunctionMessage between assistant and agent,
+conversation_history stores all the messages including FunctionMessage between assistant and agent,
 long_term_memory stores a collection of ChromaDoc (or would be modified use other vectory db)
 kv_memory: stores anything else as kv pairs
 """
@@ -15,7 +15,7 @@ from autochain.tools.internal_search.chromadb_tool import ChromaDBSearch, Chroma
 class LongTermMemory(BaseMemory):
     """Buffer for storing conversation memory and an in-memory kv store."""
 
-    chat_history = ChatMessageHistory()
+    conversation_history = ChatMessageHistory()
     kv_memory = {}
     long_term_memory = ChromaDBSearch(docs=[], description="long term memory")
 
@@ -39,7 +39,7 @@ class LongTermMemory(BaseMemory):
 
     def load_conversation(self, **kwargs) -> ChatMessageHistory:
         """Return history buffer and format it into a conversational string format."""
-        return self.chat_history
+        return self.conversation_history
 
     def save_memory(self, key: str, value: Any) -> None:
         if (
@@ -55,12 +55,12 @@ class LongTermMemory(BaseMemory):
         self, message: str, message_type: MessageType, **kwargs
     ) -> None:
         """Save context from this conversation to buffer."""
-        self.chat_history.save_message(
+        self.conversation_history.save_message(
             message=message, message_type=message_type, **kwargs
         )
 
     def clear(self) -> None:
         """Clear memory contents."""
-        self.chat_history.clear()
+        self.conversation_history.clear()
         self.long_term_memory.clear_index()
         self.kv_memory = {}

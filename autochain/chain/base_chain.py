@@ -100,7 +100,7 @@ class BaseChain(BaseModel, ABC):
     ) -> AgentFinish:
         """
         Run inputs including user query and past conversation with agent and get response back
-        calls _take_next_step function to determine what should be the next step after
+        calls take_next_step function to determine what should be the next step after
         collecting all the inputs and memorized contents
         """
         # Construct a mapping of tool name to tool for easy lookup
@@ -115,12 +115,12 @@ class BaseChain(BaseModel, ABC):
         # We now enter the agent loop (until it returns something).
         while self._should_continue(iterations, time_elapsed):
             logger.info(f"\n Intermediate steps: {intermediate_steps}\n")
-            next_step_output = self._should_answer(inputs=inputs)
+            next_step_output = self.should_answer(inputs=inputs)
 
             # if next_step_output is None which means should ask agent to answer and take next
             # step
             if not next_step_output:
-                next_step_output = self._take_next_step(
+                next_step_output = self.take_next_step(
                     name_to_tool_map,
                     inputs,
                 )
@@ -133,7 +133,7 @@ class BaseChain(BaseModel, ABC):
             # OpenAIFunctionsAgent
             if isinstance(next_step_output, AgentAction):
                 self.memory.save_conversation(
-                    message=str(next_step_output.observation),
+                    message=str(next_step_output.tool_output),
                     name=next_step_output.tool,
                     message_type=MessageType.FunctionMessage,
                 )
@@ -155,7 +155,7 @@ class BaseChain(BaseModel, ABC):
         return output
 
     @abstractmethod
-    def _take_next_step(
+    def take_next_step(
         self,
         name_to_tool_map: Dict[str, Tool],
         inputs: Dict[str, str],
@@ -174,7 +174,7 @@ class BaseChain(BaseModel, ABC):
 
         return True
 
-    def _should_answer(self, inputs) -> Optional[AgentFinish]:
+    def should_answer(self, inputs) -> Optional[AgentFinish]:
         """
         Let agent determines if it should continue to answer questions
         or that is the end of the conversation

@@ -42,7 +42,7 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
 
 
 class TestChangeShippingAddressWithFunctionCalling(BaseTest):
-    goal = """You are an AI assistant for customer support for the company Figs which sells nurse 
+    prompt = """You are an AI assistant for customer support for the company Figs which sells nurse 
     and medical staff clothes.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
@@ -53,37 +53,31 @@ If the order has already shipped, inform them that it is not possible to change 
         Tool(
             func=check_order_status,
             description="""This function checks the order status based on order_id
-    Input args: order_id: non-empty str
-    Output values: status_code: int, order_id: str, order_status: shipped or not shipped, 
-    tracking_url: str, message: str""",
+    Input args: order_id: non-empty str""",
         ),
         Tool(
             func=change_shipping_address,
             description="""This function change the shipping address based on provided 
     order_id and new_address 
-    Input args: order_id: non-empty str, new_address: non-empty str
-    Output values: status_code: int, order_id: str, shipping_address: str""",
+    Input args: order_id: non-empty str, new_address: non-empty str""",
         ),
     ]
 
     test_cases = [
         TestCase(
             test_name="change shipping address",
-            user_query="can i change my shipping address?",
             user_context="order id is 456. the new address is 234 spear st, "
             "san francisco",
             expected_outcome="found order status and changed shipping address",
         ),
         TestCase(
             test_name="failed changing shipping address, no order id",
-            user_query="can i change my shipping address?",
             user_context="don't know about order id. the new address is 234 spear st, san francisco",
             expected_outcome="cannot find the order status, failed to change shipping "
             "address",
         ),
         TestCase(
             test_name="failed changing shipping address, shipped item",
-            user_query="can i change my shipping address?",
             user_context="order id is 123. the new address is 234 spear st, "
             "san francisco",
             expected_outcome="inform user cannot change shipping address and hand off to "
@@ -91,9 +85,9 @@ If the order has already shipped, inform them that it is not possible to change 
         ),
     ]
 
-    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+    llm = ChatOpenAI(temperature=0)
     chain = create_chain_from_test(
-        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=goal
+        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=prompt
     )
 
 

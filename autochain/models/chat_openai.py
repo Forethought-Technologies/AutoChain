@@ -152,9 +152,6 @@ class ChatOpenAI(BaseLanguageModel):
     max_tokens: Optional[int] = None
     """Maximum number of tokens to generate."""
 
-    function_calling_allowed_list = ["gpt-3.5-turbo-0613", "gpt-4-0613"]
-    """List of openai models support function_calling"""
-
     class Config:
         """Configuration for this pydantic object."""
 
@@ -197,14 +194,6 @@ class ChatOpenAI(BaseLanguageModel):
             messages, functions, stop
         )
 
-        if (
-            len(function_dicts) > 0
-            and self.model_name not in self.function_calling_allowed_list
-        ):
-            raise RuntimeError(
-                f"{self.model_name} is not supported for function calling, "
-                f"supported list is {self.function_calling_allowed_list}"
-            )
         generation_param = {
             "messages": message_dicts,
             **params,

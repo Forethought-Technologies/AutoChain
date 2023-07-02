@@ -66,7 +66,7 @@ class OpenAIFunctionsAgent(BaseAgent):
             final_messages.append(SystemMessage(content=self.prompt))
         final_messages += history.messages
 
-        logger.info(f"\nFull Input: {[m.content for m in final_messages]} \n")
+        logger.info(f"\nPlanning Input: {[m.content for m in final_messages]} \n")
         full_output: Generation = self.llm.generate(
             final_messages, self.tools
         ).generations[0]
@@ -74,9 +74,10 @@ class OpenAIFunctionsAgent(BaseAgent):
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message
         )
-        print_with_color(
-            f"Full output: message content: {full_output.message.content}; function_call: "
-            f"{full_output.message.function_call}",
+        print(
+            f"Planning output: \nmessage content: {repr(full_output.message.content)}; "
+            f"function_call: "
+            f"{repr(full_output.message.function_call)}",
             Fore.YELLOW,
         )
         if isinstance(agent_output, AgentAction):

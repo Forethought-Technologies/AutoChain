@@ -56,7 +56,7 @@ export PYTHONPATH=`pwd`
 Run your first conversation with agent interactively
 
 ```shell
-python autochain/workflows_evaluation/order_status_request_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
 ```
 
 ## Example usage
@@ -103,7 +103,7 @@ for OpenAI model. It extrapolates the function spec in OpenAI format without use
 instruction, so user could follow the same `Tool` interface.
 
 ```python
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0613")
+llm = ChatOpenAI(temperature=0)
 agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
 ```
 
@@ -156,11 +156,10 @@ Running all the test cases defined in the test:
 python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
 ```
 
-You can also interactively having a conversation with that agent by passing the interactive
-flag `-i`:
+You can also have an interactive conversation with agent by passing the interactive flag `-i`:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py-i
+python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
 ```
 
 More explanations for how AutoChain works? checkout [components overview](./docs/components_overview.md)

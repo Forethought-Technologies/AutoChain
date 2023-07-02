@@ -9,10 +9,10 @@ from colorama import Fore
 from autochain.agent.base_agent import BaseAgent
 from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
 from autochain.agent.conversational_agent.prompt import (
-    CLARIFYING_QUESTION_PROMPT,
-    PLANNING_PROMPT,
-    SHOULD_ANSWER_PROMPT,
-    FIX_TOOL_INPUT_PROMPT_FORMAT,
+    CLARIFYING_QUESTION_PROMPT_TEMPLATE,
+    PLANNING_PROMPT_TEMPLATE,
+    SHOULD_ANSWER_PROMPT_TEMPLATE,
+    FIX_TOOL_INPUT_PROMPT_TEMPLATE,
 )
 from autochain.agent.message import BaseMessage, ChatMessageHistory, UserMessage
 from autochain.agent.prompt_formatter import JSONPromptTemplate
@@ -36,8 +36,8 @@ class ConversationalAgent(BaseAgent):
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
 
-    # Optionally you could set a goal for this conversational agent or directly update the prompt
-    goal: str = ""
+    # Optionally you could set a prompt for this conversational agent or directly update the prompt
+    prompt: str = ""
 
     @classmethod
     def from_llm_and_tools(
@@ -45,16 +45,16 @@ class ConversationalAgent(BaseAgent):
         llm: BaseLanguageModel,
         tools: Optional[List[Tool]] = None,
         output_parser: Optional[ConvoJSONOutputParser] = None,
-        prompt: str = PLANNING_PROMPT,
+        prompt_template: str = PLANNING_PROMPT_TEMPLATE,
         input_variables: Optional[List[str]] = None,
-        goal: str = "",
+        prompt: str = "",
         **kwargs: Any,
     ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
         tools = tools or []
 
-        prompt_template = cls.get_prompt_template(
-            prompt=prompt,
+        template = cls.get_prompt_template(
+            template=prompt_template,
             input_variables=input_variables,
         )
 
@@ -64,14 +64,16 @@ class ConversationalAgent(BaseAgent):
             llm=llm,
             allowed_tools=allowed_tools,
             output_parser=_output_parser,
-            prompt_template=prompt_template,
+            prompt_template=template,
             tools=tools,
-            goal=goal,
+            prompt=prompt,
             **kwargs,
         )
 
     def should_answer(
-        self, should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT, **kwargs
+        self,
+        should_answer_prompt_template: str = SHOULD_ANSWER_PROMPT_TEMPLATE,
+        **kwargs,
     ) -> Optional[AgentFinish]:
         """Determine if agent should continue to answer user questions based on the latest user
         query"""
@@ -109,7 +111,7 @@ class ConversationalAgent(BaseAgent):
                 scratchpad += action.response
             return scratchpad
 
-        """Create the full inputs for the LLMChain from intermediate steps."""
+        """Create the planning inputs for the LLMChain from intermediate steps."""
         thoughts = _construct_scratchpad(intermediate_steps)
         new_inputs = {"agent_scratchpad": thoughts}
         full_inputs = {**kwargs, **new_inputs}
@@ -118,19 +120,19 @@ class ConversationalAgent(BaseAgent):
 
     @staticmethod
     def get_prompt_template(
-        prompt: str = "",
+        template: str = "",
         input_variables: Optional[List[str]] = None,
     ) -> JSONPromptTemplate:
         """Create prompt in the style of the zero shot agent.
 
         Args:
-            prompt: message to be injected between prefix and suffix.
+            template: message to be injected between prefix and suffix.
             input_variables: List of input variables the final prompt will expect.
 
         Returns:
             A PromptTemplate with the template assembled from the pieces here.
         """
-        template = Template(prompt)
+        template = Template(template)
 
         if input_variables is None:
             input_variables = ["input", "agent_scratchpad"]
@@ -145,7 +147,7 @@ class ConversationalAgent(BaseAgent):
         """
         Plan the next step. either taking an action with AgentAction or respond to user with AgentFinish
         Args:
-            history: entire chat history between user and agent including the latest conversation
+            history: entire chat conversation between user and agent including the latest query
             intermediate_steps: List of AgentAction that has been performed with outputs
             **kwargs: key value pairs from chain, which contains query and other stored memories
 
@@ -161,22 +163,20 @@ class ConversationalAgent(BaseAgent):
             "tool_names": tool_names,
             "tools": tool_strings,
             "history": history.format_message(),
-            "goal": self.goal,
+            "prompt": self.prompt,
             **kwargs,
         }
         final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
-        logger.info(f"\nFull Input: {final_prompt[0].content} \n")
+        logger.info(f"\nPlanning Input: {final_prompt[0].content} \n")
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
             full_output.message
         )
 
-        print_with_color(
-            f"Full output: {json.loads(full_output.message.content)}", Fore.YELLOW
-        )
+        print(f"Planning output: \n{repr(full_output.message.content)}", Fore.YELLOW)
         if isinstance(agent_output, AgentAction):
             print_with_color(
                 f"Plan to take action '{agent_output.tool}'", Fore.LIGHTYELLOW_EX
@@ -218,7 +218,7 @@ class ConversationalAgent(BaseAgent):
             }
 
             clarifying_template = self.get_prompt_template(
-                prompt=CLARIFYING_QUESTION_PROMPT
+                template=CLARIFYING_QUESTION_PROMPT_TEMPLATE
             )
 
             final_prompt = self.format_prompt(
@@ -226,6 +226,7 @@ class ConversationalAgent(BaseAgent):
             )
             logger.info(f"\nClarification inputs: {final_prompt[0].content}")
             full_output: Generation = self.llm.generate(final_prompt).generations[0]
+            print(f"Clarification outputs: {repr(full_output.message.content)}")
             return self.output_parser.parse_clarification(
                 full_output.message, agent_action=agent_action
             )
@@ -234,7 +235,7 @@ class ConversationalAgent(BaseAgent):
         self, tool: Tool, action: AgentAction, error: str
     ) -> AgentAction:
         """If the tool failed due to error, what should be the fix for inputs"""
-        prompt = FIX_TOOL_INPUT_PROMPT_FORMAT.format(
+        prompt = FIX_TOOL_INPUT_PROMPT_TEMPLATE.format(
             tool_description=tool.description, inputs=action.tool_input, error=error
         )
 
