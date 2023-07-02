@@ -38,7 +38,7 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
 
 
 class TestChangeShippingAddress(BaseTest):
-    goal = """You are an AI customer support assistant who tries to help with shipping 
+    prompt = """You are an AI customer support assistant who tries to help with shipping 
 address questions.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
@@ -83,7 +83,7 @@ Input args: order_id: non-empty str, new_address: non-empty str""",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, goal=goal)
+    chain = create_chain_from_test(tools=tools, prompt=prompt)
 
 
 if __name__ == "__main__":

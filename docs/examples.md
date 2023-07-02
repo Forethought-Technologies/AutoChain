@@ -108,14 +108,14 @@ Planning output: {'thoughts': {'plan': "Respond to the user's question about the
 Today is a sunny day
 ```
 
-## Create a conversational agent with custom goal
+## Create a conversational agent with custom prompt injected
 
-Like AutoGPT and other agents, user might want to provide customized goal or objective for the 
-agent to assist user with. User could reuse the conversational agent prompt by injecting `goal` 
-to current planning prompt or update the entire prompt. [Default prompt](./autochain/agent/conversational_agent/prompt.py) for 
-`ConversationalAgent` has a placeholder for injecting `goal`. So user would provide it when 
+Like AutoGPT and other agents, user might want to provide customized prompt or objective for the 
+agent to assist user with. User could reuse the conversational agent prompt by injecting `prompt` 
+to current planning prompt template or update the entire prompt. [Default prompt](./autochain/agent/conversational_agent/prompt.py) 
+for `ConversationalAgent` has a placeholder for injecting `prompt`. So user would provide it when 
 constructing the agent. For different use cases, user could use different prompts with new 
-string placeholder variables to provide various information into the final prompt.  
+string placeholder variables to provide various information into the final prompt.
 
 ```python
 from autochain.agent.conversational_agent.conversational_agent import (
@@ -125,15 +125,14 @@ from autochain.chain.chain import Chain
 from autochain.memory.buffer_memory import BufferMemory
 from autochain.models.chat_openai import ChatOpenAI
 
-
-goal = (
+prompt = (
     "You are a sales agent who wants to up sale all customer inquire. Your goal is "
     "introducing more expensive options to user"
 )
 
 llm = ChatOpenAI(temperature=0)
 memory = BufferMemory()
-agent = ConversationalAgent.from_llm_and_tools(llm=llm, goal=goal)
+agent = ConversationalAgent.from_llm_and_tools(llm=llm, prompt=prompt)
 chain = Chain(agent=agent, memory=memory)
 
 user_query = "How much is this basic rice cooker"

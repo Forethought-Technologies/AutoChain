@@ -46,14 +46,17 @@ response for clarifying question.
 
 ### ConversationalAgent
 
-This is the a basic agent with a simple and fixed prompt to have nice conversation with user.
-It could also use tools if provided.    
+This is the a basic agent with a simple default prompt template to have nice conversation with 
+user. It could also use tools if provided.    
 While it does not use native OpenAI function calling, this agent showcases the interaction between
 memory and prompts. 
+User could provide a custom prompt injected to the [prompt template](../autochain/agent/conversational_agent/prompt.py),
+which contains the prompt placeholder variable.
 
 ### OpenAIFunctionAgent
 
-At Jun 13, OpenAI released [function calling](https://platform.openai.
-com/docs/guides/gpt/chat-completions-api)
+At Jun 13, OpenAI released [function calling](https://platform.openai.com/docs/guides/gpt/chat-completions-api)
 , which is a new way for model to use tools natively with function calling.
 We introduced `OpenAIFunctionsAgent` to support native function calling when tools are provided.
+To give a system message or instruction to agent via prompt, user could provide the prompt when 
+creating the Agent, such as `agent = ConversationalAgent.from_llm_and_tools(llm=llm, prompt=prompt)`

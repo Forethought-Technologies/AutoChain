@@ -36,8 +36,8 @@ class ConversationalAgent(BaseAgent):
     allowed_tools: Dict[str, Tool] = {}
     tools: List[Tool] = []
 
-    # Optionally you could set a goal for this conversational agent or directly update the prompt
-    goal: str = ""
+    # Optionally you could set a prompt for this conversational agent or directly update the prompt
+    prompt: str = ""
 
     @classmethod
     def from_llm_and_tools(
@@ -47,7 +47,7 @@ class ConversationalAgent(BaseAgent):
         output_parser: Optional[ConvoJSONOutputParser] = None,
         prompt_template: str = PLANNING_PROMPT_TEMPLATE,
         input_variables: Optional[List[str]] = None,
-        goal: str = "",
+        prompt: str = "",
         **kwargs: Any,
     ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
@@ -66,7 +66,7 @@ class ConversationalAgent(BaseAgent):
             output_parser=_output_parser,
             prompt_template=template,
             tools=tools,
-            goal=goal,
+            prompt=prompt,
             **kwargs,
         )
 
@@ -163,7 +163,7 @@ class ConversationalAgent(BaseAgent):
             "tool_names": tool_names,
             "tools": tool_strings,
             "history": history.format_message(),
-            "goal": self.goal,
+            "prompt": self.prompt,
             **kwargs,
         }
         final_prompt = self.format_prompt(

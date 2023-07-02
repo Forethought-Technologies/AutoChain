@@ -2,7 +2,7 @@ from __future__ import annotations
 
 PLANNING_PROMPT_TEMPLATE = """You are an assistant who tries to have helpful conversation 
 with user based on previous conversation and previous tools outputs from tools. 
-${goal}
+${prompt}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
 conversation.
 

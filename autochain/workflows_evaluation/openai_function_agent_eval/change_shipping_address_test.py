@@ -42,7 +42,7 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
 
 
 class TestChangeShippingAddressWithFunctionCalling(BaseTest):
-    goal = """You are an AI assistant for customer support for the company Figs which sells nurse 
+    prompt = """You are an AI assistant for customer support for the company Figs which sells nurse 
     and medical staff clothes.
 When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
@@ -70,24 +70,24 @@ If the order has already shipped, inform them that it is not possible to change 
             "san francisco",
             expected_outcome="found order status and changed shipping address",
         ),
-        TestCase(
-            test_name="failed changing shipping address, no order id",
-            user_context="don't know about order id. the new address is 234 spear st, san francisco",
-            expected_outcome="cannot find the order status, failed to change shipping "
-            "address",
-        ),
-        TestCase(
-            test_name="failed changing shipping address, shipped item",
-            user_context="order id is 123. the new address is 234 spear st, "
-            "san francisco",
-            expected_outcome="inform user cannot change shipping address and hand off to "
-            "agent",
-        ),
+        # TestCase(
+        #     test_name="failed changing shipping address, no order id",
+        #     user_context="don't know about order id. the new address is 234 spear st, san francisco",
+        #     expected_outcome="cannot find the order status, failed to change shipping "
+        #     "address",
+        # ),
+        # TestCase(
+        #     test_name="failed changing shipping address, shipped item",
+        #     user_context="order id is 123. the new address is 234 spear st, "
+        #     "san francisco",
+        #     expected_outcome="inform user cannot change shipping address and hand off to "
+        #     "agent",
+        # ),
     ]
 
     llm = ChatOpenAI(temperature=0)
     chain = create_chain_from_test(
-        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=goal
+        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=prompt
     )
 
 

@@ -30,7 +30,7 @@ def search_image_path_for_item(item_name: str):
 
 
 class TestGenerateAds(BaseTest):
-    goal = """"Your goals is helping user to generate an advertisement for user requested 
+    prompt = """"Your goals is helping user to generate an advertisement for user requested 
 product and find relevant image path for the item.
 You would first clarify what product you would write advertisement for and what are the key 
 points should be included in the ads.
@@ -73,7 +73,7 @@ Input args: item_name: str""",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, goal=goal)
+    chain = create_chain_from_test(tools=tools, prompt=prompt)
 
 
 if __name__ == "__main__":
