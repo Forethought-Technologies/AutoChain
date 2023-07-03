@@ -47,4 +47,4 @@ it still follow the same interface as other memory implementations.
 ### RedisMemory
 
 Redis is also supported to save information. This is useful when hosting AutoChain as a backend
-service on more than one server instances, in which case it's not possible to use RAM as memory.
+service on more than one server instance, in which case it's not possible to use RAM as memory.
