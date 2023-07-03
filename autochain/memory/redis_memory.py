@@ -16,6 +16,10 @@ class RedisMemory(BaseMemory):
     redis_key_prefix: str
     redis_client: Redis
 
+    class Config:
+        """Configuration for this pydantic object."""
+        arbitrary_types_allowed = True
+
     def load_memory(
         self, key: Optional[str] = None, default: Optional[Any] = None, **kwargs
     ) -> Any:
