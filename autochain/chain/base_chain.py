@@ -4,16 +4,16 @@ Base interface that all chains should implement
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Any, List
-
-from pydantic import BaseModel
+from copy import deepcopy
+from typing import Any, Dict, List, Optional
 
 from autochain.agent.base_agent import BaseAgent
-from autochain.agent.message import MessageType, ChatMessageHistory
-from autochain.agent.structs import AgentFinish, AgentAction
+from autochain.agent.message import ChatMessageHistory, MessageType
+from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.chain import constants
 from autochain.memory.base import BaseMemory
 from autochain.tools.base import Tool
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +44,10 @@ class BaseChain(BaseModel, ABC):
                 message=user_query, message_type=MessageType.UserMessage
             )
 
-            inputs[constants.CONVERSATION_HISTORY] = self.memory.load_conversation()
-            inputs[constants.INTERMEDIATE_STEPS] = intermediate_steps
+            inputs[constants.CONVERSATION_HISTORY] = deepcopy(
+                self.memory.load_conversation()
+            )
+            inputs[constants.INTERMEDIATE_STEPS] = deepcopy(intermediate_steps)
 
         return inputs
 
