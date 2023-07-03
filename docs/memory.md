@@ -1,4 +1,4 @@
-``````# Memory
+# Memory
 
 We have a simple memory interface to experiment with. Memory is accessible at the `Chain` level,
 and only at th `Chain` level, since it is the only stateful component. By default, memory saves
@@ -42,7 +42,7 @@ default type of memory AutoChain uses in examples and evaluation.
 In the case there are a lot of information need to be stored and only a small part of it is
 needed during the planning step, `LongTermMemory` enables agents to retrieve partial memory
 with internal search tool, such as `ChromaDBSearch`. Search query is the key of the store, and
-it still follow the same interface as other memory implementations.  
+it still follow the same interface as other memory implementations.
 
 ### RedisMemory
 
