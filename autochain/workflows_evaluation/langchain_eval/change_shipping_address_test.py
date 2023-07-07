@@ -10,7 +10,7 @@ from autochain.workflows_evaluation.langchain_eval.langchain_test_utils import (
 
 def check_order_status(order_id: str, **kwargs):
     """Returns order information as a dictionary, where order_status can be "shipped" or "not_shipped" """
-    if order_id == "123":
+    if "123" in order_id:
         return {
             "status_code": 200,
             "order_id": "123",
@@ -18,7 +18,7 @@ def check_order_status(order_id: str, **kwargs):
             "tracking_url": "example.com/123",
             "shipping_address": "300 ivy street san francisco ca",
         }
-    elif order_id == "456":
+    elif "456" in order_id:
         return {
             "status_code": 200,
             "order_id": "456",
@@ -71,7 +71,6 @@ Input args: order_id: non-empty str, new_address: non-empty str""",
     test_cases = [
         TestCase(
             test_name="change shipping address",
-            user_query="i want to change my shipping address?",
             user_context="order id is 456. the new address is 234 spear st, "
             "san francisco",
             expected_outcome="found order status and changed shipping address",
