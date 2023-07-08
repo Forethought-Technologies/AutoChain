@@ -894,7 +894,7 @@ files = [
 name = "ghp-import"
 version = "2.1.0"
 description = "Copy your docs directly to the gh-pages branch."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1148,7 +1148,7 @@ files = [
 name = "importlib-metadata"
 version = "6.6.0"
 description = "Read metadata from Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1180,7 +1180,7 @@ files = [
 name = "jinja2"
 version = "3.1.2"
 description = "A very fast and expressive template engine."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1267,7 +1267,7 @@ tests = ["psutil", "pytest (!=3.3.0)", "pytest-cov"]
 name = "markdown"
 version = "3.3.7"
 description = "Python implementation of Markdown."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -1285,7 +1285,7 @@ testing = ["coverage", "pyyaml"]
 name = "markupsafe"
 version = "2.1.3"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1362,7 +1362,7 @@ rcslice = ">=1.1.0"
 name = "mergedeep"
 version = "1.3.4"
 description = "A deep merge function for 🐍."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -1374,7 +1374,7 @@ files = [
 name = "mkdocs"
 version = "1.4.3"
 description = "Project documentation with Markdown."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1398,6 +1398,21 @@ watchdog = ">=2.0"
 [package.extras]
 i18n = ["babel (>=2.9.0)"]
 min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-import (==1.0)", "importlib-metadata (==4.3)", "jinja2 (==2.11.1)", "markdown (==3.2.1)", "markupsafe (==2.0.1)", "mergedeep (==1.3.4)", "packaging (==20.5)", "pyyaml (==5.1)", "pyyaml-env-tag (==0.1)", "typing-extensions (==3.10)", "watchdog (==2.0)"]
+
+[[package]]
+name = "mkdocs-git-authors-plugin"
+version = "0.7.2"
+description = "Mkdocs plugin to display git authors of a page"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs-git-authors-plugin-0.7.2.tar.gz", hash = "sha256:f541730e4cabdafa0ac758c94d28ba5e8ddca4c859e5de4c89f1226cb6ccd0ad"},
+    {file = "mkdocs_git_authors_plugin-0.7.2-py3-none-any.whl", hash = "sha256:c8a2784a867db79ad3b477a96ee96875d17b09192b6d3be71f08df25afff76c4"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0"
 
 [[package]]
 name = "mkdocs-material"
@@ -2314,7 +2329,7 @@ files = [
 name = "pyyaml-env-tag"
 version = "0.1"
 description = "A custom YAML tag for referencing environment variables in YAML files. "
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2726,7 +2741,7 @@ test = ["Cython (>=0.29.32,<0.30.0)", "aiohttp", "flake8 (>=3.9.2,<3.10.0)", "my
 name = "watchdog"
 version = "3.0.0"
 description = "Filesystem events monitoring"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2996,7 +3011,7 @@ multidict = ">=4.0"
 name = "zipp"
 version = "3.15.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -3070,4 +3085,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "ea52d9b8fb5ed651829c76641afce84f5d5c3c4c2c0dfa48c21c726b86ea418f"
+content-hash = "d698d03432671c4fd9f38a61a925e75c0ee828be5ea0b7e26ecc24a4bad01cae"

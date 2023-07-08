@@ -49,6 +49,7 @@ types-colorama = ">=0.4.15.11"
 pytest = "^7.3.2"
 redis = "^4.6.0"
 pinecone-client = "^2.2.2"
+mkdocs-git-authors-plugin = "^0.7.2"
 
 
 [tool.poetry.group.dev.dependencies]

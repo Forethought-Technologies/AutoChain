@@ -20,6 +20,8 @@ they share similar concepts.
 The goal is to enable user experimentation of generative agents quickly, knowing users would
 make more customizations as they are building their own agent.
 
+If you have any question, please feel free to reach out to Yi Lu <yi.lu@forethought.ai>
+
 ## Features
 
 - 🚀 lightweight and extensible generative agent pipeline made easy to LangChain users.

@@ -2,8 +2,12 @@ site_name: AutoChain
 site_description: "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: set the proper docs website URL once the domain is defined
 site_url: https://engineering.forethought.ai
+repo_url: https://github.com/Forethought-Technologies/AutoChain
+repo_name: AutoChain
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/git-alt
   palette:
     - scheme: slate
       primary: white
@@ -27,6 +31,7 @@ theme:
   logo: img/icon.png
   favicon: img/icon.png
   language: en
+
 nav:
   - index.md
   - examples.md
@@ -37,6 +42,8 @@ nav:
   - tool.md
   - memory.md
 
+plugins:
+  - git-authors
 
 markdown_extensions:
   - toc:
