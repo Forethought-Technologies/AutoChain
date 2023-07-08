@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autochain"
-version = "0.0.1"
+version = "0.0.2"
 description = "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: add URLs, homepage, documentation
 authors = [
@@ -50,6 +50,7 @@ pytest = "^7.3.2"
 redis = "^4.6.0"
 pinecone-client = "^2.2.2"
 mkdocs-git-authors-plugin = "^0.7.2"
+tenacity = "^8.2.2"
 
 
 [tool.poetry.group.dev.dependencies]
