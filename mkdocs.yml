@@ -7,7 +7,7 @@ repo_name: AutoChain
 theme:
   name: material
   icon:
-    repo: fontawesome/brands/git-alt
+    repo: fontawesome/brands/github
   palette:
     - scheme: slate
       primary: white
