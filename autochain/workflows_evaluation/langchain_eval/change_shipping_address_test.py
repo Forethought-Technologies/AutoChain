@@ -16,7 +16,7 @@ def check_order_status(order_id: str, **kwargs):
             "order_id": "123",
             "order_status": "shipped",
             "tracking_url": "example.com/123",
-            "shipping_address": "300 ivy street san francisco ca",
+            "shipping_address": "123 ivy street san francisco ca",
         }
     elif "456" in order_id:
         return {
@@ -24,7 +24,7 @@ def check_order_status(order_id: str, **kwargs):
             "order_id": "456",
             "order_status": "not_shipped",
             "tracking_url": "example.com/456",
-            "shipping_address": "301 ivy street san francisco ca",
+            "shipping_address": "234 spear street san francisco ca",
         }
     else:
         return {"status_code": 400, "message": "order not found"}

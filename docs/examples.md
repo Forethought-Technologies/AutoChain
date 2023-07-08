@@ -89,6 +89,9 @@ chain = Chain(agent=agent, memory=memory)
 user_query = "what is the weather today"
 print(f">> User: {user_query}")
 print(f">> Assistant: {chain.run(user_query)['message']}")
+next_user_query = "Boston"
+print(f">> User: {next_user_query}")
+print(f">> Assistant: {chain.run(next_user_query)['message']}")
 
 ```
 Output would be like the following, including the output from planning
@@ -99,13 +102,19 @@ Planning output: {'thoughts': {'plan': 'Based on the previous conversation, the 
 
 Plan to take action 'Get weather'
 Deciding if need clarification
+Clarification outputs: '{\n    "has_arg_value": "No",\n    "clarifying_question": "Could you please provide the location for which you want to know the weather?"\n}'
+
+>> Assistant: Could you please provide the location for which you want to know the weather?
+>> User: Boston
+
 Took action 'Get weather' with inputs '{}', and the tool output is Today is a sunny day
 
 Planning
-Planning output: {'thoughts': {'plan': "Respond to the user's question about the weather today", 'need_use_tool': 'No'}, 'tool': {'name': '', 'args': {}}, 'response': 'Today is a sunny day'}
+Plan to take action 'Get weather'
+Took action 'Get weather' with inputs '{'location': 'Boston'}', and the tool_output is Today is a sunny day
 
->> Assistant:
-Today is a sunny day
+Planning
+>> Assistant: Today is a sunny day in Boston.
 ```
 
 ## Create a conversational agent with custom prompt injected
