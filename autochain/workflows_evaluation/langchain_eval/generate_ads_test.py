@@ -2,7 +2,7 @@ from langchain.agents import AgentType
 from langchain.tools import Tool as LCTool
 
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from autochain.workflows_evaluation.test_utils import get_test_args
+from autochain.utils import get_args
 from autochain.workflows_evaluation.langchain_eval.langchain_test_utils import (
     create_langchain_from_test,
 )
@@ -92,7 +92,7 @@ Input args: item_name: str""",
 if __name__ == "__main__":
     tests = WorkflowTester(tests=[TestGenerateAdsWithLC()], output_dir="./test_results")
 
-    args = get_test_args()
+    args = get_args()
     if args.interact:
         tests.run_interactive()
     else:

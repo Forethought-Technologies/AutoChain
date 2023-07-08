@@ -1,3 +1,5 @@
+import argparse
+import logging
 import os
 from typing import Optional, Dict, Any
 
@@ -31,3 +33,25 @@ def get_from_env(key: str, env_key: str, default: Optional[str] = None) -> str:
             f" `{env_key}` which contains it, or pass"
             f"  `{key}` as a named parameter."
         )
+
+
+def get_args():
+    """Adding arguments for running test interactively or setting verbosity"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--interact",
+        "-i",
+        action="store_true",
+        help="if run interactively",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="if show detailed contents, such as intermediate results and prompts",
+    )
+    args = parser.parse_args()
+    if args.verbose:
+        logging.basicConfig(level=logging.INFO)
+
+    return args

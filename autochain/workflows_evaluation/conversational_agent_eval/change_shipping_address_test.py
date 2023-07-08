@@ -1,9 +1,9 @@
 from autochain.tools.base import Tool
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import (
-    get_test_args,
     create_chain_from_test,
 )
+from autochain.utils import get_args
 
 
 def check_order_status(order_id: str, **kwargs):
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         tests=[TestChangeShippingAddress()], output_dir="./test_results"
     )
 
-    args = get_test_args()
+    args = get_args()
     if args.interact:
         tester.run_interactive()
     else:

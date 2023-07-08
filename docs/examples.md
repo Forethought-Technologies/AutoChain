@@ -1,7 +1,7 @@
 # Example usage
 
 AutoChain aims to make creating a new customized agent very straight forward with as few
-concepts as possible. Using AutoChain is also very simple.
+concepts as possible.
 
 ## Create a conversational agent without tools
 
@@ -30,7 +30,9 @@ print(
 )
 
 ```
-Output would be like the following, including the output from planning
+
+Outputs would be like the following, including the output from planning
+
 ```text
 >> User: Write me a poem about AI
 Planning
@@ -61,8 +63,8 @@ And use it to build, a better society
 
 ## Create a conversational agent with tools
 
-Adding tools to the agent is also similar to LangChain. User would need to provide a list of 
-`Tool`s when creating the agent from chain, so that agent is aware of its access to tools.  
+Adding tools to the agent is also similar to LangChain. User would need to provide a list of
+`Tool`s when creating the agent from chain, so that agent can access them.
 
 ```python
 from autochain.chain.chain import Chain
@@ -94,7 +96,9 @@ print(f">> User: {next_user_query}")
 print(f">> Assistant: {chain.run(next_user_query)['message']}")
 
 ```
-Output would be like the following, including the output from planning
+
+Outputs would be like the following, including the output from planning
+
 ```text
 >> User: what is the weather today
 Planning
@@ -119,12 +123,13 @@ Planning
 
 ## Create a conversational agent with custom prompt injected
 
-Like AutoGPT and other agents, user might want to provide customized prompt or objective for the 
-agent to assist user with. User could reuse the conversational agent prompt by injecting `prompt` 
-to current planning prompt template or update the entire prompt. [Default prompt](./autochain/agent/conversational_agent/prompt.py) 
-for `ConversationalAgent` has a placeholder for injecting `prompt`. So user would provide it when 
-constructing the agent. For different use cases, user could use different prompts with new 
-string placeholder variables to provide various information into the final prompt.
+Like AutoGPT and other agents, user might want to provide customized prompt or objective for the
+agent to assist user with. Conversational agent has
+a [default prompt template](./autochain/agent/conversational_agent/prompt.py)
+which provides instruction for tool usages and output format. User could inject specific `prompt`
+to current planning prompt template or update the entire prompt. Default prompt template has a
+placeholder for injecting `prompt`. Custom `prompt` could be provided to `ConversationalAgent`
+and form the final prompt through replacing the placeholder variable in the default template.
 
 ```python
 from autochain.agent.conversational_agent.conversational_agent import (
@@ -155,7 +160,8 @@ print(
 
 ```
 
-Output would be like the following
+Outputs would be like the following
+
 ```text
 >>> User: How much is this basic rice cooker
 Planning
@@ -167,9 +173,10 @@ Our basic rice cooker is priced at $30. However, we also have a premium rice coo
 ```
 
 ## Get weather info with OpenAIFunctionsAgent
-
-`OpenAIFunctionsAgent` supports the recently released function calling feature. Here is one 
-example of it to get weather information. 
+OpenAI recently released support for function calling to allow models to use tools through 
+function messages. `OpenAIFunctionsAgent` supports this feature while maintain the same 
+interface by inferring argument types from `func`'s typing information. 
+Here is one example of it to get weather information.
 
 ```python
 import json
@@ -219,6 +226,7 @@ print(f">> Assistant: {chain.run(next_user_query)['message']}")
 ```
 
 Output would be like the following
+
 ```text
 >> User: What's the weather today?
 Planning
@@ -245,9 +253,9 @@ Planning output: message content: The current weather in Boston is 72 degrees Fa
 
 ## Checkout more examples in workflow_evaluation and examples
 
-There are more examples we created with mocked tools to demonstrate the ability of the agent 
+There are more examples we created with mocked tools to demonstrate the ability of the agent
 for workflow evaluation.
-You could run each workflow evaluation test interactively by passing `-i` flag in
+You could also run each workflow evaluation interactively by passing `-i` flag in
 the end.  
 For example:
 

@@ -34,7 +34,7 @@ RESPONSE FORMAT:
 Ensure the response can be parsed by Python json.loads
 """
 
-SHOULD_ANSWER_PROMPT_TEMPLATE = """You are a customer support agent. 
+SHOULD_ANSWER_PROMPT_TEMPLATE = """You are a support agent. 
 Given the following conversation so far, has user acknowledged question is resolved, 
 such as thank you or that's all. 
 Answer with yes or no.
@@ -51,7 +51,7 @@ What is the correct input in JSON format for this tool?
 """
 
 
-CLARIFYING_QUESTION_PROMPT_TEMPLATE = """You are a customer support agent who is going to use '${tool_name}' tool.
+CLARIFYING_QUESTION_PROMPT_TEMPLATE = """You are a support agent who is going to use '${tool_name}' tool.
 Check if you have enough information from the previous conversation and tools outputs to use tool based on the spec below.
 "${tool_desp}"
 

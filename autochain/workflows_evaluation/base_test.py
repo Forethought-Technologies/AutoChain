@@ -158,7 +158,7 @@ Has assistant finish assisting the user? Answer with yes or no"""
 
         messages.append(
             UserMessage(
-                content=f"""You are a customer with access to the following context information about yourself. 
+                content=f"""You are a user with access to the following context information about yourself. 
 Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
