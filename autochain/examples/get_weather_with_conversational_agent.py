@@ -22,3 +22,6 @@ chain = Chain(agent=agent, memory=memory)
 user_query = "what is the weather today"
 print(f">> User: {user_query}")
 print(f">> Assistant: {chain.run(user_query)['message']}")
+next_user_query = "Boston"
+print(f">> User: {next_user_query}")
+print(f">> Assistant: {chain.run(next_user_query)['message']}")

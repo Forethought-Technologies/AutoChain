@@ -20,10 +20,10 @@ class CustomConvoOutputParser(AgentOutputParser):
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
         if not match:
-            print(f"\nLangChain OutputParserException: Could not parse LLM output: `{text}`")
-            return AgentFinish(
-                {"output": text.strip()}, text.strip()
+            print(
+                f"\nLangChain OutputParserException: Could not parse LLM output: `{text}`"
             )
+            return AgentFinish({"output": text.strip()}, text.strip())
         action = match.group(1)
         action_input = match.group(2)
         return AgentAction(action.strip(), action_input.strip(" ").strip('"'), text)

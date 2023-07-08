@@ -1,8 +1,15 @@
 import pickle
 from typing import Any, Optional
 
-from autochain.agent.message import ChatMessageHistory, MessageType, BaseMessage, AIMessage, UserMessage, \
-    FunctionMessage, SystemMessage
+from autochain.agent.message import (
+    ChatMessageHistory,
+    MessageType,
+    BaseMessage,
+    AIMessage,
+    UserMessage,
+    FunctionMessage,
+    SystemMessage,
+)
 from autochain.memory.base import BaseMemory
 from redis import Redis
 
@@ -18,6 +25,7 @@ class RedisMemory(BaseMemory):
 
     class Config:
         """Configuration for this pydantic object."""
+
         arbitrary_types_allowed = True
 
     def load_memory(

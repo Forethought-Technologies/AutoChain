@@ -7,8 +7,9 @@ from langchain.memory import ConversationBufferMemory as LCConversationBufferMem
 from langchain.schema import BaseMemory as LCBaseMemory
 from langchain.tools import Tool as LCTool
 from autochain.chain.langchain_wrapper_chain import LangChainWrapperChain
-from autochain.workflows_evaluation.langchain_eval.custom_langchain_output_parser import \
-    CustomConvoOutputParser
+from autochain.workflows_evaluation.langchain_eval.custom_langchain_output_parser import (
+    CustomConvoOutputParser,
+)
 
 
 def create_langchain_from_test(
@@ -33,7 +34,7 @@ def create_langchain_from_test(
     memory = memory or LCConversationBufferMemory(memory_key="chat_history")
 
     # Created a more lenient output parser to walk around fragility of LangChain Agent
-    kwargs['output_parser'] = CustomConvoOutputParser()
+    kwargs["output_parser"] = CustomConvoOutputParser()
 
     langchain = initialize_agent(
         tools, llm, agent=agent_type, verbose=True, memory=memory, agent_kwargs=kwargs
