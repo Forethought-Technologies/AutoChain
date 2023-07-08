@@ -82,6 +82,9 @@ class WorkflowTester:
         test_results = []
         self.chain = test.chain
         for i, test_case in enumerate(test.test_cases):
+            print(
+                f"========== Start running test case: {test_case.test_name} ==========\n"
+            )
             conversation_history, is_agent_helpful, last_response = self.test_each_case(
                 test_case
             )
