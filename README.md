@@ -3,7 +3,7 @@
 Large language models (LLMs) have shown huge success in different text generation tasks and
 enable developers to build generative agents based on natural language objectives.
 
-However, most of the generative agents require heavy customization for a specific purpose, and
+However, most of the generative agents require heavy customization for specific purposes, and
 adapting to different use cases is sometimes overwhelming using existing tools
 and framework. As a result, it is still very challenging to build a customized generative agent.
 
@@ -14,19 +14,21 @@ AutoChain takes inspiration from LangChain and AutoGPT and aims to solve
 both problems by providing a lightweight and extensible framework
 for developers to build their own conversational agents using LLMs with custom tools and
 [automatically evaluating](#workflow-evaluation) different user scenarios with simulated
-conversations. So experiences user of LangChain would find AutoChain is easy to navigate since
-they share similar concepts.
+conversations. Experienced user of LangChain would find AutoChain is easy to navigate since
+they share similar but simpler concepts.
 
-The goal is to enable user experimentation of generative agents quickly, knowing users would
+The goal is to enable quick user experiments of generative agents, knowing users would
 make more customizations as they are building their own agent.
+
+If you have any question, please feel free to reach out to Yi Lu <yi.lu@forethought.ai>
 
 ## Features
 
-- 🚀 lightweight and extensible generative agent pipeline made easy to LangChain users.
+- 🚀 lightweight and extensible generative agent pipeline.
 - 🔗 agent that can use different custom tools and
-  support [function calling](https://platform.openai.com/docs/guides/gpt/function-calling)
+  support OpenAI [function calling](https://platform.openai.com/docs/guides/gpt/function-calling)
 - 💾 simple memory tracking for conversation history and tools' outputs
-- 🤖 automated agent evaluation with simulated conversations
+- 🤖 automated agent multi-turn conversation evaluation with simulated conversations
 
 ## Setup
 
@@ -61,13 +63,13 @@ python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_
 
 ## Example usage
 
-If you have experience with LangChain, you already know 80% of the AutoChain interface.
+If you have experiences with LangChain, you already know 80% of the AutoChain interfaces.
 
 AutoChain aims to make creating a new customized agent very straight forward with as few
-concepts as possible. Using AutoChain is very simple.
-Read more about [example usages](./docs/examples.md).
+concepts as possible.  
+Read about more [example usages](./docs/examples.md).
 
-The most basic example can use our default chain and `ConversationalAgent`:
+The most basic example uses default chain and `ConversationalAgent`:
 
 ```python
 from autochain.chain.chain import Chain
@@ -83,7 +85,7 @@ chain = Chain(agent=agent, memory=memory)
 print(chain.run("Write me a poem about AI")['message'])
 ```
 
-We could add a list of tools to the agent and chain similar to LangChain
+User could add a list of tools to the agent similar to LangChain
 
 ```python
 tools = [Tool(
@@ -94,7 +96,8 @@ tools = [Tool(
 
 memory = BufferMemory()
 agent = ConversationalAgent.from_llm_and_tools(llm=llm, tools=tools)
-chain = Chain(agent=agent, memory=memory, tools=tools)
+chain = Chain(agent=agent, memory=memory)
+print(chain.run("What is the weather today")['message'])
 ```
 
 AutoChain also added supports for [function calling](https://platform.openai.
@@ -115,40 +118,43 @@ evaluation](./docs/workflow-evaluation.md) test cases which can also be run inte
 AutoChain aims to provide a lightweight framework and simplifies the building process a few
 ways comparing with other existing frameworks
 
-1. Visible prompt used
+1. Easy prompt update  
    Prompt engineering and iterations is one of the most important part of building generative
-   agent. AutoChain makes is very obvious and easy to update prompts.
-2. Up to 2 layers of abstraction
+   agent. AutoChain makes is very obvious and easy to update prompts and visualize prompt
+   outputs. Run with `-v` flag to output verbose prompt and outputs in console.
+2. Up to 2 layers of abstraction  
    Since this goal of AutoChain is enabling quick iterations, it chooses to remove most of the
-   abstraction layers from alternative framework and make it easy to follow
-3. Automated multi-turn evaluation
+   abstraction layers from alternative frameworks and make it easy to follow
+3. Automated multi-turn evaluation  
    The most painful and uncertain part of building generative agent is how to evaluate its
-   performance. Any change could cause regression in other use cases. AutoChain provides an
-   easy test framework to automatically evaluate agent's ability under different user scenarios.
+   performance. Any change for one scenario could cause regression in other use cases. AutoChain
+   provides an easy test framework to automatically evaluate agent's ability under different
+   user scenarios.
 
-Read mode about detailed [components overview](./docs/components_overview.md)
+Read more about detailed [components overview](./docs/components_overview.md)
 
 ## Workflow Evaluation
 
 It is notoriously hard to evaluate generative agents in LangChain or AutoGPT. An agent's behavior
-is nondeterministic and susceptible to small changes to the prompt. It can be really hard to
-know if your agent is behaving correctly. The current path for evaluation is running the agent
-through a large number of preset queries and evaluate the generated responses. However, that is
-limited to single turn conversation, not specific to areas, and very expensive to evaluate.
+is nondeterministic and susceptible to small changes to the prompt or model. It is very
+hard to know if agent is behaving correctly under different scenarios. The current path for
+evaluation is running the agent through a large number of preset queries and evaluate the
+generated responses. However, that is limited to single turn conversation, general and not
+specific to tasks and expensive to verify.
 
-To effectively evaluate agents, AutoChain introduced the workflow evaluation
-which simulates the conversation between an generative agent and simulated users with an LLM under
+To effectively evaluate agents, AutoChain introduces the workflow evaluation framework
+which simulates the conversation between an generative agent and simulated users with LLM under
 different user contexts and desired outcomes of the conversation. This way, we could add test
-cases for different user scenarios and use LLMs to evaluate if a conversation reached the desired
-outcome.
+cases for different user scenarios and use LLMs to evaluate if multi-turn conversations reached
+the desired outcome.
 
 Read more about our [evaluation strategy](./docs/workflow-evaluation.md).
 
-### How to run workflow tests
+### How to run workflow evaluations
 
 There are two modes for running workflow tests. Interactively or running all test cases.
 For example in `autochain/workflows_evaluation/conversational_agent_eval
-/change_shipping_address_test.py`, it has already defined a few test cases.
+/change_shipping_address_test.py`, there are already a few example test cases.
 
 Running all the test cases defined in the test:
 
@@ -163,4 +169,3 @@ python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_
 ```
 
 More explanations for how AutoChain works? checkout [components overview](./docs/components_overview.md)
-

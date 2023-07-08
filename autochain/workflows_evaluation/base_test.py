@@ -82,6 +82,9 @@ class WorkflowTester:
         test_results = []
         self.chain = test.chain
         for i, test_case in enumerate(test.test_cases):
+            print(
+                f"========== Start running test case: {test_case.test_name} ==========\n"
+            )
             conversation_history, is_agent_helpful, last_response = self.test_each_case(
                 test_case
             )
@@ -158,7 +161,7 @@ Has assistant finish assisting the user? Answer with yes or no"""
 
         messages.append(
             UserMessage(
-                content=f"""You are a customer with access to the following context information about yourself. 
+                content=f"""You are a user with access to the following context information about yourself. 
 Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:

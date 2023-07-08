@@ -1,5 +1,3 @@
-import argparse
-import logging
 from typing import List, Optional, Dict
 
 from autochain.agent.conversational_agent.conversational_agent import (
@@ -14,28 +12,6 @@ from autochain.memory.buffer_memory import BufferMemory
 from autochain.models.base import BaseLanguageModel
 from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
-
-
-def get_test_args():
-    """Adding arguments for running test"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--interact",
-        "-i",
-        action="store_true",
-        help="if run interactively",
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        help="if show detailed contents, such as intermediate results and prompts",
-    )
-    args = parser.parse_args()
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-
-    return args
 
 
 def create_chain_from_test(

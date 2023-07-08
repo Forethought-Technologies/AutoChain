@@ -5,6 +5,10 @@ from autochain.tools.base import Tool
 from autochain.agent.conversational_agent.conversational_agent import (
     ConversationalAgent,
 )
+from autochain.utils import get_args
+
+# Set logging level
+_ = get_args()
 
 llm = ChatOpenAI(temperature=0)
 tools = [
