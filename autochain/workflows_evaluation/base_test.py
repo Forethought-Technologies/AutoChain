@@ -23,6 +23,7 @@ class TestCase:
     test_name: str = ""
     user_context: str = ""
     expected_outcome: str = ""
+    expected_tools_used: list = list
 
 
 class BaseTest(ABC):
@@ -73,21 +74,23 @@ class WorkflowTester:
 
             conversation_end = self.determine_if_conversation_ends(agent_message)
 
-        is_agent_helpful = self.determine_if_agent_solved_problem(
+        was_agent_helpful = self.determine_if_agent_solved_problem(
             conversation_history, test_case.expected_outcome
         )
-        return conversation_history, is_agent_helpful, response
+        return conversation_history, was_agent_helpful, response
 
     def run_test(self, test):
         test_results = []
         self.chain = test.chain
         for i, test_case in enumerate(test.test_cases):
             print(
-                f"========== Start running test case: {test_case.test_name} ==========\n"
+                f"========== Started running test case: {test_case.test_name} ==========\n"
             )
-            conversation_history, is_agent_helpful, last_response = self.test_each_case(
+            conversation_history, was_agent_helpful, last_response = self.test_each_case(
                 test_case
             )
+            tools_used = last_response[constants.INTERMEDIATE_STEPS]
+            were_expected_tools_used = set(test_case.expected_tools_used) == set([tool_used.tool for tool_used in tools_used])
             test_results.append(
                 {
                     "test_name": test_case.test_name,
@@ -95,8 +98,9 @@ class WorkflowTester:
                         f"{user_type}: {message}"
                         for user_type, message, in conversation_history
                     ],
-                    "is_agent_helpful": is_agent_helpful,
-                    "actions_took": [
+                    "was_agent_helpful": was_agent_helpful,
+                    "were_expected_tools_used": were_expected_tools_used,
+                    "tools_used": [
                         {
                             "tool": action.tool,
                             "tool_input": action.tool_input,
@@ -106,6 +110,7 @@ class WorkflowTester:
                     ],
                     "num_turns": len(conversation_history),
                     "expected_outcome": test_case.expected_outcome,
+                    "expected_tools_used": test_case.expected_tools_used,
                 }
             )
 
@@ -134,9 +139,9 @@ class WorkflowTester:
     def determine_if_conversation_ends(self, last_utterance: str) -> bool:
         messages = [
             UserMessage(
-                content=f"""The most recent reply from assistant
+                content=f"""The most recent reply from assistant is
 assistant: "{last_utterance}"
-Has assistant finish assisting the user? Answer with yes or no"""
+Has assistant finished assisting the user? Answer with yes or no"""
             ),
         ]
         output: Generation = self.llm.generate(messages=messages).generations[0]
@@ -162,8 +167,8 @@ Has assistant finish assisting the user? Answer with yes or no"""
         messages.append(
             UserMessage(
                 content=f"""You are a user with access to the following context information about yourself. 
-Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
-If you are not sure about how to answer, respond with "hand off to agent".
+Based on previous conversation, write a message to the assistant to help you with your goal described in the context step by step.
+If you are not sure about how to answer, respond with "hand off to human".
 Context:
 "{user_context}"
 
