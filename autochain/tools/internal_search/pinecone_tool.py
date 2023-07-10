@@ -4,10 +4,10 @@ from typing import List, Any, Optional, Dict
 
 import pinecone
 from pinecone import QueryResponse
-from pydantic import Extra
 
 from autochain.models.base import BaseLanguageModel
 from autochain.tools.base import Tool
+from autochain.tools.internal_search.base_search_tool import BaseSearchTool
 
 
 @dataclass
@@ -17,7 +17,7 @@ class PineconeDoc:
     id: str = field(default_factory=lambda: str(uuid.uuid1()))
 
 
-class PineconeSearch(Tool):
+class PineconeSearch(Tool, BaseSearchTool):
     """
     Use Pinecone as the internal search tool
     """
@@ -37,11 +37,7 @@ class PineconeSearch(Tool):
         )
         self.index = pinecone.Index(self.index_name)
 
-        for doc in self.docs:
-            self._encode(doc)
-            self.id2doc[doc.id] = doc.doc
-
-        self.index.upsert([(d.id, d.vector) for d in self.docs])
+        self.add_docs(self.docs)
 
     def _encode(self, doc: PineconeDoc) -> None:
         if not doc.vector and self.encoder:
@@ -76,3 +72,20 @@ class PineconeSearch(Tool):
         )
 
         return _format_output(response)
+
+    def add_docs(self, docs: List[PineconeDoc], **kwargs):
+        if not len(docs):
+            return
+
+        for doc in docs:
+            self._encode(doc)
+            self.id2doc[doc.id] = doc.doc
+
+        self.index.upsert([(d.id, d.vector) for d in docs])
+
+    def clear_index(self):
+        pinecone.delete_index(self.index_name)
+        pinecone.create_index(
+            self.index_name, dimension=self.dimension, metric=self.metric
+        )
+        self.index = pinecone.Index(self.index_name)

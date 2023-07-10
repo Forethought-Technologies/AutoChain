@@ -2,7 +2,7 @@ from autochain.tools.base import Tool
 from autochain.tools.google_search.util import GoogleSearchAPIWrapper
 
 
-class GoogleSearchResults(Tool):
+class GoogleSearchTool(Tool):
     """Tool that has capability to query the Google Search API and get back json."""
 
     name = "Google Search Results JSON"

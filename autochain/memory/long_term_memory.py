@@ -9,7 +9,9 @@ from typing import Any, Optional
 
 from autochain.agent.message import ChatMessageHistory, MessageType
 from autochain.memory.base import BaseMemory
+from autochain.tools.internal_search.base_search_tool import BaseSearchTool
 from autochain.tools.internal_search.chromadb_tool import ChromaDBSearch, ChromaDoc
+from autochain.tools.internal_search.pinecone_tool import PineconeSearch, PineconeDoc
 
 
 class LongTermMemory(BaseMemory):
@@ -17,16 +19,19 @@ class LongTermMemory(BaseMemory):
 
     conversation_history = ChatMessageHistory()
     kv_memory = {}
-    long_term_memory = ChromaDBSearch(docs=[], description="long term memory")
+    long_term_memory: BaseSearchTool = None
 
     class Config:
-        keep_untouched = (ChromaDBSearch,)
+        keep_untouched = (
+            ChromaDBSearch,
+            PineconeSearch,
+        )
 
     def load_memory(
         self,
         key: Optional[str] = None,
         default: Optional[Any] = None,
-        n_results: int = 1,
+        top_k: int = 1,
         **kwargs
     ) -> Any:
         """Return history buffer by key or all memories."""
@@ -34,7 +39,7 @@ class LongTermMemory(BaseMemory):
             return self.kv_memory[key]
 
         # else try to retrieve from long term memory
-        result = self.long_term_memory.run({"query": key, "n_results": n_results})
+        result = self.long_term_memory.run({"query": key, "top_k": top_k})
         return result or default
 
     def load_conversation(self, **kwargs) -> ChatMessageHistory:
@@ -45,7 +50,7 @@ class LongTermMemory(BaseMemory):
         if (
             isinstance(value, list)
             and len(value) > 0
-            and isinstance(value[0], ChromaDoc)
+            and (isinstance(value[0], ChromaDoc) or isinstance(value[0], PineconeDoc))
         ):
             self.long_term_memory.add_docs(docs=value)
         elif key:

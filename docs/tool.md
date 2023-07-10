@@ -28,3 +28,23 @@ the function name is not very obvious.
 Function calling feature of OpenAI supports adding description for each argument. User could
 pass a dictionary of arg name and description using `arg_description` parameter. They will be
 formatted into the prompt when using `OpenAIFunctionsAgent`. 
+
+
+## Tools included
+### GoogleSearchTool
+Migrated from LangChain, which is also an example for user to easily migrate any tool from 
+LangChain if needed.  
+User would need to provide `google_api_key` and `google_cse_id` to 
+search google through API. This allows the agent to have access to search engine and other 
+non-parametric information.  
+
+### PineconeTool
+Internal search tool that can be used for long term memory of the agent or looking up relevant 
+information that does not exists from the Internet. Currently, AutoChain supports `Pinecone` as 
+long term memory for the agent
+
+
+### ChromaDBTool
+Internal search tool that can be used for long term memory of the agent or looking up relevant
+information that does not exists from the Internet. Currently, AutoChain supports `ChromaDB` as
+long term memory for the agent
