@@ -102,11 +102,11 @@ class WorkflowTester:
                     "were_expected_tools_used": were_expected_tools_used,
                     "tools_used": [
                         {
-                            "tool": action.tool,
-                            "tool_input": action.tool_input,
-                            "tool_output": action.tool_output,
+                            "tool": tool_used.tool,
+                            "tool_input": tool_used.tool_input,
+                            "tool_output": tool_used.tool_output,
                         }
-                        for action in last_response[constants.INTERMEDIATE_STEPS]
+                        for tool_used in tools_used
                     ],
                     "num_turns": len(conversation_history),
                     "expected_outcome": test_case.expected_outcome,
