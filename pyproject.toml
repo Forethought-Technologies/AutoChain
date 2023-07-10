@@ -40,7 +40,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8.1"
 colorama = ">=0.4.6"
-pydantic = "^1.10.9"
+pydantic = ">=1.10.9,<3.0.0"
 google-api-python-client = ">=2.89.0"
 chromadb = ">=0.3.26"
 pandas = ">=2.0.2"
