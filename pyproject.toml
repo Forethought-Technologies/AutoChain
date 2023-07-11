@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autochain"
-version = "0.0.2"
+version = "0.0.3"
 description = "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: add URLs, homepage, documentation
 authors = [

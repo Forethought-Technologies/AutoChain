@@ -7,6 +7,7 @@ from chromadb.api import QueryResult
 from pydantic import Extra
 
 from autochain.tools.base import Tool
+from autochain.tools.internal_search.base_search_tool import BaseSearchTool
 
 
 @dataclass
@@ -16,7 +17,7 @@ class ChromaDoc:
     id: str = field(default_factory=lambda: str(uuid.uuid1()))
 
 
-class ChromaDBSearch(Tool):
+class ChromaDBSearch(Tool, BaseSearchTool):
     """
     Use ChromaDB as internal search tool
     """
@@ -43,7 +44,7 @@ class ChromaDBSearch(Tool):
     def _run(
         self,
         query: str,
-        n_results: int = 2,
+        top_k: int = 2,
         *args: Any,
         **kwargs: Any,
     ) -> str:
@@ -58,7 +59,7 @@ class ChromaDBSearch(Tool):
 
         result = self.collection.query(
             query_texts=[query],
-            n_results=n_results,
+            n_results=top_k,
         )
         return _format_output(result)
 

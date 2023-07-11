@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import logging
 from string import Template
 from typing import Any, Dict, List, Optional, Union
 
 from colorama import Fore
+
 from autochain.agent.base_agent import BaseAgent
 from autochain.agent.conversational_agent.output_parser import ConvoJSONOutputParser
 from autochain.agent.conversational_agent.prompt import (
