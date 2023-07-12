@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "minichain"
-version = "0.0.1"
-description = "MiniChain: Build lightweight, extensible, and testable LLM Agents"
+name = "autochain"
+version = "0.0.3"
+description = "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: add URLs, homepage, documentation
 authors = [
     "Yi Lu <yi.lu@forethought.ai>",
     "Forethought Engineering <eng-oss@forethought.ai>",
-    ]
+]
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Customer Service",
@@ -40,13 +40,17 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8.1"
 colorama = ">=0.4.6"
-pydantic = ">=1.10.9"
-google-api-python-client = {version = ">=2.89.0", optional = true}
+pydantic = "^1.10.9"
+google-api-python-client = ">=2.89.0"
 chromadb = ">=0.3.26"
 pandas = ">=2.0.2"
-langchain = ">=0.0.199"
-openai = {version = ">=0.27.8", optional = true}
+openai = ">=0.27.8"
 types-colorama = ">=0.4.15.11"
+pytest = "^7.3.2"
+redis = "^4.6.0"
+pinecone-client = "^2.2.2"
+mkdocs-git-authors-plugin = "^0.7.2"
+tenacity = "^8.2.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -64,10 +68,6 @@ pytest = "^7.3.2"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.extras]
-openai = ["openai"]
-google = ["google-api-python-client"]
-
 [tool.mypy]
 strict = true
 
@@ -81,21 +81,21 @@ ignore_missing_imports = true
 
 [tool.ruff]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
 ]
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
 [tool.ruff.per-file-ignores]
 # "__init__.py" = ["F401"]
 
 [tool.ruff.isort]
-known-third-party = ["minichain"]
+known-third-party = ["autochain"]

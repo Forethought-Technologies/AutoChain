@@ -1,17 +1,21 @@
-site_name: MiniChain
-site_description: "MiniChain: Build lightweight, extensible, and testable LLM Agents"
+site_name: AutoChain
+site_description: "AutoChain: Build lightweight, extensible, and testable LLM Agents"
 # TODO: set the proper docs website URL once the domain is defined
 site_url: https://engineering.forethought.ai
+repo_url: https://github.com/Forethought-Technologies/AutoChain
+repo_name: AutoChain
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
   palette:
-  - scheme: slate
-    primary: white
-    accent: purple
-    # Disable Dark mode toggle
-    # toggle:
-    #   icon: material/lightbulb-outline
-    #   name: Switch to light mode
+    - scheme: slate
+      primary: white
+      accent: purple
+      # Disable Dark mode toggle
+      # toggle:
+      #   icon: material/lightbulb-outline
+      #   name: Switch to light mode
   # - scheme: default
   #   primary: white
   #   accent: purple
@@ -19,38 +23,44 @@ theme:
   #     icon: material/lightbulb
   #     name: Switch to dark mode
   features:
-  - search.suggest
-  - search.highlight
-  - content.tabs.link
-  # TODO if MiniChain gets its own logo and icon, it could be put in these directories
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+  # TODO if AutoChain gets its own logo and icon, it could be put in these directories
   # if the intention is to preserve Forethought's logo, remove this comment
   logo: img/icon.png
   favicon: img/icon.png
   language: en
+
 nav:
   - index.md
   - examples.md
+  - workflow-evaluation.md
+  - components_overview.md
   - chain.md
   - agent.md
   - tool.md
-  - workflow-evaluation.md
+  - memory.md
+
+plugins:
+  - git-authors
 
 markdown_extensions:
-- toc:
-    permalink: true
-- markdown.extensions.codehilite:
-    guess_lang: false
-- admonition
-- codehilite
-- extra
-- pymdownx.superfences:
-    custom_fences:
-    - name: mermaid
-      class: mermaid
-      format: !!python/name:pymdownx.superfences.fence_code_format ''
-- pymdownx.tabbed:
-    alternate_style: true
-- mdx_include
+  - toc:
+      permalink: true
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - admonition
+  - codehilite
+  - extra
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format ''
+  - pymdownx.tabbed:
+      alternate_style: true
+  - mdx_include
 
 extra:
   # TODO: do we want Google Analytics?
@@ -58,12 +68,12 @@ extra:
   #   provider: google
   #   property: YY-xxxxx
   social:
-  - icon: fontawesome/brands/twitter
-    link: https://twitter.com/forethought_ai
-  - icon: fontawesome/brands/linkedin
-    link: https://www.linkedin.com/company/forethought-ai/
-  - icon: fontawesome/solid/globe
-    link: https://forethought.ai/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/forethought_ai
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/forethought-ai/
+    - icon: fontawesome/solid/globe
+      link: https://forethought.ai/
 
 extra_css:
   - css/termynal.css
