@@ -1,57 +1,110 @@
 import json
-from typing import List, Optional
+from unittest import mock
 
-from minichain.agent.support_agent.support_agent import SupportAgent
-from minichain.agent.message import BaseMessage, AIMessage
-from minichain.agent.structs import AgentFinish
-from minichain.models.base import LLMResult, Generation, BaseLanguageModel
-from minichain.tools.simple_handoff.tools import HandOffToAgent
+import pytest
 
+from autochain.agent.conversational_agent.conversational_agent import (
+    ConversationalAgent,
+)
+from autochain.agent.message import (
+    ChatMessageHistory,
+    MessageType,
+)
+from autochain.agent.structs import AgentFinish
 
-class MockLLM(BaseLanguageModel):
-    message: str = ""
-
-    def generate(
-        self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
-    ) -> LLMResult:
-        return LLMResult(
-            generations=[Generation(message=AIMessage(content=self.message))]
-        )
+from autochain.models.chat_openai import ChatOpenAI
+from autochain.tools.simple_handoff.tool import HandOffToAgent
 
 
-def test_should_answer_prompt():
-    agent = SupportAgent.from_llm_and_tools(
-        llm=MockLLM(message="yes, question is resolved"), tools=[]
-    )
+@pytest.fixture
+def openai_should_answer_fixture():
+    with mock.patch(
+        "autochain.models.chat_openai.ChatOpenAI.generate_with_retry",
+        side_effect=side_effect,
+    ):
+        yield
 
-    input = {"query": "user query", "history": "conversation history"}
-    response = agent.should_answer(**input)
+
+def side_effect(*args, **kwargs):
+    message = kwargs["messages"][0]["content"]
+
+    if "good" in message:
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "yes, question is resolved",
+                    }
+                }
+            ],
+            "usage": 10,
+        }
+    else:
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "no, question is not resolved",
+                    }
+                }
+            ],
+            "usage": 10,
+        }
+
+
+@pytest.fixture
+def openai_response_fixture():
+    with mock.patch(
+        "autochain.models.chat_openai.ChatOpenAI.generate_with_retry",
+        return_value={
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": json.dumps(
+                            {
+                                "thoughts": {
+                                    "plan": "Given workflow policy and previous tools outputs",
+                                    "need_use_tool": "Yes if needs to use another tool not used in previous tools outputs else No",
+                                },
+                                "tool": {"name": "", "args": {"arg_name": ""}},
+                                "response": "response to suer",
+                                "workflow_finished": "No",
+                            }
+                        ),
+                    }
+                }
+            ],
+            "usage": 10,
+        },
+    ):
+        yield
+
+
+def test_should_answer_prompt(openai_should_answer_fixture):
+    agent = ConversationalAgent.from_llm_and_tools(llm=ChatOpenAI(), tools=[])
+
+    inputs = {"history": "good user query"}
+    response = agent.should_answer(**inputs)
     assert isinstance(response, AgentFinish)
 
-    agent = SupportAgent(llm=MockLLM(message="no, question is not resolved"))
-    response = agent.should_answer(**input)
+    inputs = {"history": "bad user query"}
+    agent = ConversationalAgent(llm=ChatOpenAI(), tools=[])
+    response = agent.should_answer(**inputs)
     assert response is None
 
 
-def test_plan():
-    mock_generation_response = json.dumps(
-        {
-            "thoughts": {
-                "plan": "Given workflow policy and previous observations",
-                "need_use_tool": "Yes if needs to use another tool not used in previous observations else No",
-            },
-            "tool": {"name": "", "args": {"arg_name": ""}},
-            "response": "response to suer",
-            "workflow_finished": "No",
-        }
+def test_plan(openai_response_fixture):
+    agent = ConversationalAgent.from_llm_and_tools(
+        llm=ChatOpenAI(), tools=[HandOffToAgent()]
     )
 
-    agent = SupportAgent.from_llm_and_tools(
-        llm=MockLLM(message=mock_generation_response), tools=[HandOffToAgent()]
-    )
+    history = ChatMessageHistory()
+    history.save_message("first user query", MessageType.UserMessage)
+    history.save_message("assistant response", MessageType.AIMessage)
+    history.save_message("second user query", MessageType.UserMessage)
 
-    input = {"query": "user query", "history": "conversation history"}
-    action = agent.plan(intermediate_steps=[], **input)
+    action = agent.plan(history=history, intermediate_steps=[])
     assert isinstance(action, AgentFinish)
