@@ -4,6 +4,7 @@ from autochain.tools.internal_search.chromadb_tool import ChromaDoc, ChromaDBSea
 from autochain.tools.internal_search.pinecone_tool import PineconeSearch, PineconeDoc
 from tests.common.pinecone_mocks import (
     DummyEncoder,
+    pinecone_index_fixture
 )
 
 
