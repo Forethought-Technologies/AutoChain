@@ -9,7 +9,8 @@ from autochain.tools.base import Tool
 
 
 class MockIndex:
-    kv = {}
+    def __init__(self):
+        self.kv = {}
 
     def upsert(self, id_vectors, *args, **kwargs):
         for id, vector in id_vectors:

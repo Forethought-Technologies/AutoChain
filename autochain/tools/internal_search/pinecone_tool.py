@@ -70,7 +70,6 @@ class PineconeSearch(Tool, BaseSearchTool):
         response: QueryResponse = self.index.query(
             vector=encoding, top_k=top_k, include_values=include_values
         )
-
         return _format_output(response)
 
     def add_docs(self, docs: List[PineconeDoc], **kwargs):

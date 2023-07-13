@@ -2,8 +2,9 @@ from autochain.agent.message import MessageType
 from autochain.memory.long_term_memory import LongTermMemory
 from autochain.tools.internal_search.chromadb_tool import ChromaDoc, ChromaDBSearch
 from autochain.tools.internal_search.pinecone_tool import PineconeSearch, PineconeDoc
-from tests.common.pinecone_mocks import (
+from test_utils.pinecone_mocks import (
     DummyEncoder,
+    pinecone_index_fixture
 )
 
 

@@ -1,4 +1,5 @@
 import json
+import os
 from unittest import mock
 
 import pytest
@@ -84,6 +85,7 @@ def openai_response_fixture():
 
 
 def test_should_answer_prompt(openai_should_answer_fixture):
+    os.environ["OPENAI_API_KEY"] = "mock_api_key"
     agent = ConversationalAgent.from_llm_and_tools(llm=ChatOpenAI(), tools=[])
 
     inputs = {"history": "good user query"}
@@ -97,6 +99,7 @@ def test_should_answer_prompt(openai_should_answer_fixture):
 
 
 def test_plan(openai_response_fixture):
+    os.environ["OPENAI_API_KEY"] = "mock_api_key"
     agent = ConversationalAgent.from_llm_and_tools(
         llm=ChatOpenAI(), tools=[HandOffToAgent()]
     )

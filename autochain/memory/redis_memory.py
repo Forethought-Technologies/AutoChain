@@ -1,5 +1,5 @@
 import pickle
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from autochain.agent.message import (
     ChatMessageHistory,
@@ -39,7 +39,7 @@ class RedisMemory(BaseMemory):
             return default
         return pickle.loads(pickled)
 
-    def load_conversation(self, **kwargs: dict[str, Any]) -> ChatMessageHistory:
+    def load_conversation(self, **kwargs: Dict[str, Any]) -> ChatMessageHistory:
         """Return chat message history."""
         redis_key = self.redis_key_prefix + f":{ChatMessageHistory.__name__}"
         return ChatMessageHistory(messages=self.load_memory(redis_key, []))
