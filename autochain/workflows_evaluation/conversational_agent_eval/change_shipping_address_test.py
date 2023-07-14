@@ -38,9 +38,7 @@ def change_shipping_address(order_id: str, new_address: str, **kwargs):
 
 
 class TestChangeShippingAddress(BaseTest):
-    prompt = """You are an AI customer support assistant who tries to help with shipping 
-address questions.
-When a customer requests to change their shipping address, verify the order status in the system based on order id.
+    prompt = """When a customer requests to change their shipping address, verify the order status in the system based on order id.
 If the order has not yet shipped, update the shipping address as requested and confirm with the customer that it has been updated. 
 If the order has already shipped, inform them that it is not possible to change the shipping address at this stage and provide assistance on how to proceed with exchanges, by following instructions at example.com/returns.
 """
