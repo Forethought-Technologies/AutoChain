@@ -95,6 +95,8 @@ class WorkflowTester:
                         f"{user_type}: {message}"
                         for user_type, message, in conversation_history
                     ],
+                    "num_turns": len(conversation_history),
+                    "expected_outcome": test_case.expected_outcome,
                     "is_agent_helpful": is_agent_helpful,
                     "actions_took": [
                         {
@@ -104,8 +106,6 @@ class WorkflowTester:
                         }
                         for action in last_response[constants.INTERMEDIATE_STEPS]
                     ],
-                    "num_turns": len(conversation_history),
-                    "expected_outcome": test_case.expected_outcome,
                 }
             )
 
