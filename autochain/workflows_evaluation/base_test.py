@@ -162,7 +162,9 @@ Has assistant finish assisting the user? Answer with yes or no"""
         messages.append(
             UserMessage(
                 content=f"""You are a user with access to the following context information about yourself. 
-Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
+Based on previous conversation, write the message to assistant to help you with goal described 
+in context without asking repetitive questions.
+Replies 'Thank you' if the goal is achieved.
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
 "{user_context}"
