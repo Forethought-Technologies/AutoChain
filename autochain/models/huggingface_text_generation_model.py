@@ -23,6 +23,14 @@ logger = logging.getLogger(__name__)
 
 
 class HuggingFaceTextGenerationModel(BaseLanguageModel):
+    """Huggingface model that supports text-generation task
+
+    Example:
+    .. code-block:: python
+
+        from autochain.models.huggingface_text_generation_model import HuggingFaceTextGenerationModel
+        llm = HuggingFaceTextGenerationModel(model_name="mosaicml/mpt-7b", model_kwargs={"trust_remote_code":True})
+    """
     model_name: str = "gpt2"
     """Model name to use. GPT2 is only for demostration purpose. It does not work well for task 
     planning"""
