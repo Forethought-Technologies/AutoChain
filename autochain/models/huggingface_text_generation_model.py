@@ -45,11 +45,13 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     # """Whether to stream the results or not."""
     # n: int = 1
     """Number of chat completions to generate for each prompt."""
-    max_tokens: Optional[int] = None
+    max_tokens: Optional[int] = 512
     """Maximum number of tokens to generate."""
 
     pipeline_kwargs: Dict[str, Any] = Field(default_factory=dict)
     """Other huggingface pipeline args"""
+
+    default_stop_tokens: List[str] = ["."]
 
     model: Optional[AutoModelForCausalLM]
     tokenizer: Optional[AutoTokenizer]
@@ -62,7 +64,10 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name, **self.model_kwargs
+            self.model_name,
+            device_map="auto",
+            max_new_tokens=self.max_tokens,
+            **self.model_kwargs
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -79,7 +84,6 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
             task="text-generation",
             model=self.model,
             tokenizer=self.tokenizer,
-            model_kwargs=self.model_kwargs,
             **self.pipeline_kwargs,
         )
 
@@ -112,8 +116,11 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
             token_ids = self.tokenizer.encode(text)[: self.max_tokens]
             text = self.tokenizer.decode(token_ids)
 
-        if stop:
-            text = self._enforce_stop_tokens(text=text, stop=stop)
+        # it is better to have a default stop token so model does not always generate to max
+        # sequence length
+        stop = stop or self.default_stop_tokens
+        text = self._enforce_stop_tokens(text=text, stop=stop)
+
         return LLMResult(
             generations=[Generation(message=AIMessage(content=text))],
             llm_output={
