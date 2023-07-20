@@ -1,6 +1,6 @@
 from autochain.chain.chain import Chain
 from autochain.memory.buffer_memory import BufferMemory
-from autochain.models.huggingface_text_generation_model import HuggingFaceTextGenerationModel
+from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
 from autochain.agent.conversational_agent.conversational_agent import (
     ConversationalAgent,
@@ -10,7 +10,7 @@ from autochain.utils import get_args
 # Set logging level
 _ = get_args()
 
-llm = HuggingFaceTextGenerationModel(model_name="gpt2")
+llm = ChatOpenAI(temperature=0)
 tools = [
     Tool(
         name="Get weather",
