@@ -80,8 +80,9 @@ class ConversationalAgent(BaseAgent):
         if "history" not in kwargs or not kwargs["history"]:
             return None
 
+        history = kwargs.pop("history")
         inputs = {
-            "history": kwargs['history'].format_message(),
+            "history": history.format_message(),
             **kwargs,
         }
 

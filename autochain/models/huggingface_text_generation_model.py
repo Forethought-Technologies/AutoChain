@@ -1,21 +1,16 @@
 """OpenAI chat wrapper."""
 from __future__ import annotations
 
-import enum
-import inspect
 import logging
-import os
-import re
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from pydantic import Extra, Field, root_validator
+import torch
+from pydantic import Field
+from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 
 from autochain.agent.message import (
     BaseMessage,
-    UserMessage,
     AIMessage,
-    SystemMessage,
-    FunctionMessage,
 )
 from autochain.models.base import (
     LLMResult,
@@ -24,18 +19,21 @@ from autochain.models.base import (
 )
 from autochain.tools.base import Tool
 
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
-
 logger = logging.getLogger(__name__)
 
 
 class HuggingFaceTextGenerationModel(BaseLanguageModel):
     model_name: str = "gpt2"
-    """Model name to use."""
+    """Model name to use. GPT2 is only for demostration purpose. It does not work well for task 
+    planning"""
     temperature: float = 0
     """What sampling temperature to use."""
     model_kwargs: Dict[str, Any] = Field(default_factory=dict)
     """Holds any model parameters valid for `create` call not explicitly specified."""
+
+    tokenizer_kwargs: Dict[str, Any] = Field(default_factory=dict)
+    """Holds any model parameters valid for creating tokenizer."""
+
     request_timeout: Optional[Union[float, Tuple[float, float]]] = None
     """Timeout for requests to OpenAI completion API. Default is 600 seconds."""
     max_retries: int = 6
@@ -48,10 +46,9 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     max_tokens: Optional[int] = 512
     """Maximum number of tokens to generate."""
 
-    pipeline_kwargs: Dict[str, Any] = Field(default_factory=dict)
-    """Other huggingface pipeline args"""
-
     default_stop_tokens: List[str] = ["."]
+    """Model will generate tokens up to the number of max token, so it would be good to have 
+    default stop token"""
 
     model: Optional[AutoModelForCausalLM]
     tokenizer: Optional[AutoTokenizer]
@@ -63,15 +60,11 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            device_map="auto",
-            max_new_tokens=self.max_tokens,
-            **self.model_kwargs
-        )
+        if torch.cuda.is_available():
+            self.model_kwargs["device_map"] = "auto"
 
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name, **self.model_kwargs
+            self.model_name, **self.tokenizer_kwargs
         )
 
     def generate(
@@ -82,13 +75,16 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     ) -> LLMResult:
         generator = pipeline(
             task="text-generation",
-            model=self.model,
+            model=self.model_name,
             tokenizer=self.tokenizer,
-            **self.pipeline_kwargs,
+            max_new_tokens=self.max_tokens,
+            temperature=self.temperature,
+            **self.model_kwargs,
         )
 
         prompt = self._construct_prompt_from_message(messages)
         generation = generator(prompt, do_sample=False)
+
         return self._create_llm_result(generation=generation, prompt=prompt, stop=stop)
 
     @staticmethod
@@ -111,7 +107,7 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     def _create_llm_result(
         self, generation: List[Dict[str, Any]], prompt: str, stop: List[str]
     ) -> LLMResult:
-        text = generation[0]["generated_text"][len(prompt) :]
+        text = generation[0]["generated_text"][len(prompt):]
         if self.max_tokens:
             token_ids = self.tokenizer.encode(text)[: self.max_tokens]
             text = self.tokenizer.decode(token_ids)
