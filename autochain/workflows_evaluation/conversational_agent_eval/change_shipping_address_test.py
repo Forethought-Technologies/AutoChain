@@ -1,3 +1,4 @@
+from autochain.models.huggingface_text_generation_model import HuggingFaceTextGenerationModel
 from autochain.tools.base import Tool
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import (
@@ -80,7 +81,8 @@ Input args: order_id: non-empty str, new_address: non-empty str""",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, prompt=prompt)
+    chain = create_chain_from_test(tools=tools, prompt=prompt,
+                                   llm=HuggingFaceTextGenerationModel(model_name="meta-llama/Llama-2-7b-hf"))
 
 
 if __name__ == "__main__":
