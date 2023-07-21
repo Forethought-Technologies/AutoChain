@@ -6,7 +6,7 @@ from autochain.agent.message import (
     ChatMessageHistory,
     MessageType,
 )
-from autochain.agent.openai_funtions_agent.openai_functions_agent import (
+from autochain.agent.openai_functions_agent.openai_functions_agent import (
     OpenAIFunctionsAgent,
 )
 from autochain.agent.structs import AgentAction, AgentFinish

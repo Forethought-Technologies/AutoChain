@@ -1,4 +1,4 @@
-from autochain.agent.openai_funtions_agent.openai_functions_agent import (
+from autochain.agent.openai_functions_agent.openai_functions_agent import (
     OpenAIFunctionsAgent,
 )
 from autochain.models.chat_openai import ChatOpenAI
