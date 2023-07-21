@@ -127,8 +127,8 @@ class ChatOpenAI(BaseLanguageModel):
     Example:
         .. code-block:: python
 
-            from langchain.chat_models import ChatOpenAI
-            openai = ChatOpenAI(model_name="gpt-3.5-turbo")
+            from autochain.models.chat_openai import ChatOpenAI
+            openai = ChatOpenAI()
     """
 
     client: Any  #: :meta private:
