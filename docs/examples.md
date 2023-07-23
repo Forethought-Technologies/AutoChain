@@ -260,5 +260,5 @@ the end.
 For example:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
