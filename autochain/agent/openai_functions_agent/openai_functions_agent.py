@@ -7,7 +7,7 @@ from colorama import Fore
 
 from autochain.agent.base_agent import BaseAgent
 from autochain.agent.message import ChatMessageHistory, SystemMessage
-from autochain.agent.openai_funtions_agent.output_parser import (
+from autochain.agent.openai_functions_agent.output_parser import (
     OpenAIFunctionOutputParser,
 )
 from autochain.agent.structs import AgentAction, AgentFinish
