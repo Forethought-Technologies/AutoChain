@@ -142,11 +142,11 @@ evaluation is running the agent through a large number of preset queries and eva
 generated responses. However, that is limited to single turn conversation, general and not 
 specific to tasks and expensive to verify.
 
-To effectively evaluate agents, AutoChain introduces the workflow evaluation framework
-which simulates the conversation between an generative agent and simulated users with LLM under
-different user contexts and desired outcomes of the conversation. This way, we could add test
-cases for different user scenarios and use LLMs to evaluate if multi-turn conversations reached 
-the desired outcome.
+To facilitate agent evaluation, AutoChain introduces the workflow evaluation framework. This
+framework runs conversations between a generative agent and LLM-simulated test users. The test
+users incorporate various user contexts and desired conversation outcomes, which enables easy
+addition of test cases for new user scenarios and fast evaluation. The framework leverages LLMs to
+evaluate whether a given multi-turn conversation has achieved the intended outcome.
 
 Read more about our [evaluation strategy](./workflow-evaluation.md).
 
