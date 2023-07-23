@@ -143,12 +143,12 @@ class ChatOpenAI(BaseLanguageModel):
     request_timeout: Optional[Union[float, Tuple[float, float]]] = None
     """Timeout for requests to OpenAI completion API. Default is 600 seconds."""
     max_retries: int = 6
+    """Maximum number of retries to make when generating."""
     # TODO: support streaming
-    # """Maximum number of retries to make when generating."""
     # streaming: bool = False
     # """Whether to stream the results or not."""
     # n: int = 1
-    """Number of chat completions to generate for each prompt."""
+    # """Number of chat completions to generate for each prompt."""
     max_tokens: Optional[int] = None
     """Maximum number of tokens to generate."""
 
