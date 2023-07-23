@@ -24,17 +24,18 @@ class Chain(BaseChain):
     graceful_exit_tool: Tool = HandOffToAgent()
 
     def handle_repeated_action(self, agent_action: AgentAction) -> AgentFinish:
+        print(
+            f"Action taken before: {agent_action.tool}, "
+            f"input: {agent_action.tool_input}"
+        )
         if agent_action.model_response:
-            print(
-                f"Action taken before: {agent_action.tool}, "
-                f"input: {agent_action.tool_input}"
-            )
             return AgentFinish(
                 message=agent_action.response,
                 log=f"Action taken before: {agent_action.tool}, "
                 f"input: {agent_action.tool_input}",
             )
         else:
+            print("No response from agent. Gracefully exit due to repeated action")
             return AgentFinish(
                 message=self.graceful_exit_tool.run(),
                 log=f"Gracefully exit due to repeated action",

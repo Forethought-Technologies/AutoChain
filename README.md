@@ -57,7 +57,7 @@ export PYTHONPATH=`pwd`
 Run your first conversation with agent interactively
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
 ## How does AutoChain simplify building agents?
 
@@ -154,19 +154,18 @@ Read more about our [evaluation strategy](./docs/workflow-evaluation.md).
 ### How to run workflow evaluations
 
 You can either run your tests in interactive mode, or run the full suite of test cases at once.
-`autochain/workflows_evaluation/conversational_agent_eval
-/change_shipping_address_test.py` contains a few example test cases.
+`autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py` contains a few example test cases.
 
 To run all the cases defined in a test file:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py
 ```
 
  To run your tests interactively `-i`:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
 
 Looking for more details on how AutoChain works? See our [components overview](./docs/components_overview.md)

@@ -136,7 +136,7 @@ class WorkflowTester:
             UserMessage(
                 content=f"""The most recent reply from assistant
 assistant: "{last_utterance}"
-Has assistant finish assisting the user? Answer with yes or no"""
+Has assistant finish assisting the user or tries to hand off to an agent? Answer with yes or no"""
             ),
         ]
         output: Generation = self.llm.generate(messages=messages).generations[0]

@@ -78,20 +78,20 @@ a few test cases.
 Running all the test cases defined in the test
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py
 ```
 
 You can also interactively having a conversation with that agent by passing the interactive
 flag `-i`
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
 
 Also, you could get the actual prompt used and intermediate steps by passing the `-v` flag
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i -v
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i -v
 ```
 
 All of the test results will be saved to `./test_results` directory by default in jsonl format.
@@ -99,57 +99,49 @@ Each test case results would look like the following
 
 ```json
 {
-   "test_name": "change shipping address",
-   "conversation_history":
-   [
-      "user: I want to change the shipping address for my order",
-      "assistant: Can you please provide the order ID?",
-      "user: The order ID is 456",
-      "assistant: The order with ID 456 has not yet shipped. I can update the shipping address for you. Please provide the new shipping address.",
-      "user: The new shipping address is 234 Spear St, San Francisco",
-      "assistant: The shipping address for your order with ID 456 has been successfully updated to 234 Spear St, San Francisco.",
-      "user: Thank you for updating the shipping address for my order",
-      "assistant: Thank your for contacting"
-   ],
-   "is_agent_helpful":
-   {
-      "rating": 5,
-      "reason": "The conversation reaches the expected outcome. The user successfully provides the order ID and the new shipping address, and the assistant updates the shipping address for the order with ID 456. The assistant confirms the successful update and thanks the user for contacting."
-   },
-   "actions_took":
-   [
-      {
-         "tool": "check_order_status",
-         "tool_input":
-         {
-            "order_id": "456"
-         },
-         "tool_output":
-         {
-            "status_code": 200,
-            "order_id": "456",
-            "order_status": "not_shipped",
-            "tracking_url": "example.com/456",
-            "shipping_address": "301 ivy street san francisco ca"
-         }
-      },
-      {
-         "tool": "change_shipping_address",
-         "tool_input":
-         {
-            "order_id": "456",
-            "new_address": "234 Spear St, San Francisco"
-         },
-         "tool_output":
-         {
-            "status_code": 200,
-            "order_id": "456",
-            "shipping_address": "234 Spear St, San Francisco"
-         }
-      }
-   ],
-   "num_turns": 8,
-   "expected_outcome": "found order status and changed shipping address"
+    "test_name": "ads for toy bear",
+    "conversation_history":
+    [
+        "user: Can you help me write an advertisement for a toy bear",
+        "assistant: Sure! To write an advertisement for the toy bear, we need to highlight its unique features and benefits. Can you please provide me with the key points you would like to include in the ad?",
+        "user: The key points I would like to include in the ad are that the toy bear is cute, made in the USA, and it should have an image included in the ad",
+        "assistant: What is the name of the toy bear you want to write the advertisement for?",
+        "user: The name of the toy bear is 'toy bear'",
+        "assistant: Here is the advertisement for the toy bear:\n\nIntroducing the adorable toy bear!\n\nKey Features:\n- Cute design\n- Made in the USA\n\nSpecifications:\n- Name: toy bear\n- Color: red\n- Age Group: 1-5 years old\n\n[images/toy.png]",
+        "user: Thank you!",
+        "assistant: Thank your for contacting"
+    ],
+    "num_turns": 8,
+    "expected_outcome": "generate an advertisement for toy bear and mentions it is cute. Also ads should include an image path",
+    "is_agent_helpful":
+    {
+        "rating": 5,
+        "reason": "Yes, the conversation reaches the expected outcome. The assistant generates an advertisement for the toy bear and mentions that it is cute. The ad also includes an image path."
+    },
+    "actions_took":
+    [
+        {
+            "tool": "get_item_spec",
+            "tool_input":
+            {
+                "item_name": "toy bear"
+            },
+            "tool_output":
+            {
+                "name": "toy bear",
+                "color": "red",
+                "age_group": "1-5 years old"
+            }
+        },
+        {
+            "tool": "search_image_path_for_item",
+            "tool_input":
+            {
+                "item_name": "toy bear"
+            },
+            "tool_output": "[images/toy.png]"
+        }
+    ]
 }
 
 ```

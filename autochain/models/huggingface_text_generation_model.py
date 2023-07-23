@@ -31,6 +31,7 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
         from autochain.models.huggingface_text_generation_model import HuggingFaceTextGenerationModel
         llm = HuggingFaceTextGenerationModel(model_name="mosaicml/mpt-7b", model_kwargs={"trust_remote_code":True})
     """
+
     model_name: str = "gpt2"
     """Model name to use. GPT2 is only for demostration purpose. It does not work well for task 
     planning"""
@@ -115,7 +116,7 @@ class HuggingFaceTextGenerationModel(BaseLanguageModel):
     def _create_llm_result(
         self, generation: List[Dict[str, Any]], prompt: str, stop: List[str]
     ) -> LLMResult:
-        text = generation[0]["generated_text"][len(prompt):]
+        text = generation[0]["generated_text"][len(prompt) :]
         if self.max_tokens:
             token_ids = self.tokenizer.encode(text)[: self.max_tokens]
             text = self.tokenizer.decode(token_ids)
