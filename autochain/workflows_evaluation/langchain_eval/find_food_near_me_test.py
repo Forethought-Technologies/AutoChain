@@ -1,9 +1,11 @@
-from autochain.tools.base import Tool
+from langchain.agents import AgentType
+from langchain.tools import Tool as LCTool
+
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
-from autochain.workflows_evaluation.test_utils import (
-    create_chain_from_test,
-)
 from autochain.utils import get_args
+from autochain.workflows_evaluation.langchain_eval.langchain_test_utils import (
+    create_langchain_from_test,
+)
 
 
 def search_restaurant(location: str, **kwargs):
@@ -30,7 +32,7 @@ def get_menu(restaurant_name: str, **kwargs):
         return "not found"
 
 
-class TestFindFoodNearMe(BaseTest):
+class TestFindFoodNearMeWithLC(BaseTest):
     prompt = """You are able to search restaurant and find corresponding food type for user. 
 First, searching restaurants for users and responds to user with restaurants met user food preference.
 Secondly, only if user requested, use tool to get menu. From menu list, responds to 
@@ -39,12 +41,14 @@ If no restaurant met user requirements, replies with i don't know.
 """
 
     tools = [
-        Tool(
+        LCTool(
+            name="search restaurant",
             func=search_restaurant,
             description="""This function searches all available restaurants and their food types
 Input args: location""",
         ),
-        Tool(
+        LCTool(
+            name="get menu",
             func=get_menu,
             description="""This function gets the name of all dishes for the restaurant
 Input args: restaurant_name""",
@@ -72,14 +76,20 @@ Input args: restaurant_name""",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, prompt=prompt)
+    chain = create_langchain_from_test(
+        tools=tools,
+        agent_type=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
+        prefix=prompt,
+    )
 
 
 if __name__ == "__main__":
-    tester = WorkflowTester(tests=[TestFindFoodNearMe()], output_dir="./test_results")
+    tests = WorkflowTester(
+        tests=[TestFindFoodNearMeWithLC()], output_dir="./test_results"
+    )
 
     args = get_args()
     if args.interact:
-        tester.run_interactive()
+        tests.run_interactive()
     else:
-        tester.run_all_tests()
+        tests.run_all_tests()

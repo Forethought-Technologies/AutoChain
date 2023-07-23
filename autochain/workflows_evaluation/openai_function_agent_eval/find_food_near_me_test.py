@@ -1,3 +1,7 @@
+from autochain.agent.openai_funtions_agent.openai_functions_agent import (
+    OpenAIFunctionsAgent,
+)
+from autochain.models.chat_openai import ChatOpenAI
 from autochain.tools.base import Tool
 from autochain.workflows_evaluation.base_test import BaseTest, TestCase, WorkflowTester
 from autochain.workflows_evaluation.test_utils import (
@@ -30,7 +34,7 @@ def get_menu(restaurant_name: str, **kwargs):
         return "not found"
 
 
-class TestFindFoodNearMe(BaseTest):
+class TestFindFoodNearMeWithFunctionCalling(BaseTest):
     prompt = """You are able to search restaurant and find corresponding food type for user. 
 First, searching restaurants for users and responds to user with restaurants met user food preference.
 Secondly, only if user requested, use tool to get menu. From menu list, responds to 
@@ -54,29 +58,32 @@ Input args: restaurant_name""",
     test_cases = [
         TestCase(
             test_name="find a chinese restaurant",
-            user_context="find the name of the any chinese restaurant; you are located in new "
-            "york city",
+            user_context="find the name of the any chinese restaurant and get menu",
             expected_outcome="found ABC dumplings",
         ),
         TestCase(
             test_name="failed to find any french restaurant",
-            user_context="find the name of the any french restaurant; you are located in new "
-            "york city",
+            user_context="find the name of the any french restaurant and get menu",
             expected_outcome="cannot find any french restaurants",
         ),
         TestCase(
             test_name="find vegetarian option for a Japanese restaurant",
-            user_context="find a Japanese restaurant and all the vegetarian options; you are located in new "
-            "york city",
+            user_context="find a Japanese restaurant and all the vegetarian options",
             expected_outcome="found KK sushi and fired tofu",
         ),
     ]
 
-    chain = create_chain_from_test(tools=tools, prompt=prompt)
+    llm = ChatOpenAI(temperature=0)
+    chain = create_chain_from_test(
+        tools=tools, agent_cls=OpenAIFunctionsAgent, llm=llm, prompt=prompt
+    )
 
 
 if __name__ == "__main__":
-    tester = WorkflowTester(tests=[TestFindFoodNearMe()], output_dir="./test_results")
+    tester = WorkflowTester(
+        tests=[TestFindFoodNearMeWithFunctionCalling()],
+        output_dir="./test_results",
+    )
 
     args = get_args()
     if args.interact:
