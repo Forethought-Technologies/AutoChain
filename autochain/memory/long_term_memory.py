@@ -12,7 +12,10 @@ from autochain.memory.base import BaseMemory
 from autochain.tools.internal_search.base_search_tool import BaseSearchTool
 from autochain.tools.internal_search.chromadb_tool import ChromaDBSearch, ChromaDoc
 from autochain.tools.internal_search.pinecone_tool import PineconeSearch, PineconeDoc
+from autochain.tools.internal_search.lancedb_tool import LanceDBSeach, LanceDBDoc
 
+SEARCH_PROVIDERS = (ChromaDBSearch, PineconeSearch, LanceDBSeach)
+SEARCH_DOC_TYPES = (ChromaDoc, PineconeDoc, LanceDBDoc)
 
 class LongTermMemory(BaseMemory):
     """Buffer for storing conversation memory and an in-memory kv store."""
@@ -22,10 +25,7 @@ class LongTermMemory(BaseMemory):
     long_term_memory: BaseSearchTool = None
 
     class Config:
-        keep_untouched = (
-            ChromaDBSearch,
-            PineconeSearch,
-        )
+        keep_untouched = SEARCH_PROVIDERS
 
     def load_memory(
         self,
@@ -50,7 +50,7 @@ class LongTermMemory(BaseMemory):
         if (
             isinstance(value, list)
             and len(value) > 0
-            and (isinstance(value[0], ChromaDoc) or isinstance(value[0], PineconeDoc))
+            and (isinstance(value[0], SEARCH_DOC_TYPES))
         ):
             self.long_term_memory.add_docs(docs=value)
         elif key:
