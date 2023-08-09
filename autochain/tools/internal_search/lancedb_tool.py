@@ -1,9 +1,8 @@
-from typing import List, Any, Optional
+from typing import List, Any
 from dataclasses import dataclass
 
 import lancedb
 import pandas as pd
-from pydantic import Extra
 
 from autochain.tools.base import Tool
 from autochain.models.base import BaseLanguageModel
@@ -15,6 +14,18 @@ class LanceDBDoc:
     vector: List[float] = None
 
 class LanceDBSeach(Tool, BaseSearchTool):
+    """
+    Use LanceDB as the internal search tool
+
+    LanceDB is a vector database that supports vector search.
+
+    Args:
+        uri: the uri of the database. Default to "lancedb"
+        table_name: the name of the table. Default to "table"
+        metric: the metric used for vector search. Default to "cosine"
+        encoder: the encoder used to encode the documents. Default to None
+        docs: the documents to be indexed. Default to None
+    """
     class Config:
         """Configuration for this pydantic object."""
 
