@@ -89,4 +89,3 @@ class LanceDBSeach(Tool, BaseSearchTool):
         if self.table_name in self.db.table_names():
             self.db.drop_table(self.table_name)
         self.table = None
-    
