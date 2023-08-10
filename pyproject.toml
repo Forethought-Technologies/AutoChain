@@ -43,7 +43,7 @@ colorama = ">=0.4.6"
 pydantic = "^1.10.9"
 google-api-python-client = {version = ">=2.89.0", optional = true}
 chromadb = ">=0.3.26"
-lancedb = ">=0.1.16"
+lancedb = {version = ">=0.1.16", optional = true}
 pandas = ">=2.0.2"
 openai = ">=0.27.8"
 types-colorama = ">=0.4.15.11"
@@ -72,6 +72,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.extras]
 google = ["google-api-python-client"]
 pinecone= ["pinecone-client"]
+lancedb = ["lancedb"]
 
 [tool.mypy]
 strict = true
