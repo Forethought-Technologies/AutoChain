@@ -47,4 +47,9 @@ long term memory for the agent
 ### ChromaDBTool
 Internal search tool that can be used for long term memory of the agent or looking up relevant
 information that does not exists from the Internet. Currently, AutoChain supports `ChromaDB` as
-long term memory for the agent
+long term memory for the agent.
+
+### LanceDBTool
+Internal search tool that can be used for long term memory of the agent or looking up relevant
+information that does not exists from the Internet. Currently, AutoChain supports `ChromaDB` as
+long term memory for the agent. LanceDBTool is serverless, and does not require any setup.
