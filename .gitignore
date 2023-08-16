@@ -153,3 +153,4 @@ data_map*
 
 .chroma/
 test_results/
+lancedb/
