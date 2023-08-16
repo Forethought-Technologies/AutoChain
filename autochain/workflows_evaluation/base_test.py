@@ -95,6 +95,8 @@ class WorkflowTester:
                         f"{user_type}: {message}"
                         for user_type, message, in conversation_history
                     ],
+                    "num_turns": len(conversation_history),
+                    "expected_outcome": test_case.expected_outcome,
                     "is_agent_helpful": is_agent_helpful,
                     "actions_took": [
                         {
@@ -104,8 +106,6 @@ class WorkflowTester:
                         }
                         for action in last_response[constants.INTERMEDIATE_STEPS]
                     ],
-                    "num_turns": len(conversation_history),
-                    "expected_outcome": test_case.expected_outcome,
                 }
             )
 
@@ -136,7 +136,7 @@ class WorkflowTester:
             UserMessage(
                 content=f"""The most recent reply from assistant
 assistant: "{last_utterance}"
-Has assistant finish assisting the user? Answer with yes or no"""
+Has assistant finish assisting the user or tries to hand off to an agent? Answer with yes or no"""
             ),
         ]
         output: Generation = self.llm.generate(messages=messages).generations[0]
@@ -162,7 +162,9 @@ Has assistant finish assisting the user? Answer with yes or no"""
         messages.append(
             UserMessage(
                 content=f"""You are a user with access to the following context information about yourself. 
-Based on previous conversation, write the message to assistant to help you with goal described in context step by step.
+Based on previous conversation, write the message to assistant to help you with goal described 
+in context without asking repetitive questions.
+Replies 'Thank you' if the goal is achieved.
 If you are not sure about how to answer, respond with "hand off to agent".
 Context:
 "{user_context}"

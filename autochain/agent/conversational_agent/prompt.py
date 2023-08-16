@@ -4,7 +4,7 @@ PLANNING_PROMPT_TEMPLATE = """You are an assistant who tries to have helpful con
 with user based on previous conversation and previous tools outputs from tools. 
 ${prompt}
 Use tool when provided. If there is no tool available, respond with have a helpful and polite 
-conversation.
+conversation. Find next step without using the same tool with same inputs.
 
 Assistant has access to the following tools:
 ${tools}
@@ -19,8 +19,8 @@ Please respond user question in JSON format as described below
 RESPONSE FORMAT:
 {
   "thoughts": {
-    "plan": "Given workflow policy and previous tools outputs, what is the next step after the previous conversation",
-    "need_use_tool": "answer with 'Yes' if needs to use another tool not previously used else 'No'"
+    "plan": "Given previous tools outputs, what is the next step after the previous conversation",
+    "need_use_tool": "answer with 'Yes' if requires more information not in previous tools outputs else 'No'"
   },
   "tool": {
     "name": "tool name, should be one of [${tool_names}] or empty if tool is not needed",
@@ -28,15 +28,15 @@ RESPONSE FORMAT:
       "arg_name": "arg value from conversation history or tools outputs to run tool"
     }
   },
-  "response": "clarifying required args for that tool or response to user.",
+  "response": "response to user given tools outputs and conversations",
 }
 
 Ensure the response can be parsed by Python json.loads
 """
 
 SHOULD_ANSWER_PROMPT_TEMPLATE = """You are a support agent. 
-Given the following conversation so far, has user acknowledged question is resolved, 
-such as thank you or that's all. 
+Given the following conversation so far, has assistant finish helping user with all the 
+questions?
 Answer with yes or no.
 
 Conversation:

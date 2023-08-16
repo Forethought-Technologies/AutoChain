@@ -80,6 +80,12 @@ class ConversationalAgent(BaseAgent):
         if "history" not in kwargs or not kwargs["history"]:
             return None
 
+        history = kwargs.pop("history")
+        inputs = {
+            "history": history.format_message(),
+            **kwargs,
+        }
+
         def _parse_response(res: str):
             if "yes" in res.lower():
                 return AgentFinish(
@@ -89,7 +95,7 @@ class ConversationalAgent(BaseAgent):
             else:
                 return None
 
-        prompt = Template(should_answer_prompt_template).substitute(**kwargs)
+        prompt = Template(should_answer_prompt_template).substitute(**inputs)
         response = (
             self.llm.generate([UserMessage(content=prompt)])
             .generations[0]

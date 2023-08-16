@@ -127,8 +127,8 @@ class ChatOpenAI(BaseLanguageModel):
     Example:
         .. code-block:: python
 
-            from langchain.chat_models import ChatOpenAI
-            openai = ChatOpenAI(model_name="gpt-3.5-turbo")
+            from autochain.models.chat_openai import ChatOpenAI
+            openai = ChatOpenAI()
     """
 
     client: Any  #: :meta private:
@@ -140,15 +140,23 @@ class ChatOpenAI(BaseLanguageModel):
     """Holds any model parameters valid for `create` call not explicitly specified."""
     openai_api_key: Optional[str] = None
     openai_organization: Optional[str] = None
+    api_type: Optional[str] = None
+    """OpenAI API type, it can be `openai` or `azure`."""
+    api_base: Optional[str] = None
+    """The OpenAI API base url or Azure OpenAI API base url."""
+    azure_api_version: Optional[str] = None
+    """Azure API version."""
+    azure_deployment_name: Optional[str] = None
+    """Azure deployment name."""
     request_timeout: Optional[Union[float, Tuple[float, float]]] = None
     """Timeout for requests to OpenAI completion API. Default is 600 seconds."""
     max_retries: int = 6
+    """Maximum number of retries to make when generating."""
     # TODO: support streaming
-    # """Maximum number of retries to make when generating."""
     # streaming: bool = False
     # """Whether to stream the results or not."""
     # n: int = 1
-    """Number of chat completions to generate for each prompt."""
+    # """Number of chat completions to generate for each prompt."""
     max_tokens: Optional[int] = None
     """Maximum number of tokens to generate."""
 
@@ -161,6 +169,8 @@ class ChatOpenAI(BaseLanguageModel):
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that api key and python package exists in environment."""
         openai_api_key = os.environ["OPENAI_API_KEY"]
+        openai_api_type = os.environ.get("OPENAI_API_TYPE", "open_ai")
+        openai_api_base = os.environ.get("OPENAI_API_BASE", None)
         try:
             import openai
 
@@ -169,7 +179,12 @@ class ChatOpenAI(BaseLanguageModel):
                 "Could not import openai python package. "
                 "Please install it with `pip install openai`."
             )
-        openai.api_key = openai_api_key
+        values["api_key"] = openai.api_key = openai_api_key
+        values["api_type"] = openai.api_type = openai_api_type
+        if openai_api_base:
+            values["api_base"] = openai.api_base = openai_api_base
+        if openai_api_type == "azure":
+            values["azure_api_version"] = openai.api_version = os.environ.get("OPENAI_API_VERSION", "2023-05-15")
         try:
             values["client"] = openai.ChatCompletion
         except AttributeError:
@@ -211,6 +226,8 @@ class ChatOpenAI(BaseLanguageModel):
         stop: Optional[List[str]],
     ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, Any]]:
         params: Dict[str, Any] = {**{"model": self.model_name}, **self._default_params}
+        if self.azure_deployment_name and self.api_type == "azure":
+            params["engine"] = self.azure_deployment_name
         if stop is not None:
             if "stop" in params:
                 raise ValueError("`stop` found in both the input and default params.")

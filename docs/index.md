@@ -58,7 +58,7 @@ export PYTHONPATH=`pwd`
 Run your first conversation with agent interactively
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
 
 ## Example usage
@@ -142,30 +142,30 @@ evaluation is running the agent through a large number of preset queries and eva
 generated responses. However, that is limited to single turn conversation, general and not 
 specific to tasks and expensive to verify.
 
-To effectively evaluate agents, AutoChain introduces the workflow evaluation framework
-which simulates the conversation between an generative agent and simulated users with LLM under
-different user contexts and desired outcomes of the conversation. This way, we could add test
-cases for different user scenarios and use LLMs to evaluate if multi-turn conversations reached 
-the desired outcome.
+To facilitate agent evaluation, AutoChain introduces the workflow evaluation framework. This
+framework runs conversations between a generative agent and LLM-simulated test users. The test
+users incorporate various user contexts and desired conversation outcomes, which enables easy
+addition of test cases for new user scenarios and fast evaluation. The framework leverages LLMs to
+evaluate whether a given multi-turn conversation has achieved the intended outcome.
 
 Read more about our [evaluation strategy](./workflow-evaluation.md).
 
 ### How to run workflow evaluations
 
 There are two modes for running workflow tests. Interactively or running all test cases.
-For example in `autochain/workflows_evaluation/conversational_agent_eval
-/change_shipping_address_test.py`, there are already a few example test cases.
+For example in `autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py`, 
+there are already a few example test cases.
 
 Running all the test cases defined in the test:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py
 ```
 
 You can also have an interactive conversation with agent by passing the interactive flag `-i`:
 
 ```shell
-python autochain/workflows_evaluation/conversational_agent_eval/change_shipping_address_test.py -i
+python autochain/workflows_evaluation/conversational_agent_eval/generate_ads_test.py -i
 ```
 
 More explanations for how AutoChain works? checkout [components overview](./components_overview.md)

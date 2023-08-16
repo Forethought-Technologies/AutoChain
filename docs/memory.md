@@ -41,7 +41,7 @@ default type of memory AutoChain uses in examples and evaluation.
 
 In the case there are a lot of information need to be stored and only a small part of it is
 needed during the planning step, `LongTermMemory` enables agents to retrieve partial memory
-with internal search tool, such as `ChromaDBSearch` and `PineconeSearch`. Search query is the 
+with internal search tool, such as `ChromaDBSearch`, `PineconeSearch`, `LanceDBSearch`. Search query is the 
 key of the store, and it still follow the same interface as other memory implementations. Both 
 would encode the text into vector DB and retrieve using the search query.
 
