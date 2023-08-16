@@ -88,11 +88,15 @@ def test_should_answer_prompt(openai_should_answer_fixture):
     os.environ["OPENAI_API_KEY"] = "mock_api_key"
     agent = ConversationalAgent.from_llm_and_tools(llm=ChatOpenAI(), tools=[])
 
-    inputs = {"history": "good user query"}
+    history = ChatMessageHistory()
+    history.save_message("good user query", MessageType.UserMessage)
+    inputs = {"history": history}
     response = agent.should_answer(**inputs)
     assert isinstance(response, AgentFinish)
 
-    inputs = {"history": "bad user query"}
+    history = ChatMessageHistory()
+    history.save_message("bad user query", MessageType.UserMessage)
+    inputs = {"history": history}
     agent = ConversationalAgent(llm=ChatOpenAI(), tools=[])
     response = agent.should_answer(**inputs)
     assert response is None
