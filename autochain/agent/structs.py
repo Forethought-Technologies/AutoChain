@@ -6,6 +6,7 @@ from typing import Union, Any, Dict, List
 from autochain.models.base import Generation
 
 from autochain.models.chat_openai import ChatOpenAI
+from autochain.models.base import BaseLanguageModel
 from pydantic import BaseModel
 
 from autochain.agent.message import BaseMessage, UserMessage
@@ -56,7 +57,7 @@ class AgentFinish(BaseModel):
 
 class AgentOutputParser(BaseModel):
     @staticmethod
-    def load_json_output(message: BaseMessage) -> Dict[str, Any]:
+    def load_json_output(message: BaseMessage, llm: BaseLanguageModel) -> Dict[str, Any]:
         """If the message contains a json response, try to parse it into dictionary"""
         text = message.content
         clean_text = ""
@@ -65,14 +66,13 @@ class AgentOutputParser(BaseModel):
             clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
         except Exception:
-            llm = ChatOpenAI(temperature=0)
             message = [
                 UserMessage(
                     content=f"""Fix the following json into correct format
-```json
-{clean_text}
-```
-"""
+                        ```json
+                        {clean_text}
+                        ```
+                        """
                 )
             ]
             full_output: Generation = llm.generate(message).generations[0]
