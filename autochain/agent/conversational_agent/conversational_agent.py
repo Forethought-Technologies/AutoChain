@@ -165,6 +165,7 @@ class ConversationalAgent(BaseAgent):
         tool_strings = "\n\n".join(
             [f"> {tool.name}: \n{tool.description}" for tool in self.tools]
         )
+
         inputs = {
             "tool_names": tool_names,
             "tools": tool_strings,
@@ -175,11 +176,14 @@ class ConversationalAgent(BaseAgent):
         final_prompt = self.format_prompt(
             self.prompt_template, intermediate_steps, **inputs
         )
+
         logger.info(f"\nPlanning Input: {final_prompt[0].content} \n")
 
         full_output: Generation = self.llm.generate(final_prompt).generations[0]
+
         agent_output: Union[AgentAction, AgentFinish] = self.output_parser.parse(
-            full_output.message
+            full_output.message,
+            self.llm
         )
 
         print(f"Planning output: \n{repr(full_output.message.content)}", Fore.YELLOW)
