@@ -63,9 +63,8 @@ class AgentOutputParser(BaseModel):
     ) -> Dict[str, Any]:
         """Try to parse JSON response from the message content."""
         text = message.content
-        print('Message: ', message)
         clean_text = self._extract_json_text(text)
-        print('Clean text: ', clean_text)
+
         try:
             response = json.loads(clean_text)
         except Exception:
@@ -74,7 +73,6 @@ class AgentOutputParser(BaseModel):
                 Fore.RED
             )
             message = self._fix_message(clean_text)
-            print('Check Message: ', message)
             full_output: Generation = llm.generate([message]).generations[0]
             print("TEST: ", full_output)
             response = self._attempt_fix_and_generate(message, llm, max_retry, attempt=0)
@@ -131,9 +129,8 @@ class AgentOutputParser(BaseModel):
                 Fore.RED
             )
             clean_text = self._extract_json_text(full_output.message.content)
-            print("Clean Text: ", clean_text)
             message = self._fix_message(clean_text)
-            print('Message: ', message)
+            print("MESSAGE: ", message)
             return self._attempt_fix_and_generate(message, llm, max_retry, attempt=attempt + 1)
 
     @abstractmethod
