@@ -75,7 +75,7 @@ class AgentOutputParser(BaseModel):
             )
             message = self._fix_message(clean_text)
             print('Check Message: ', message)
-            full_output: Generation = llm.generate(message).generations[0]
+            full_output: Generation = llm.generate([message]).generations[0]
             print("TEST: ", full_output)
             response = self._attempt_fix_and_generate(message, llm, max_retry, attempt=0)
 
@@ -83,14 +83,14 @@ class AgentOutputParser(BaseModel):
     
     @staticmethod
     def _fix_message(clean_text: str) -> UserMessage:
-        message = [UserMessage(
+        message = UserMessage(
                     content=f"""
                         Fix the following json into correct format
                         ```json
                         {clean_text}
                         ```
                         """
-                )]
+                )
         return message
         
     @staticmethod
