@@ -2,7 +2,6 @@
 import logging
 from typing import Dict
 
-from autochain.agent.message import MessageType
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.chain.base_chain import BaseChain
 from autochain.errors import ToolRunningError
