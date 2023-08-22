@@ -48,7 +48,7 @@ jobs:
       # TODO: run lints, mypy, ruff
       - run: mkdir coverage
       - name: Test
-        run: pytest tests
+        run: coverage run -m pytest tests
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
