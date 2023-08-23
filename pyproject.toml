@@ -64,6 +64,7 @@ mdx-include = "^1.4.2"
 Pillow = "^9.3.0"
 CairoSVG = "^2.5.2"
 pytest = "^7.3.2"
+coverage = {extras = ["toml"], version = "^7.3.0"}
 
 [build-system]
 requires = ["poetry-core"]
