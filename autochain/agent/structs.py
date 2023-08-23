@@ -74,8 +74,12 @@ class AgentOutputParser(BaseModel):
             )
             message = self._fix_message(clean_text)
             full_output: Generation = llm.generate([message]).generations[0]
-            print("TEST: ", full_output)
-            response = self._attempt_fix_and_generate(message, llm, max_retry, attempt=0)
+            response = self._attempt_fix_and_generate(
+                full_output.message.content, 
+                llm, 
+                max_retry, 
+                attempt=0
+            )
 
         return response
     
@@ -127,7 +131,7 @@ class AgentOutputParser(BaseModel):
             )
 
         full_output: Generation = llm.generate([message]).generations[0]
-        print('model output: ', full_output)
+
         try:
             response = json.loads(full_output.message.content)
             return response
@@ -138,7 +142,6 @@ class AgentOutputParser(BaseModel):
             )
             clean_text = self._extract_json_text(full_output.message.content)
             message = self._fix_message(clean_text)
-            print("MESSAGE: ", message)
             return self._attempt_fix_and_generate(message, llm, max_retry, attempt=attempt + 1)
 
     @abstractmethod
