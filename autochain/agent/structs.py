@@ -73,9 +73,8 @@ class AgentOutputParser(BaseModel):
                 Fore.RED
             )
             message = self._fix_message(clean_text)
-            full_output: Generation = llm.generate([message]).generations[0]
             response = self._attempt_fix_and_generate(
-                full_output.message.content, 
+                message, 
                 llm, 
                 max_retry, 
                 attempt=0
