@@ -81,6 +81,14 @@ class AgentOutputParser(BaseModel):
     
     @staticmethod
     def _fix_message(clean_text: str) -> UserMessage:
+        '''
+        If the response from model is not proper, this function should
+        iteratively construct better response until response becomes json parseable
+        '''
+        
+        # TO DO
+        # Construct this message better in order to make it better iteratively by
+        # _attempt_fix_and_generate recursive function
         message = UserMessage(
                     content=f"""
                         Fix the following json into correct format
@@ -109,7 +117,7 @@ class AgentOutputParser(BaseModel):
         attempt: int
     ) -> Dict[str, Any]:
         
-        """Attempt to fix JSON format using model generation."""
+        """Attempt to fix JSON format using model generation recursively."""
         if attempt >= max_retry:
             raise ValueError(
                 """
