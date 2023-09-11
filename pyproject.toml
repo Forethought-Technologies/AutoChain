@@ -57,7 +57,7 @@ tenacity = "^8.2.2"
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.3.0"
 black = "^23.3.0"
-ruff = "^0.0.272"
+ruff = ">=0.0.272,<0.0.289"
 mkdocs = "^1.4.2"
 mkdocs-material = "^8.5.7"
 mdx-include = "^1.4.2"
