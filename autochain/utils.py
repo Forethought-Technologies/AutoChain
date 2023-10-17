@@ -7,8 +7,11 @@ from colorama import Style
 
 
 def print_with_color(text: str, color: str):
-    print(color + text)
-    print(Style.RESET_ALL)
+    if os.getenv("NO_COLOR"):
+        print(text)
+    else:
+        print(color + text)
+        print(Style.RESET_ALL)
 
 
 def get_from_dict_or_env(
