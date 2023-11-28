@@ -1,16 +1,15 @@
 import json
-import re
 from abc import abstractmethod
 from typing import Union, Any, Dict, List
+from colorama import Fore
 
-from autochain.models.base import Generation
-
-from autochain.models.chat_openai import ChatOpenAI
+from autochain.models.base import BaseLanguageModel
 from pydantic import BaseModel
 
+from autochain.models.base import Generation
 from autochain.agent.message import BaseMessage, UserMessage
 from autochain.chain import constants
-from autochain.errors import OutputParserException
+from autochain.utils import print_with_color
 
 
 class AgentAction(BaseModel):
@@ -55,30 +54,94 @@ class AgentFinish(BaseModel):
 
 
 class AgentOutputParser(BaseModel):
-    @staticmethod
-    def load_json_output(message: BaseMessage) -> Dict[str, Any]:
-        """If the message contains a json response, try to parse it into dictionary"""
+
+    def load_json_output(
+        self,
+        message: BaseMessage, 
+        llm: BaseLanguageModel,
+        max_retry=3
+    ) -> Dict[str, Any]:
+        """Try to parse JSON response from the message content."""
         text = message.content
-        clean_text = ""
+        clean_text = self._extract_json_text(text)
 
         try:
-            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
             response = json.loads(clean_text)
         except Exception:
-            llm = ChatOpenAI(temperature=0)
-            message = [
-                UserMessage(
-                    content=f"""Fix the following json into correct format
-```json
-{clean_text}
-```
-"""
-                )
-            ]
-            full_output: Generation = llm.generate(message).generations[0]
-            response = json.loads(full_output.message.content)
+            print_with_color(
+                'Generating JSON format attempt FAILED! Trying Again...', 
+                Fore.RED
+            )
+            message = self._fix_message(clean_text)
+            response = self._attempt_fix_and_generate(
+                message, 
+                llm, 
+                max_retry, 
+                attempt=0
+            )
 
         return response
+    
+    @staticmethod
+    def _fix_message(clean_text: str) -> UserMessage:
+        '''
+        If the response from model is not proper, this function should
+        iteratively construct better response until response becomes json parseable
+        '''
+        
+        # TO DO
+        # Construct this message better in order to make it better iteratively by
+        # _attempt_fix_and_generate recursive function
+        message = UserMessage(
+                    content=f"""
+                        Fix the following json into correct format
+                        ```json
+                        {clean_text}
+                        ```
+                        """
+                )
+        return message
+        
+    @staticmethod
+    def _extract_json_text(text: str) -> str:
+        """Extract JSON text from the input string."""
+        clean_text = ""
+        try:
+            clean_text = text[text.index("{") : text.rindex("}") + 1].strip()
+        except Exception:
+            clean_text = text
+        return clean_text
+    
+    def _attempt_fix_and_generate(
+        self,
+        message: BaseMessage, 
+        llm: BaseLanguageModel,
+        max_retry: int,
+        attempt: int
+    ) -> Dict[str, Any]:
+        
+        """Attempt to fix JSON format using model generation recursively."""
+        if attempt >= max_retry:
+            raise ValueError(
+                """
+                Max retry reached. Model is unable to generate proper JSON output. 
+                Try with another Model!
+                """
+            )
+
+        full_output: Generation = llm.generate([message]).generations[0]
+
+        try:
+            response = json.loads(full_output.message.content)
+            return response
+        except Exception:
+            print_with_color(
+                'Generating JSON format attempt FAILED! Trying Again...',
+                Fore.RED
+            )
+            clean_text = self._extract_json_text(full_output.message.content)
+            message = self._fix_message(clean_text)
+            return self._attempt_fix_and_generate(message, llm, max_retry, attempt=attempt + 1)
 
     @abstractmethod
     def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:

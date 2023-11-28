@@ -5,13 +5,14 @@ from colorama import Fore
 
 from autochain.agent.message import BaseMessage
 from autochain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
+from autochain.models.base import BaseLanguageModel
 from autochain.errors import OutputParserException
 from autochain.utils import print_with_color
 
 
 class ConvoJSONOutputParser(AgentOutputParser):
-    def parse(self, message: BaseMessage) -> Union[AgentAction, AgentFinish]:
-        response = self.load_json_output(message)
+    def parse(self, message: BaseMessage, llm: BaseLanguageModel) -> Union[AgentAction, AgentFinish]:
+        response = self.load_json_output(message, llm)
 
         action_name = response.get("tool", {}).get("name")
         action_args = response.get("tool", {}).get("args")
