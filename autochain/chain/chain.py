@@ -37,7 +37,7 @@ class Chain(BaseChain):
             print("No response from agent. Gracefully exit due to repeated action")
             return AgentFinish(
                 message=self.graceful_exit_tool.run(),
-                log=f"Gracefully exit due to repeated action",
+                log="Gracefully exit due to repeated action",
             )
 
     def take_next_step(
