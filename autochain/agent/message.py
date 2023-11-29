@@ -1,6 +1,6 @@
 import enum
 from abc import abstractmethod
-from typing import List, Any, Dict
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -60,6 +60,7 @@ class FunctionMessage(BaseMessage):
     """Type of message that is a function message."""
 
     name: str
+    conversational_message: str = ""
 
     @property
     def type(self) -> str:
@@ -76,7 +77,13 @@ class ChatMessageHistory(BaseModel):
         elif message_type == MessageType.UserMessage:
             self.messages.append(UserMessage(content=message))
         elif message_type == MessageType.FunctionMessage:
-            self.messages.append(FunctionMessage(content=message, name=kwargs["name"]))
+            self.messages.append(
+                FunctionMessage(
+                    content=message,
+                    name=kwargs["name"],
+                    conversational_message=kwargs["conversational_message"],
+                )
+            )
         elif message_type == MessageType.SystemMessage:
             self.messages.append(SystemMessage(content=message))
 
@@ -84,6 +91,10 @@ class ChatMessageHistory(BaseModel):
         string_messages = []
         if len(self.messages) > 0:
             for m in self.messages:
+                if isinstance(m, FunctionMessage):
+                    string_messages.append(f"Action: {m.conversational_message}")
+                    continue
+
                 if isinstance(m, UserMessage):
                     role = "User"
                 elif isinstance(m, AIMessage):

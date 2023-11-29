@@ -4,13 +4,12 @@ from abc import ABC, abstractmethod
 from string import Template
 from typing import Any, List, Optional, Sequence, Union
 
-from pydantic import BaseModel, Extra
-
 from autochain.agent.message import ChatMessageHistory
 from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish, AgentOutputParser
 from autochain.models.base import BaseLanguageModel
 from autochain.tools.base import Tool
+from pydantic import BaseModel
 
 
 class BaseAgent(BaseModel, ABC):
@@ -104,3 +103,12 @@ class BaseAgent(BaseModel, ABC):
         if input_variables is None:
             input_variables = ["input", "agent_scratchpad"]
         return JSONPromptTemplate(template=template, input_variables=input_variables)
+
+    def is_generation_confident(
+        self,
+        history: ChatMessageHistory,
+        agent_output: Union[AgentAction, AgentFinish],
+        min_confidence: int = 3,
+    ) -> bool:
+        """Check if the generation is confident enough to take action"""
+        return True

@@ -137,6 +137,8 @@ class BaseChain(BaseModel, ABC):
                 self.memory.save_conversation(
                     message=str(next_step_output.tool_output),
                     name=next_step_output.tool,
+                    conversational_message=f"{next_step_output.tool} with input: "
+                    f"{next_step_output.tool_input}",
                     message_type=MessageType.FunctionMessage,
                 )
 

@@ -1,16 +1,12 @@
 import json
-import re
 from abc import abstractmethod
-from typing import Union, Any, Dict, List
-
-from autochain.models.base import Generation
-
-from autochain.models.chat_openai import ChatOpenAI
-from pydantic import BaseModel
+from typing import Any, Dict, List, Union
 
 from autochain.agent.message import BaseMessage, UserMessage
 from autochain.chain import constants
-from autochain.errors import OutputParserException
+from autochain.models.base import Generation
+from autochain.models.chat_openai import ChatOpenAI
+from pydantic import BaseModel
 
 
 class AgentAction(BaseModel):
@@ -89,3 +85,7 @@ class AgentOutputParser(BaseModel):
     ) -> Union[AgentAction, AgentFinish]:
         """Parse clarification outputs"""
         return agent_action
+
+    def parse_estimated_confidence(self, message: BaseMessage) -> int:
+        """Parse estimated confidence from the message"""
+        return 1
