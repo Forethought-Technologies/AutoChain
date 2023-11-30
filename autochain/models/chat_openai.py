@@ -173,20 +173,21 @@ class ChatOpenAI(BaseLanguageModel):
         openai_api_base = os.environ.get("OPENAI_API_BASE", None)
         try:
             import openai
+            import litellm
 
         except ImportError:
             raise ValueError(
                 "Could not import openai python package. "
                 "Please install it with `pip install openai`."
             )
-        values["api_key"] = openai.api_key = openai_api_key
-        values["api_type"] = openai.api_type = openai_api_type
+        values["api_key"] = litellm.api_key = openai_api_key
+        values["api_type"] = litellm.api_type = openai_api_type
         if openai_api_base:
-            values["api_base"] = openai.api_base = openai_api_base
+            values["api_base"] = litellm.api_base = openai_api_base
         if openai_api_type == "azure":
-            values["azure_api_version"] = openai.api_version = os.environ.get("OPENAI_API_VERSION", "2023-05-15")
+            values["azure_api_version"] = litellm.api_version = os.environ.get("OPENAI_API_VERSION", "2023-05-15")
         try:
-            values["client"] = openai.ChatCompletion
+            values["client"] = litellm.completion
         except AttributeError:
             raise ValueError(
                 "`openai` has no `ChatCompletion` attribute, this is likely "
