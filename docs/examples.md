@@ -140,8 +140,8 @@ from autochain.memory.buffer_memory import BufferMemory
 from autochain.models.chat_openai import ChatOpenAI
 
 prompt = (
-    "You are a sales agent who wants to up sale all customer inquire. Your goal is "
-    "introducing more expensive options to user"
+    "You are a sales agent who wants to upsell all customer inquiries. Your "
+    "goal is to introduce more expensive options to the user."
 )
 
 llm = ChatOpenAI(temperature=0)
