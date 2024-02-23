@@ -16,7 +16,7 @@ jobs:
       # - name: Ensure README has the same contents as docs/index.md
       #   run: diff docs/index.md README.md
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - uses: actions/cache@v2
