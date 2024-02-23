@@ -61,7 +61,7 @@ ruff = "^0.0.272"
 mkdocs = "^1.4.2"
 mkdocs-material = "^8.5.7"
 mdx-include = "^1.4.2"
-Pillow = "^9.3.0"
+Pillow = ">=9.3,<11.0"
 CairoSVG = "^2.5.2"
 pytest = "^7.3.2"
 coverage = {extras = ["toml"], version = "^7.3.0"}
