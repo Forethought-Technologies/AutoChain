@@ -13,6 +13,7 @@ from autochain.agent.openai_functions_agent.prompt import ESTIMATE_CONFIDENCE_PR
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.models.base import BaseLanguageModel, Generation
 from autochain.tools.base import Tool
+from autochain.tools.parallel_search import parallel_search_tools
 from autochain.utils import print_with_color
 from colorama import Fore
 
@@ -43,7 +44,7 @@ class OpenAIFunctionsAgent(BaseAgent):
         min_confidence: int = 3,
         **kwargs: Any,
     ) -> OpenAIFunctionsAgent:
-        tools = tools or []
+        tools = parallel_search_tools() if tools is None else tools
 
         allowed_tools = {tool.name: tool for tool in tools}
         _output_parser = output_parser or OpenAIFunctionOutputParser()

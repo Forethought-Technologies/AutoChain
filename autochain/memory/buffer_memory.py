@@ -36,5 +36,6 @@ class BufferMemory(BaseMemory):
 
     def clear(self) -> None:
         """Clear memory contents."""
+        self.reset_conversation_id()
         self.conversation_history.clear()
         self.kv_memory = {}

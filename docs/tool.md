@@ -31,6 +31,44 @@ formatted into the prompt when using `OpenAIFunctionsAgent`.
 
 
 ## Tools included
+### Parallel web search and page fetching
+
+`ConversationalAgent.from_llm_and_tools(llm=llm)` and
+`OpenAIFunctionsAgent.from_llm_and_tools(llm=llm)` now include `web_search` and
+`web_fetch` when `tools` is omitted or `None`. These tools use
+[Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)
+at `https://search.parallel.ai/mcp`. Search runs in Fast mode with no account or
+API key required. Anonymous use has service limits; failures are returned to the
+agent as tool output without switching providers.
+
+The existing `ChatOpenAI` adapter uses OpenAI's pre-1.0 Python API. Use the
+version recorded in `poetry.lock` (`openai==0.27.8`) for that adapter; the web
+tools themselves do not require OpenAI or Parallel credentials.
+
+Pass `tools=[]` to disable all tools and keep the agent offline apart from model
+inference. Any explicit tool list remains authoritative, including Google search
+or custom tools. Constructing an agent does not make network requests. Calling
+these tools sends the query or URL to Parallel; only enable them when web access
+is appropriate for your application.
+
+To combine them with your own tools or adjust the per-request timeout:
+
+```python
+from autochain.tools.parallel_search import parallel_search_tools
+
+tools = parallel_search_tools(timeout=20) + your_other_tools
+agent = OpenAIFunctionsAgent.from_llm_and_tools(llm=llm, tools=tools)
+```
+
+The synchronous client uses Python's standard library, including on Python 3.8.
+Each HTTP request has a 30-second timeout by default. A chain keeps one opaque
+search conversation identifier in its memory across turns; clear the memory to
+start a new conversation. Separate chains should use separate memory instances.
+Standalone `Tool.run` calls each start a separate research run. Ctrl-C cancels
+execution rather than converting the interruption to a tool error.
+Custom memory implementations should keep `get_conversation_id()` separate from
+semantic retrieval and call `reset_conversation_id()` in their `clear()` method.
+
 ### GoogleSearchTool
 Migrated from LangChain, which is also an example for user to easily migrate any tool from 
 LangChain if needed.  

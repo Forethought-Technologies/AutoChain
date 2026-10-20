@@ -13,6 +13,7 @@ from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.chain import constants
 from autochain.memory.base import BaseMemory
 from autochain.tools.base import Tool
+from autochain.tools.parallel_search import search_conversation
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -90,7 +91,8 @@ class BaseChain(BaseModel, ABC):
         inputs = self.prep_inputs(user_query)
         logger.info(f"\n Input to agent: {inputs}")
         try:
-            output = self._run(inputs)
+            with search_conversation(self.memory):
+                output = self._run(inputs)
         except (KeyboardInterrupt, Exception) as e:
             raise e
 

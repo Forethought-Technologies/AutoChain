@@ -19,6 +19,7 @@ from autochain.agent.prompt_formatter import JSONPromptTemplate
 from autochain.agent.structs import AgentAction, AgentFinish
 from autochain.models.base import BaseLanguageModel, Generation
 from autochain.tools.base import Tool
+from autochain.tools.parallel_search import parallel_search_tools
 from autochain.utils import print_with_color
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class ConversationalAgent(BaseAgent):
         **kwargs: Any,
     ) -> ConversationalAgent:
         """Construct an agent from an LLM and tools."""
-        tools = tools or []
+        tools = parallel_search_tools() if tools is None else tools
 
         template = cls.get_prompt_template(
             template=prompt_template,

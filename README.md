@@ -103,6 +103,10 @@ chain = Chain(agent=agent, memory=memory)
 print(chain.run("Write me a poem about AI")['message'])
 ```
 
+Omitting `tools` enables keyless Parallel web search and page fetching. Pass
+`tools=[]` to disable tools, or supply your own list to keep full control of web
+access. See [tool setup and privacy](./docs/tool.md#parallel-web-search-and-page-fetching).
+
 Just like in LangChain, you can add a list of tools to the agent
 
 ```python

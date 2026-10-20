@@ -66,6 +66,7 @@ class LongTermMemory(BaseMemory):
 
     def clear(self) -> None:
         """Clear memory contents."""
+        self.reset_conversation_id()
         self.conversation_history.clear()
         self.long_term_memory.clear_index()
         self.kv_memory = {}

@@ -1,5 +1,6 @@
 import pickle
 from typing import Any, Optional, Dict
+from uuid import UUID
 
 from autochain.agent.message import (
     ChatMessageHistory,
@@ -51,6 +52,21 @@ class RedisMemory(BaseMemory):
         pickled = pickle.dumps(value)
         self.redis_client.set(key, pickled, ex=self.expire_time)
 
+    def get_conversation_id(self) -> str:
+        """Persist typed metadata independently of pickled conversation contents."""
+        key = self.redis_key_prefix + ":_autochain_conversation_id"
+        saved = self.redis_client.get(key)
+        try:
+            if isinstance(saved, bytes):
+                saved = saved.decode("ascii")
+            if not isinstance(saved, str):
+                raise ValueError("Missing conversation identity")
+            self.conversation_id = UUID(saved)
+        except (ValueError, UnicodeError):
+            pass
+        self.redis_client.set(key, str(self.conversation_id), ex=self.expire_time)
+        return str(self.conversation_id)
+
     def save_conversation(
         self, message: str, message_type: MessageType, **kwargs
     ) -> None:
@@ -77,3 +93,4 @@ class RedisMemory(BaseMemory):
         """Clear redis memory."""
         for key in self.redis_client.keys(f"{self.redis_key_prefix}:*"):
             self.redis_client.delete(key)
+        self.reset_conversation_id()

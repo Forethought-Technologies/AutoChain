@@ -8,14 +8,26 @@ from typing import (
     Optional,
     Union,
 )
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from autochain.agent.message import ChatMessageHistory, MessageType
 
 
 class BaseMemory(BaseModel, ABC):
     """Base interface for memory in chains."""
+
+    conversation_id: UUID = Field(default_factory=uuid4)
+    """Opaque conversation metadata, separate from retrievable user memories."""
+
+    def get_conversation_id(self) -> str:
+        """Return conversation identity without semantic retrieval."""
+        return str(self.conversation_id)
+
+    def reset_conversation_id(self) -> None:
+        """Start a fresh identity. Custom memory implementations call this in clear()."""
+        self.conversation_id = uuid4()
 
     @abstractmethod
     def load_memory(

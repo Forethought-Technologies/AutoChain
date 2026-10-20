@@ -102,7 +102,7 @@ class Tool(ABC, BaseModel):
         try:
             tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
             tool_output = self._run(*tool_args, **tool_kwargs)
-        except (Exception, KeyboardInterrupt) as e:
+        except Exception as e:
             raise ToolRunningError(
                 message=f"Failed to run tool {self.name} due to {e}"
             ) from e
